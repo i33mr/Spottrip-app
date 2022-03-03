@@ -21,11 +21,10 @@ const SignupDoneScreen = ({ navigation }) => {
       />
       <View style={styles.innerContainer}>
         <Text h2 style={styles.innerHeader}>
-          You’re ready to go!
+          You're ready to go!
         </Text>
         <Text style={styles.innerDesc}>
-          We have finished setting up your Spottrip account , Just confirm your email to get
-          started!
+          We have finished setting up your Spottrip account. Just confirm your email to get started!
         </Text>
         <View style={{ flex: 1 }} />
         <Button

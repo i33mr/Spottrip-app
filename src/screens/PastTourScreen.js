@@ -50,7 +50,7 @@ const PastTourScreen = ({ navigation }) => {
             titleStyle={{ fontSize: 22, fontWeight: "bold" }}
             onPress={() => {
               toggleModal();
-              navigation.navigate("TourManualCreate");
+              navigation.navigate("TourOverview");
             }}
           />
         </View>
@@ -206,7 +206,7 @@ const PastTourScreen = ({ navigation }) => {
           buttonStyle={[styles.buttonStyle, { borderColor: "#229186", borderWidth: 1 }]}
           titleStyle={{ color: "#229186", fontWeight: "bold" }}
           onPress={toggleModal}
-          // onPress={() => navigation.navigate("TourManualCreate")}
+          // onPress={() => navigation.navigate("TourOverview")}
           type="outline"
         />
       </ScrollView>

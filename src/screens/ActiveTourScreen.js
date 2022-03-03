@@ -8,6 +8,7 @@ import { EvilIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 
 const ActiveTourScreen = ({ navigation }) => {
+  const tourId = navigation.getParam("_id");
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>

@@ -1,19 +1,138 @@
-import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  RefreshControl,
+  Modal as RNModal,
+} from "react-native";
 import { Button, Text, Input } from "react-native-elements";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import Magic_icon from "../../assets/images/magic.svg";
 import Pointer_icon from "../../assets/images/pointer.svg";
+import { Context as InvitesContext } from "../context/InvitesContext";
+import { NavigationEvents } from "react-navigation";
+import spottripAPI from "../api/spottripAPI";
+import TourInvite from "../components/TourInvite";
+import Modal from "react-native-modal";
+
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const TourCreateScreen = ({ navigation }) => {
+  const { state, fetchInvites, sendTourInvite, clearInviteMessage, removeInvite } =
+    useContext(InvitesContext);
+
+  const tourTitle = navigation.getParam("tourTitle");
+
   const [isAddFriendFormVisible, setIsAddFriendFormVisible] = useState(false);
   const [isShowFriends, setIsShowFriends] = useState(false);
+  const [friendUsername, setFriendUsername] = useState("");
+  const [tourId, setTourId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [invites, setInvites] = useState([]);
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  useEffect(async () => {
+    if (navigation.getParam("newTour")) {
+      try {
+        const response = await spottripAPI.post(`/v1/tours`, { title: tourTitle });
+
+        setTourId(response.data.data.tour._id);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      setTourId(navigation.getParam("_id"));
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (tourId !== null) {
+      fetchInvites(tourId);
+    }
+  }, [tourId]);
+
+  useEffect(() => {
+    // console.log("Setting invites");
+    setInvites(state.invites);
+  }, [state.invites]);
+
+  const sendInvite = async () => {
+    setIsSending(true);
+    await sendTourInvite(tourId, friendUsername);
+    setIsSending(false);
+  };
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchInvites(tourId);
+
+    setRefreshing(false);
+  };
+
+  const toggleModal = async () => {
+    if (!isModalVisible) await fetchInvites(tourId);
+    setModalVisible(!isModalVisible);
+  };
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <NavigationEvents onWillFocus={clearInviteMessage} />
+      <Modal isVisible={isModalVisible} avoidKeyboard={true}>
+        <View style={styles.modalStyle}>
+          <Button
+            icon={<MaterialCommunityIcons name="close-thick" size={36} color="#FFF" />}
+            iconPosition="left"
+            onPress={toggleModal}
+            type="clear"
+            style={{ width: 50 }}
+          />
+
+          <Text style={styles.modalTextStyle}>
+            {`The following friends' will be considered in the tour generation (accepted invite): `}
+          </Text>
+
+          {invites.map((invite) => {
+            if (invite.status === "Accepted")
+              return (
+                <Text
+                  style={{
+                    color: "#229186",
+                    alignSelf: "center",
+                    fontWeight: "bold",
+                    fontSize: 18,
+                    marginVertical: 10,
+                  }}
+                  key={invite.invitee._id}
+                >
+                  {invite.invitee.username}
+                </Text>
+              );
+          })}
+
+          <Button
+            title="Continue"
+            buttonStyle={[styles.modalButtonStyle]}
+            titleStyle={{ fontSize: 22, fontWeight: "bold" }}
+            onPress={() => {
+              {
+                newTourTitle ? createNewTour() : setNewTourTitleError("Tour title cannot be empty");
+              }
+            }}
+          />
+        </View>
+      </Modal>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.addFriendView}>
           <Button
             title="Add Friend"
@@ -24,17 +143,34 @@ const TourCreateScreen = ({ navigation }) => {
           />
           {isAddFriendFormVisible ? (
             <View style={styles.addFriendForm}>
+              <Text
+                style={{ color: "#FFF", paddingHorizontal: 10, fontWeight: "bold", fontSize: 18 }}
+              >
+                Enter Your Friend's Username
+              </Text>
+              {state.inviteMsg ? (
+                <Text style={state.inviteMsg.code === 200 ? styles.success : styles.error}>
+                  {state.inviteMsg.msg}
+                </Text>
+              ) : null}
               <Input
-                label="Enter Your Friend’s Username"
+                // label="Enter Your Friend’s Username"
                 inputStyle={styles.usernameInputStyle}
                 inputContainerStyle={{ borderBottomWidth: 0 }}
                 // style={{ marginTop: 15 }}
                 labelStyle={{ color: "#FFF" }}
+                value={friendUsername}
+                onChangeText={setFriendUsername}
               />
               <Button
                 title="Send Invite"
                 buttonStyle={styles.inviteButtonStyle}
                 titleStyle={{ fontSize: 20, fontWeight: "600" }}
+                onPress={sendInvite}
+                loading={isSending ? true : false}
+                disabled={isSending ? true : false}
+                disabledStyle={{ backgroundColor: "#229186" }}
+                // loading
               />
             </View>
           ) : null}
@@ -65,66 +201,9 @@ const TourCreateScreen = ({ navigation }) => {
         />
         {isShowFriends ? (
           <View style={styles.showFriendsView}>
-            <View style={styles.friendView}>
-              <Image
-                style={styles.friendImg}
-                source={require("../../assets/images/avatars/avatar1.png")}
-              />
-              <View style={styles.friendDetali}>
-                <Text h4 style={styles.friendDetaliText}>
-                  David Spencer
-                </Text>
-                <Text style={styles.friendDetaliText}>6avid77</Text>
-                <Text style={[styles.friendDetaliText, { color: "#229186" }]}>Approved</Text>
-              </View>
-              <TouchableOpacity
-                style={{
-                  position: "absolute",
-                  bottom: 10,
-                  right: 10,
-                }}
-              >
-                <View
-                  style={{
-                    backgroundColor: "#E71D36",
-                    padding: 5,
-                    borderRadius: 50,
-                  }}
-                >
-                  <MaterialCommunityIcons name="close-thick" size={36} color="#FFF" />
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.friendView}>
-              <Image
-                style={styles.friendImg}
-                source={require("../../assets/images/avatars/avatar2.png")}
-              />
-              <View style={styles.friendDetali}>
-                <Text h4 style={styles.friendDetaliText}>
-                  Pamela Fuller
-                </Text>
-                <Text style={styles.friendDetaliText}>pam002</Text>
-                <Text style={[styles.friendDetaliText, { color: "#FF9F1C" }]}>Pending</Text>
-              </View>
-              <TouchableOpacity
-                style={{
-                  position: "absolute",
-                  bottom: 10,
-                  right: 10,
-                }}
-              >
-                <View
-                  style={{
-                    backgroundColor: "#E71D36",
-                    padding: 5,
-                    borderRadius: 50,
-                  }}
-                >
-                  <MaterialCommunityIcons name="close-thick" size={36} color="#FFF" />
-                </View>
-              </TouchableOpacity>
-            </View>
+            {invites.map((invite) => {
+              return <TourInvite invite={invite} key={invite._id} removeInvite={removeInvite} />;
+            })}
           </View>
         ) : null}
         <View
@@ -140,17 +219,31 @@ const TourCreateScreen = ({ navigation }) => {
             title="Generate Based on Preferences"
             buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
             titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-            onPress={() => navigation.navigate("TourAutoGenerate")}
+            // onPress={() => navigation.navigate("TourSettings")}
+            onPress={toggleModal}
           />
           <Button
             icon={<Pointer_icon fill="#FDFFFC" />}
             title="Manually Select Attractions"
             buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
             titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-            onPress={() => navigation.navigate("TourManualCreate")}
+            onPress={() =>
+              navigation.navigate("TourSettings", {
+                method: "manual",
+                _id: tourId,
+                tourTitle: tourTitle,
+              })
+            }
           />
         </View>
       </ScrollView>
+      {isLoading || state.isLoading ? (
+        <RNModal animationType="none" transparent={true} visible={true}>
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color="#FF9F1C" />
+          </View>
+        </RNModal>
+      ) : null}
     </View>
   );
 };
@@ -220,11 +313,22 @@ const styles = StyleSheet.create({
     // height: "100%",
     // width: "28%",
   },
-  friendDetaliText: {
+  friendDetailText: {
     color: "#FFF",
     fontWeight: "500",
     marginTop: 5,
   },
+  inviteStatusApproved: {
+    color: "#229186",
+    fontWeight: "500",
+    marginTop: 5,
+  },
+  inviteStatusPending: {
+    color: "#FF9F1C",
+    fontWeight: "500",
+    marginTop: 5,
+  },
+
   buttonStyle: {
     // paddingHorizontal: 5,
     width: 170,
@@ -239,11 +343,60 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     // alignItems: "center",
   },
+  loading: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(220,220,220,0.4)",
+  },
+  error: {
+    color: "#E71D36",
+    paddingHorizontal: 10,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  success: {
+    color: "#229186",
+    paddingHorizontal: 10,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  modalStyle: {
+    backgroundColor: "#011627",
+    borderRadius: 15,
+    // flex:1
+  },
+  modalTextStyle: {
+    color: "#FFF",
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 20,
+  },
+  modalInputStyle: {
+    paddingVertical: 15,
+    borderRadius: 50,
+    paddingHorizontal: 10,
+    backgroundColor: "#FFF",
+    marginVertical: 20,
+  },
+  modalButtonStyle: {
+    marginHorizontal: 50,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 50,
+    backgroundColor: "#229186",
+    marginBottom: 20,
+  },
 });
 
-TourCreateScreen.navigationOptions = () => {
+TourCreateScreen.navigationOptions = ({ navigation }) => {
   return {
-    title: "Tour Title",
+    title: navigation.getParam("tourTitle"),
     headerBackTitle: " ",
   };
 };

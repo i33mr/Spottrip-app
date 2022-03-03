@@ -12,25 +12,30 @@ import SignupPersonalInfoScreen from "./src/screens/SignupPersonalInfoScreen";
 import SignupChoosePreferencesScreen from "./src/screens/SignupChoosePreferencesScreen";
 import SignupDoneScreen from "./src/screens/SignupDoneScreen";
 import HomeScreen from "./src/screens/HomeScreen";
+import SearchResultsScreen from "./src/screens/SearchResultsScreen";
 import AttractionDetailScreen from "./src/screens/AttractionDetailScreen";
 import TourCreateScreen from "./src/screens/TourCreateScreen";
-import TourAutoGenerateScreen from "./src/screens/TourAutoGenerateScreen";
-import TourManualCreateScreen from "./src/screens/TourManualCreateScreen";
+// import TourDraftScreen from "./src/screens/TourDraftScreen";
 import TourSettingsScreen from "./src/screens/TourSettingsScreen";
+import TourOverviewScreen from "./src/screens/TourOverviewScreen";
+// import TourSettingsScreen from "./src/screens/TourSettingsScreen";
 import ActiveTourScreen from "./src/screens/ActiveTourScreen";
 import TourListScreen from "./src/screens/TourListScreen";
 import PastTourScreen from "./src/screens/PastTourScreen";
 import TourAddAttractionScreen from "./src/screens/TourAddAttractionScreen";
 import InvitesScreen from "./src/screens/InvitesScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
-// import Explore_icon from "../assets/images/tab-bar/Explore.svg";
 
 import { Provider as AuthProvider } from "./src/context/AuthContext";
+import { Provider as AttractionProvider } from "./src/context/AttractionContext";
+import { Provider as TourProvider } from "./src/context/TourContext";
+import { Provider as InviteProvider } from "./src/context/InvitesContext";
 import { setNavigator } from "./src/navigationRef";
 
 const exploreFlow = createStackNavigator({
   Home: HomeScreen,
   AttractionDetail: AttractionDetailScreen,
+  SearchResults: SearchResultsScreen,
 });
 
 exploreFlow.navigationOptions = () => {
@@ -45,8 +50,7 @@ exploreFlow.navigationOptions = () => {
 const tourFlow = createStackNavigator({
   TourList: TourListScreen,
   TourCreate: TourCreateScreen,
-  TourAutoGenerate: TourAutoGenerateScreen,
-  TourManualCreate: TourManualCreateScreen,
+  TourOverview: TourOverviewScreen,
   TourSettings: TourSettingsScreen,
   TourAddAttraction: TourAddAttractionScreen,
   ActiveTour: ActiveTourScreen,
@@ -88,6 +92,7 @@ const switchNavigator = createSwitchNavigator(
             backgroundColor: "#011627", // TabBar background
           },
         },
+        resetOnBlur: true,
       }
     ),
   }
@@ -100,12 +105,18 @@ const App = createAppContainer(switchNavigator);
 
 export default () => {
   return (
-    <AuthProvider>
-      <App
-        ref={(navigator) => {
-          setNavigator(navigator);
-        }}
-      />
-    </AuthProvider>
+    <InviteProvider>
+      <TourProvider>
+        <AttractionProvider>
+          <AuthProvider>
+            <App
+              ref={(navigator) => {
+                setNavigator(navigator);
+              }}
+            />
+          </AuthProvider>
+        </AttractionProvider>
+      </TourProvider>
+    </InviteProvider>
   );
 };

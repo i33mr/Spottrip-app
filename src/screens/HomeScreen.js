@@ -1,18 +1,67 @@
-import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, FlatList, Image, ScrollView } from "react-native";
-import { SearchBar, Button, Text, Icon, Input } from "react-native-elements";
-import { Octicons } from "@expo/vector-icons";
+import React, { useContext, useEffect, useState } from "react";
+import { View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import { Button, Text, Input } from "react-native-elements";
+// import _mockLocation from "../_mockLocation"; // only for testing, don't include in deployment
+
+import { Context as AttractionContext } from "../context/AttractionContext";
+import { MaterialIcons } from "@expo/vector-icons";
+
 import Modal from "react-native-modal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const HomeScreen = ({ navigation }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+import AttractionTile from "../components/AttractionTile";
+import HomeScreenHeader from "../components/HomeScreenHeader";
+import FloatingButton from "../components/FloatingButton";
 
-  const [isPrefPressed, setIsPrefPressed] = useState(true);
-  const [isParksPressed, setIsParksPressed] = useState(false);
-  const [isWaterPressed, setIsWaterPressed] = useState(false);
+import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
+
+const HomeScreen = ({ navigation }) => {
+  const { state } = useContext(AttractionContext);
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const [locationErr, setLocationErr] = useState(null);
+  const [longitudeLatitude, setLongitudeLatitude] = useState("");
+  const [newTourTitle, setNewTourTitle] = useState("");
+  const [newTourTitleError, setNewTourTitleError] = useState("");
+
+  const startWatchingLocation = async () => {
+    try {
+      const { granted } = await requestForegroundPermissionsAsync();
+      // How accurate the location is, timeInterval is checking the location every 1 second, distanceInterval checks every 10 meters
+      await watchPositionAsync(
+        {
+          accuracy: Accuracy.BestForNavigation,
+          // timeInterval: 100000,
+          distanceInterval: 100,
+        },
+        (location) => {
+          // console.log(location);
+          // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
+          setLongitudeLatitude(`101.711309,3.15887`);
+          // console.log(longitudeLatitude);
+        }
+      );
+      if (!granted) {
+        throw new Error("Location permission not granted");
+      }
+    } catch (e) {
+      setLocationErr(e);
+    }
+  };
+
+  useEffect(() => {
+    // console.log("KEKW");
+    startWatchingLocation();
+  }, []);
+
+  const createNewTour = () => {
+    toggleModal();
+
+    navigation.navigate("TourCreate", { tourTitle: newTourTitle, newTour: true });
+
+    setNewTourTitle("");
+    setNewTourTitleError("");
+  };
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -30,11 +79,20 @@ const HomeScreen = ({ navigation }) => {
             style={{ width: 50 }}
           />
           <Text style={styles.modalTextStyle}>Enter Tour Title</Text>
+          {newTourTitleError ? (
+            <Text
+              style={{ color: "#E71D36", marginTop: 15, alignSelf: "center", fontWeight: "bold" }}
+            >
+              {newTourTitleError}
+            </Text>
+          ) : null}
 
           <Input
             inputStyle={styles.modalInputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             style={{ marginBottom: 0 }}
+            value={newTourTitle}
+            onChangeText={setNewTourTitle}
           />
           {/* <Button title="Create New Tour" onPress={toggleModal} /> */}
           <Button
@@ -42,144 +100,66 @@ const HomeScreen = ({ navigation }) => {
             buttonStyle={[styles.modalButtonStyle]}
             titleStyle={{ fontSize: 22, fontWeight: "bold" }}
             onPress={() => {
-              toggleModal();
-              navigation.navigate("TourCreate");
+              {
+                newTourTitle ? createNewTour() : setNewTourTitleError("Tour title cannot be empty");
+              }
             }}
           />
         </View>
       </Modal>
-      <ScrollView>
-        <SearchBar
-          containerStyle={styles.searchContainer}
-          inputContainerStyle={{ backgroundColor: "white" }}
-          leftIconContainerStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
-          inputStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
-          placeholder="Explore Attractions..."
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-          returnKeyType={"search"}
-          raised
-        />
-
-        <View style={{ marginTop: 10 }}>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={[
-              {
-                item: (
-                  <Button
-                    buttonStyle={isPrefPressed ? styles.buttonStylePressed : styles.buttonStyle}
-                    onPress={() => {
-                      setIsPrefPressed(!isPrefPressed);
-                    }}
-                    title="Your preferences"
-                    titleStyle={{ fontWeight: "bold" }}
-                  />
-                ),
-                key: 1,
-              },
-              {
-                item: (
-                  <Button
-                    buttonStyle={isParksPressed ? styles.buttonStylePressed : styles.buttonStyle}
-                    onPress={() => {
-                      setIsParksPressed(!isParksPressed);
-                    }}
-                    title="Parks"
-                    titleStyle={{ fontWeight: "bold" }}
-                  />
-                ),
-                key: 2,
-              },
-              {
-                item: (
-                  <Button
-                    buttonStyle={isWaterPressed ? styles.buttonStylePressed : styles.buttonStyle}
-                    onPress={() => {
-                      setIsWaterPressed(!isWaterPressed);
-                    }}
-                    title="Waterfalls"
-                    titleStyle={{ fontWeight: "bold" }}
-                  />
-                ),
-                key: 3,
-              },
-            ]}
-            renderItem={({ item }) => item.item}
+      {locationErr ? (
+        // <Text>Please Enable location services</Text>
+        <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 60 }}>
+          <MaterialIcons
+            name="wrong-location"
+            size={200}
+            color="#E71D36"
+            // style={{ alignSelf: "center" }}
           />
+          <Text style={{ color: "#E71D36", fontSize: 24 }}>Please enable location services</Text>
         </View>
-        <View style={styles.attractionsList}>
-          <TouchableOpacity
-            style={styles.attractionItem}
-            onPress={() => navigation.navigate("AttractionDetail")}
-          >
-            <Image
-              style={styles.attractionImg}
-              source={require("../../assets/images/attractions/batu-caves1.jpg")}
-            />
-            <View style={styles.attractionDetail}>
-              <View style={{ flexDirection: "row" }}>
-                <Text>Historical</Text>
-                <Octicons name="primitive-dot" style={styles.dotStyle} />
-                <Text>2 hours</Text>
-                <Octicons name="primitive-dot" style={styles.dotStyle} />
-                <Text>3 km</Text>
-              </View>
-              <Text h3 style={styles.attractionTitle}>
-                Batu Caves
-              </Text>
+      ) : (
+        <>
+          {/* {console.log(longitudeLatitude)} */}
+          {!longitudeLatitude ? (
+            <View style={styles.loading}>
+              <ActivityIndicator size="large" color="#FF9F1C" />
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.attractionItem}>
-            <Image
-              style={styles.attractionImg}
-              source={require("../../assets/images/attractions/Kepong-Metropolitan-Park.png")}
-            />
-            <View style={styles.attractionDetail}>
-              <View style={{ flexDirection: "row" }}>
-                <Text>Parks</Text>
-                <Octicons name="primitive-dot" style={styles.dotStyle} />
-                <Text>3 hours</Text>
-                <Octicons name="primitive-dot" style={styles.dotStyle} />
-                <Text>4 km</Text>
-              </View>
-              <Text h3 style={styles.attractionTitle}>
-                Kepong Metropolitan Park
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.attractionItem}>
-            <Image
-              style={styles.attractionImg}
-              source={require("../../assets/images/attractions/Taman-Tasik-Cempaka.png")}
-            />
-            <View style={styles.attractionDetail}>
-              <View style={{ flexDirection: "row" }}>
-                <Text>Park</Text>
-                <Octicons name="primitive-dot" style={styles.dotStyle} />
-                <Text>2 hours</Text>
-                <Octicons name="primitive-dot" style={styles.dotStyle} />
-                <Text>5 km</Text>
-              </View>
-              <Text h3 style={styles.attractionTitle}>
-                Taman Tasik Cempaka
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-      <View activeOpacity={0.5} style={styles.floatingViewStyle}>
-        <Button
-          onPress={toggleModal}
-          buttonStyle={styles.floatingButtonStyle}
-          titleStyle={{ fontWeight: "500", fontSize: 24 }}
-          icon={
-            <Icon name="map" type="Feather" size={25} color="#FFF" style={{ marginRight: 5 }} />
-          }
-          title="Create New Tour"
-        />
-      </View>
+          ) : (
+            <>
+              <FlatList
+                style={styles.attractionsList}
+                data={state.attractions}
+                keyExtractor={(item) => item._id}
+                renderItem={({ item, index }) => {
+                  return (
+                    <AttractionTile
+                      attractionName={item.name}
+                      category={item.category}
+                      imageCover={item.imageCover}
+                      time={item.time}
+                      distance={item.distance}
+                      navigation={navigation}
+                      Id={item._id}
+                    />
+                  );
+                }}
+                ListHeaderComponent={
+                  <HomeScreenHeader navigation={navigation} longitudeLatitude={longitudeLatitude} />
+                }
+                ListFooterComponent={<View style={{ height: 70 }}></View>}
+              />
+              <FloatingButton toggleModal={toggleModal} />
+
+              {state.isLoading ? (
+                <View style={styles.loading}>
+                  <ActivityIndicator size="large" color="#FF9F1C" />
+                </View>
+              ) : null}
+            </>
+          )}
+        </>
+      )}
     </View>
   );
 };
@@ -196,6 +176,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     flexDirection: "column",
     flex: 1,
+    // marginBottom: 70,
   },
   searchContainer: {
     marginTop: 30,
@@ -231,9 +212,8 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   },
   attractionsList: {
-    marginTop: 20,
-    marginHorizontal: 10,
-    marginBottom: 70,
+    // marginTop: 20,
+    // paddingBottom: 70,
   },
   attractionItem: {
     height: 200,
@@ -299,6 +279,16 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     backgroundColor: "#229186",
     marginBottom: 20,
+  },
+  loading: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(220,220,220,0.4)",
   },
 });
 

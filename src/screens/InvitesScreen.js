@@ -61,7 +61,7 @@ const InvitesScreen = () => {
           />
           <View style={styles.inviteDetail}>
             <Text h4 style={[styles.inviteDetailText, { fontWeight: "bold" }]}>
-              One Day at the Coast
+              One Day at the Coast dsf sdf fs sf
             </Text>
             <Text style={styles.inviteDetailText}>By: Ross Geller</Text>
             <View style={styles.buttonGroup}>
