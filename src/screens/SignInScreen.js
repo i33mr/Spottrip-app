@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -11,12 +11,65 @@ import Google_icon from "../../assets/images/google-icon.svg";
 import { Context as AuthContext } from "../context/AuthContext";
 import { NavigationEvents } from "react-navigation";
 import { ScrollView } from "react-native-gesture-handler";
+import * as Notifications from "expo-notifications";
 
 const SignInScreen = ({ navigation }) => {
   const { state, signIn, clearErrorMessage } = useContext(AuthContext);
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [expoPushToken, setExpoPushToken] = useState("");
   // const [showIndicator, setShowIndicator] = useState(false);
+
+  const registerForPushNotificationsAsync = async () => {
+    let token;
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    return token;
+  };
+
+  useEffect(async () => {
+    const token = await registerForPushNotificationsAsync();
+    setExpoPushToken(token);
+    // console.log(Notification);
+    // Notification.setNotificationToken(token);
+    // Notification.addLocalNotification();
+    // console.log(await Notifications.getAllScheduledNotificationsAsync());
+
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    // notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+    //   setNotification(notification);
+    // });
+
+    // // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+    // responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+    //   console.log(response);
+    // });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   const passwordRef = useRef();
   return (
@@ -80,7 +133,7 @@ const SignInScreen = ({ navigation }) => {
             //   navigation.navigate("Home");
             // }}
             onPress={() => {
-              signIn({ emailOrUsername, password });
+              signIn({ emailOrUsername, password, expoPushToken });
               // setShowIndicator(true);
             }}
           />

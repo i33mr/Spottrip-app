@@ -21,7 +21,7 @@ import Modal from "react-native-modal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const TourCreateScreen = ({ navigation }) => {
-  const { state, fetchInvites, sendTourInvite, clearInviteMessage, removeInvite } =
+  const { state, fetchTourInvites, sendTourInvite, clearInviteMessage, removeInvite } =
     useContext(InvitesContext);
 
   const tourTitle = navigation.getParam("tourTitle");
@@ -53,7 +53,7 @@ const TourCreateScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (tourId !== null) {
-      fetchInvites(tourId);
+      fetchTourInvites(tourId);
     }
   }, [tourId]);
 
@@ -72,13 +72,13 @@ const TourCreateScreen = ({ navigation }) => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchInvites(tourId);
+    fetchTourInvites(tourId);
 
     setRefreshing(false);
   };
 
   const toggleModal = async () => {
-    if (!isModalVisible) await fetchInvites(tourId);
+    if (!isModalVisible) await fetchTourInvites(tourId);
     setModalVisible(!isModalVisible);
   };
 
@@ -220,7 +220,16 @@ const TourCreateScreen = ({ navigation }) => {
             buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
             titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
             // onPress={() => navigation.navigate("TourSettings")}
-            onPress={toggleModal}
+            onPress={
+              invites.length
+                ? toggleModal
+                : () =>
+                    navigation.navigate("TourSettings", {
+                      method: "generate",
+                      _id: tourId,
+                      tourTitle: tourTitle,
+                    })
+            }
           />
           <Button
             icon={<Pointer_icon fill="#FDFFFC" />}

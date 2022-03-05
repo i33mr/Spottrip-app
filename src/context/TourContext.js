@@ -11,27 +11,29 @@ const tourReducer = (state, action) => {
       return { ...state, tour: action.payload };
     case "clear_tour":
       return { ...state, tour: null };
-    // case "remove_attraction": {
-    //   // console.log(action.payload);
-    //   // state.tour.attractions.forEach((element) => {
-    //   //   console.log(element._id._id);
-    //   // });
-    //   return {
-    //     ...state,
-    //     tour: {
-    //       ...state.tour,
-    //       attractions: state.tour.attractions.filter(
-    //         (attraction) => attraction._id._id !== action.payload
-    //       ),
-    //     },
-    //   };
-    // }
+    case "update_tours":
+      // console.log(action.payload);
+      // state.tour.attractions.forEach((element) => {
+      //   console.log(element._id._id);
+      // });
+      return {
+        ...state,
+        tours: state.tours.map((tour) => {
+          // console.log(tour);
+          if (tour._id !== action.payload._id) return tour;
+          else {
+            return action.payload;
+          }
+        }),
+      };
+
     default:
       return state;
   }
 };
 
 const fetchTours = (dispatch) => async () => {
+  console.log("Fetching tours");
   dispatch({ type: "loading", payload: true });
   try {
     const response = await spottripAPI.get(`/v1/tours`);
@@ -45,7 +47,7 @@ const fetchTours = (dispatch) => async () => {
   }
 };
 
-const setManualTourSettings = (dispatch) => async (tourId, tourSettings) => {
+const setManualTourSettings = (dispatch) => async (tourId, tourSettings, setTour) => {
   // console.log(tourId);
   // console.log(tourSettings);
   dispatch({ type: "loading", payload: true });
@@ -53,7 +55,31 @@ const setManualTourSettings = (dispatch) => async (tourId, tourSettings) => {
     const response = await spottripAPI.patch(`v1/tours/${tourId}`, tourSettings);
 
     // console.log("setManualTourSettings", response.data.data.tour);
-    dispatch({ type: "set_tour", payload: response.data.data.tour });
+    // dispatch({ type: "set_tour", payload: response.data.data.tour });
+    if (setTour) dispatch({ type: "set_tour", payload: response.data.data.tour });
+
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    console.log(error.response.data.message);
+
+    dispatch({ type: "loading", payload: false });
+  }
+};
+
+const generateTour = (dispatch) => async (tourId, longitudeLatitude, tourSettings, setTour) => {
+  dispatch({ type: "loading", payload: true });
+  const km = 100;
+
+  try {
+    const response = await spottripAPI.patch(
+      `v1/tours/${tourId}/attractions-within/${km}/center/${longitudeLatitude}`,
+      tourSettings
+    );
+
+    // const responseTour = await spottripAPI.get(`v1/tours/${tourId}`);
+    // console.log("generateTour", responseTour.data.data);
+    // if (setTour) dispatch({ type: "set_tour", payload: responseTour.data.data.tour });
+    if (setTour) dispatch({ type: "set_tour", payload: response.data.data.tour });
     dispatch({ type: "loading", payload: false });
   } catch (error) {
     console.log(error.response.data.message);
@@ -118,12 +144,52 @@ const addAttractions = (dispatch) => async (tourId, attractionsToAdd) => {
   }
 };
 
+const updateTourStatus = (dispatch) => async (tourId, status) => {
+  dispatch({ type: "loading", payload: true });
+  try {
+    const obj = {
+      status: status,
+    };
+    if (status === "Active") {
+      obj.startTime = Date.now();
+    }
+    const response = await spottripAPI.patch(`/v1/tours/${tourId}`, { ...obj });
+    dispatch({ type: "update_tours", payload: response.data.data.tour });
+    // console.log();
+
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    console.log(error.response.data.message);
+    dispatch({ type: "loading", payload: false });
+    throw new Error("Error");
+  }
+};
+
 const clearTour = (dispatch) => () => {
   dispatch({ type: "clear_tour" });
 };
 
+const startLoading = (dispatch) => () => {
+  dispatch({ type: "loading", payload: true });
+};
+
+const stopLoading = (dispatch) => () => {
+  dispatch({ type: "loading", payload: false });
+};
+
 export const { Provider, Context } = createDataContext(
   tourReducer,
-  { fetchTours, setManualTourSettings, getTour, removeAttraction, clearTour, addAttractions },
+  {
+    fetchTours,
+    setManualTourSettings,
+    getTour,
+    removeAttraction,
+    clearTour,
+    addAttractions,
+    generateTour,
+    updateTourStatus,
+    startLoading,
+    stopLoading,
+  },
   { tours: [], isLoading: false, inviteMsg: null, tour: null }
 );

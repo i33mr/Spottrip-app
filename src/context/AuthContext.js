@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import createDataContext from "./createDataContext";
 import spottripApi from "../api/spottripAPI";
 import { navigate } from "../navigationRef";
+import * as Notifications from "expo-notifications";
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -87,7 +88,8 @@ const signUpPersonalInfo = (dispatch) => (userObj) => {
 
 // eslint-disable-next-line arrow-body-style
 const signIn = (dispatch) => {
-  return async ({ emailOrUsername, password }) => {
+  return async ({ emailOrUsername, password, expoPushToken }) => {
+    console.log("signin", expoPushToken);
     dispatch({ type: "loading", payload: true });
     // make api request to sign in with these email and password
     try {
@@ -95,6 +97,7 @@ const signIn = (dispatch) => {
       const response = await spottripApi.post("/v1/users/login", {
         emailOrUsername,
         password,
+        expoPushToken,
       });
       // if we sign in, modify the state to authenticated
       // console.log(response.data.data.token);
@@ -121,6 +124,8 @@ const signIn = (dispatch) => {
 const signOut = (dispatch) => {
   return async () => {
     // somehow signOut!
+    await spottripApi.post("/v1/users/logout");
+    await Notifications.cancelAllScheduledNotificationsAsync();
     await AsyncStorage.removeItem("token");
     dispatch({ type: "signOut" });
 

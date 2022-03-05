@@ -12,7 +12,7 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId }) => {
       <Image
         style={styles.attractionImg}
         // {...{ uri }}
-        uri={`http://8849-95-186-64-50.ngrok.io/img/attractions/${attraction.imageCover}`}
+        uri={`http://2f00-151-255-174-169.ngrok.io/img/attractions/${attraction._id.imageCover}`}
         preview={{
           uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         }}
@@ -20,18 +20,18 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId }) => {
 
       <View style={styles.attractionDetail}>
         <Text h4 style={styles.elementDetailText}>
-          {attraction.name}
+          {attraction._id.name}
         </Text>
         <View style={{ flexDirection: "column" }}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={styles.elementDetailText}>{attraction.category}</Text>
+            <Text style={styles.elementDetailText}>{attraction._id.category}</Text>
             <Octicons name="primitive-dot" style={styles.dotStyle} color="#FFF" />
-            <Text style={styles.elementDetailText}>{`${Math.floor(attraction.time / 60)}${
-              attraction.time % 60 != 0 ? `:${attraction.time % 60}` : ""
+            <Text style={styles.elementDetailText}>{`${Math.floor(attraction._id.time / 60)}${
+              attraction._id.time % 60 != 0 ? `:${attraction._id.time % 60}` : ""
             } hours`}</Text>
           </View>
 
-          <Text style={styles.elementDetailText}>fsjd</Text>
+          <Text style={styles.elementDetailText}>{attraction.addBy}</Text>
         </View>
       </View>
       <TouchableOpacity
@@ -40,7 +40,7 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId }) => {
           bottom: 10,
           right: 10,
         }}
-        onPress={() => removeAttraction(tourId, attraction._id)}
+        onPress={() => removeAttraction(tourId, attraction._id._id)}
       >
         <View
           style={{

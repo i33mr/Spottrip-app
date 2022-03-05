@@ -1,36 +1,64 @@
-import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, FlatList, Image, ScrollView } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  ScrollView,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import { SearchBar, Button, Text, Icon, Input } from "react-native-elements";
-
+import { NavigationEvents } from "react-navigation";
+import { Context as InvitesContext } from "../context/InvitesContext";
 const InvitesScreen = () => {
+  const { state, fetchUserInvites, respondToInvite } = useContext(InvitesContext);
+
+  // useEffect(async () => {
+  //   fetchUserInvites();
+  // }, []);
   return (
     <View style={styles.container}>
+      <NavigationEvents onWillFocus={fetchUserInvites} />
       <ScrollView>
-        <View style={styles.invite}>
-          <Image
-            style={styles.invitePic}
-            source={require("../../assets/images/avatars/person1.jpeg")}
-          />
-          <View style={styles.inviteDetail}>
-            <Text h4 style={[styles.inviteDetailText, { fontWeight: "bold" }]}>
-              Cyberjaya Visit
-            </Text>
-            <Text style={styles.inviteDetailText}>By: Janice Hosenstein</Text>
-            <View style={styles.buttonGroup}>
-              <Button
-                buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
-                title="Deny"
-                titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-              />
-              <Button
-                buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
-                title="Accept"
-                titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-              />
-            </View>
-          </View>
-        </View>
-        <View style={styles.invite}>
+        {state.userInvites.map((invite) => {
+          // console.log(invite);
+          if (invite.status === "Pending") {
+            return (
+              <View style={styles.invite} key={invite._id}>
+                <Image
+                  style={styles.invitePic}
+                  source={require("../../assets/images/avatars/person1.jpeg")}
+                />
+                <View style={styles.inviteDetail}>
+                  <Text h4 style={[styles.inviteDetailText, { fontWeight: "bold" }]}>
+                    {invite.tour.title}
+                  </Text>
+                  <Text
+                    style={styles.inviteDetailText}
+                  >{`By: ${invite.invitee.firstName} ${invite.invitee.lastName}`}</Text>
+                  <View style={styles.buttonGroup}>
+                    <Button
+                      buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
+                      title="Deny"
+                      titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
+                      onPress={() => respondToInvite(invite.tour._id, invite._id, "Rejected")}
+                    />
+                    <Button
+                      buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
+                      title="Accept"
+                      titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
+                      onPress={() => respondToInvite(invite.tour._id, invite._id, "Accepted")}
+                    />
+                  </View>
+                </View>
+              </View>
+            );
+          }
+        })}
+
+        {/* <View style={styles.invite}>
           <Image
             style={styles.invitePic}
             source={require("../../assets/images/avatars/person2.jpeg")}
@@ -77,8 +105,15 @@ const InvitesScreen = () => {
               />
             </View>
           </View>
-        </View>
+        </View> */}
       </ScrollView>
+      {state.isLoading ? (
+        <Modal animationType="none" transparent={true} visible={true}>
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color="#FF9F1C" />
+          </View>
+        </Modal>
+      ) : null}
     </View>
   );
 };
@@ -128,6 +163,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     // paddingHorizontal: 20,
     width: 100,
+  },
+  loading: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(220,220,220,0.4)",
   },
 });
 

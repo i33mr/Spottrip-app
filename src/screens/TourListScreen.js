@@ -6,10 +6,12 @@ import {
   ScrollView,
   ActivityIndicator,
   Modal,
+  RefreshControl,
 } from "react-native";
 import { SearchBar } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import { Context as TourContext } from "../context/TourContext";
+import { Context as NotificationContext } from "../context/NotificationContext";
 import { NavigationEvents } from "react-navigation";
 import TourTile from "../components/TourTile";
 
@@ -17,16 +19,37 @@ const TourListScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { state, fetchTours } = useContext(TourContext);
+  const Notification = useContext(NotificationContext);
+
+  // useEffect(() => {
+  //   fetchTours();
+  // }, []);
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    // fetchTourInvites(tourId);
+    fetchTours();
+    // fetchToursAndSetNotifications();
+
+    setRefreshing(false);
+  };
+
+  // const fetchToursAndSetNotifications = async () => {
+  //   await fetchTours();
+
+  // };
 
   useEffect(() => {
-    // console.log(forwardedSearchTerm);
-    // fetchTours();
-  }, []);
+    Notification.resetLocalNotifications(state.tours);
+    // Notification.getAllNotifications();
+  }, [state.tours]);
 
   return (
     <View style={styles.container}>
       <NavigationEvents onWillFocus={fetchTours} />
-      <ScrollView>
+      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View style={styles.customHeader}>
           <SearchBar
             containerStyle={styles.searchContainer}
@@ -45,16 +68,16 @@ const TourListScreen = ({ navigation }) => {
         </View>
         <View style={styles.toursList}>
           {state.tours.map((tour) => {
+            // console.log(tour);
             return <TourTile navigation={navigation} tour={tour} key={tour._id} />;
           })}
         </View>
       </ScrollView>
       {state.isLoading ? (
-        <Modal animationType="none" transparent={true} visible={true}>
-          <View style={styles.loading}>
-            <ActivityIndicator size="large" color="#FF9F1C" />
-          </View>
-        </Modal>
+        // <Modal animationType="none" transparent={true} visible={true}>
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color="#FF9F1C" />
+        </View>
       ) : null}
     </View>
   );

@@ -9,7 +9,7 @@ const TourSummaryBar = ({ tour }) => {
     <View style={styles.tourDetails}>
       <AntDesign name="clockcircle" size={24} color="#011627" />
       <Text style={styles.attractionDetailText}>
-        {`${Math.floor(tour.totalTime / 60)}${
+        {` ${Math.floor(tour.totalTime / 60)}${
           tour.totalTime % 60 < 10
             ? `:0${Math.floor(tour.totalTime % 60)}`
             : tour.totalTime % 60 > 10

@@ -30,6 +30,7 @@ import { Provider as AuthProvider } from "./src/context/AuthContext";
 import { Provider as AttractionProvider } from "./src/context/AttractionContext";
 import { Provider as TourProvider } from "./src/context/TourContext";
 import { Provider as InviteProvider } from "./src/context/InvitesContext";
+import { Provider as NotificationProvider } from "./src/context/NotificationContext";
 import { setNavigator } from "./src/navigationRef";
 
 const exploreFlow = createStackNavigator({
@@ -105,18 +106,20 @@ const App = createAppContainer(switchNavigator);
 
 export default () => {
   return (
-    <InviteProvider>
-      <TourProvider>
-        <AttractionProvider>
-          <AuthProvider>
-            <App
-              ref={(navigator) => {
-                setNavigator(navigator);
-              }}
-            />
-          </AuthProvider>
-        </AttractionProvider>
-      </TourProvider>
-    </InviteProvider>
+    <NotificationProvider>
+      <InviteProvider>
+        <TourProvider>
+          <AttractionProvider>
+            <AuthProvider>
+              <App
+                ref={(navigator) => {
+                  setNavigator(navigator);
+                }}
+              />
+            </AuthProvider>
+          </AttractionProvider>
+        </TourProvider>
+      </InviteProvider>
+    </NotificationProvider>
   );
 };

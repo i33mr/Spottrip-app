@@ -21,7 +21,7 @@ const AttractionTile = ({
       <Image
         style={styles.attractionImg}
         // {...{ uri }}
-        uri={`http://8849-95-186-64-50.ngrok.io/img/attractions/${imageCover}`}
+        uri={`http://2f00-151-255-174-169.ngrok.io/img/attractions/${imageCover}`}
         preview={{
           uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         }}
@@ -29,7 +29,7 @@ const AttractionTile = ({
       {/* <Image
         style={styles.attractionImg}
         // source={{
-        //   uri: `http://8849-95-186-64-50.ngrok.io/img/attractions/${imageCover}`,
+        //   uri: `http://2f00-151-255-174-169.ngrok.io/img/attractions/${imageCover}`,
         // }}
         {...{ uri }}
         // source={require("../../assets/images/attractions/batu-caves1.jpg")}

@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, ScrollView, View, ActivityIndicator, Modal } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  ActivityIndicator,
+  Modal,
+  KeyboardAvoidingView,
+} from "react-native";
 import { Button, Text, Input } from "react-native-elements";
 import { AntDesign } from "@expo/vector-icons";
 import Finish_icon from "../../assets/images/finish.svg";
@@ -7,13 +14,13 @@ import { Fontisto } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
 import { FontAwesome } from "@expo/vector-icons";
 import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
+// import { Picker } from "@react-native-picker/picker";
+import TimeField from "react-simple-timefield";
 
 import { Context as TourContext } from "../context/TourContext";
 
 import { StackActions } from "react-navigation";
-import { CommonActions } from "@react-navigation/native";
 import { NavigationActions } from "react-navigation";
-import FloatingButton from "../components/FloatingButton";
 
 const TourSettingsScreen = ({ navigation }) => {
   const creationMethod = navigation.getParam("method");
@@ -21,7 +28,7 @@ const TourSettingsScreen = ({ navigation }) => {
 
   const tourTitle = navigation.getParam("tourTitle");
 
-  const { state, setManualTourSettings } = useContext(TourContext);
+  const { state, setManualTourSettings, generateTour } = useContext(TourContext);
 
   const [startLocation, setStartLocation] = useState("");
   const [finishLocation, setFinishLocation] = useState("");
@@ -31,16 +38,6 @@ const TourSettingsScreen = ({ navigation }) => {
   const [locationErr, setLocationErr] = useState(null);
   const [longitudeLatitude, setLongitudeLatitude] = useState("");
   const [err, setErr] = useState("");
-
-  const startLocations = [
-    { label: "Current location", value: "Current location" },
-    { label: "First location in the tour", value: "First location in the tour" },
-  ];
-
-  const finishLocations = [
-    { label: "Current location", value: "Current location" },
-    { label: "Last location in the tour", value: "Last location in the tour" },
-  ];
 
   useEffect(() => {
     if (!tourTitle) {
@@ -55,9 +52,11 @@ const TourSettingsScreen = ({ navigation }) => {
         setFinishLocation("Last location in the tour");
       }
       setEditPermission(state.tour.editPermission);
+      setTimeToSpend(`${state.tour.timeToSpend / 60}`);
       // setStartOrSave(state.tour.startOrSave);
     }
   }, []);
+
   const startWatchingLocation = async () => {
     try {
       const { granted } = await requestForegroundPermissionsAsync();
@@ -85,82 +84,91 @@ const TourSettingsScreen = ({ navigation }) => {
     startWatchingLocation();
   }, []);
 
-  // if no title, then the navigation from tourOVerview, if there is a title, then from createTour
+  const navigateToScreen = () => {
+    // if there was a tourTitle passed, then it is a new tour, and we navigate to the main tours screen
+    // if no title, then the navigation from tourOVerview, if there is a title, then from createTour
+    if (tourTitle) {
+      const actionToDispatch = StackActions.reset({
+        index: 1,
+        // key: null,
+        actions: [
+          NavigationActions.navigate({ routeName: "TourList" }),
+
+          NavigationActions.navigate({
+            routeName: "TourOverview",
+            params: {
+              _id: tourId,
+              tourTitle: navigation.getParam("tourTitle"),
+              method: navigation.getParam("method"),
+            },
+          }),
+        ],
+      });
+      navigation.dispatch(actionToDispatch);
+    } else {
+      // navigation.dispatch(StackActions.pop(1));
+      navigation.navigate("TourOverview", { _id: navigation.getParam("_id") });
+    }
+  };
 
   const setTourSettings = async () => {
     if (!startLocation || !finishLocation || !editPermission) {
       setErr("Please fill all the fields");
     } else {
-      const settingsObj = {
-        startLocation: {
-          coordinates: startLocation === "Current location" ? longitudeLatitude.split(",") : [],
-        },
-        finishLocation: {
-          coordinates: finishLocation === "Current location" ? longitudeLatitude.split(",") : [],
-        },
-        editPermission,
-        status: "Saved",
-        // startOrSave,
-      };
-      // console.log("settings", settingsObj);
       if (creationMethod === "manual") {
-        await setManualTourSettings(tourId, settingsObj);
-
-        if (tourTitle) {
-          const actionToDispatch = StackActions.reset({
-            index: 1,
-            // key: null,
-            actions: [
-              NavigationActions.navigate({ routeName: "TourList" }),
-
-              NavigationActions.navigate({
-                routeName: "TourOverview",
-                params: {
-                  _id: tourId,
-                  tourTitle: navigation.getParam("tourTitle"),
-                  method: "manual",
-                },
-              }),
-            ],
-          });
-          navigation.dispatch(actionToDispatch);
-          // navigation.dispatch(
-          //   CommonActions.reset({
-          //     index: 1,
-          //     routes: [
-          //       { name: "TourList" },
-          //       {
-          //         name: "TourOverview",
-          //         params: { _id: tourId, tourTitle: navigation.getParam("tourTitle") },
-          //       },
-          //     ],
-          //   })
-          // );
-          // navigation.dispatch(
-          //   StackActions.replace("TourOverview", {
-          //     _id: tourId,
-          //     tourTitle: navigation.getParam("tourTitle"),
-          //   })
-          // );
-          // navigation.navigate("TourOverview", {
-          //   _id: tourId,
-          //   tourTitle: navigation.getParam("tourTitle"),
-          // });
+        const settingsObj = {
+          startLocation: {
+            coordinates: startLocation === "Current location" ? longitudeLatitude.split(",") : [],
+          },
+          finishLocation: {
+            coordinates: finishLocation === "Current location" ? longitudeLatitude.split(",") : [],
+          },
+          editPermission,
+          status: "Saved",
+        };
+        await setManualTourSettings(tourId, settingsObj, tourTitle ? false : true);
+        navigateToScreen();
+      } else if (creationMethod === "generate") {
+        if (!timeToSpend) {
+          setErr("Please fill all the fields");
         } else {
-          navigation.dispatch(StackActions.pop(1));
+          const settingsObj = {
+            timeToSpend: timeToSpend * 60,
+            startLocation: {
+              coordinates: startLocation === "Current location" ? longitudeLatitude.split(",") : [],
+            },
+            finishLocation: {
+              coordinates:
+                finishLocation === "Current location" ? longitudeLatitude.split(",") : [],
+            },
+            editPermission,
+            status: "Saved",
+          };
+          await generateTour(tourId, longitudeLatitude, settingsObj, tourTitle ? false : true);
+          navigateToScreen();
         }
       }
     }
   };
 
+  const startLocations = [
+    { label: "Current location", value: "Current location" },
+    { label: "First location in the tour", value: "First location in the tour" },
+  ];
+
+  const finishLocations = [
+    { label: "Current location", value: "Current location" },
+    { label: "Last location in the tour", value: "Last location in the tour" },
+  ];
+
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
       {err ? (
         <Text style={{ paddingHorizontal: 20, color: "#FF0000", fontWeight: "bold" }}>{err}</Text>
       ) : null}
       {creationMethod === "generate" ? (
         <Input
-          label="Time To Spend"
+          label="Time To Spend (in hours)"
           inputStyle={styles.inputStyle}
           inputContainerStyle={{ borderBottomWidth: 0 }}
           labelStyle={styles.labelStyle}
@@ -169,9 +177,15 @@ const TourSettingsScreen = ({ navigation }) => {
           leftIcon={<AntDesign name="clockcircle" size={40} color="#229186" />}
           inputContainerStyle={styles.inputContainer}
           leftIconContainerStyle={{ marginLeft: 10 }}
-          placeholder="HH:MM"
+          placeholder="HH"
+          keyboardType="number-pad"
+          // keyboardType="decimal-pad"
+          onChangeText={setTimeToSpend}
+          value={timeToSpend}
+          returnKeyType="done"
         />
       ) : null}
+
       <RNPickerSelect onValueChange={setStartLocation} items={startLocations}>
         <Input
           label="Start Location"
@@ -223,27 +237,7 @@ const TourSettingsScreen = ({ navigation }) => {
           value={editPermission}
         />
       </RNPickerSelect>
-      {/* <RNPickerSelect
-        onValueChange={setStartOrSave}
-        items={[
-          { label: "Start Now", value: "Start Now" },
-          { label: "Save For Later", value: "Save For Later" },
-        ]}
-      >
-        <Input
-          label="Start Now/ Save for later"
-          inputStyle={styles.inputStyle}
-          inputContainerStyle={{ borderBottomWidth: 0 }}
-          labelStyle={styles.labelStyle}
-          autoCorrect={false}
-          autoCapitalize="sentences"
-          leftIcon={<FontAwesome name="save" size={40} color="#229186" />}
-          inputContainerStyle={styles.inputContainer}
-          leftIconContainerStyle={{ marginLeft: 10 }}
-          placeholder="Select an option..."
-          value={startOrSave}
-        />
-      </RNPickerSelect> */}
+
       {/* TODO:Change when adding settings to the inside */}
       <Button
         title={creationMethod === "generate" ? "Generate Tour" : "Save settings"}

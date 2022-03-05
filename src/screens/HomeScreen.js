@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { Button, Text, Input } from "react-native-elements";
 // import _mockLocation from "../_mockLocation"; // only for testing, don't include in deployment
+import * as Notifications from "expo-notifications";
 
 import { Context as AttractionContext } from "../context/AttractionContext";
+import { Context as NotificationContext } from "../context/NotificationContext";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import Modal from "react-native-modal";
@@ -15,8 +17,17 @@ import FloatingButton from "../components/FloatingButton";
 
 import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 const HomeScreen = ({ navigation }) => {
-  const { state } = useContext(AttractionContext);
+  const Attraction = useContext(AttractionContext);
+  const Notification = useContext(NotificationContext);
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [locationErr, setLocationErr] = useState(null);
@@ -24,6 +35,32 @@ const HomeScreen = ({ navigation }) => {
   const [newTourTitle, setNewTourTitle] = useState("");
   const [newTourTitleError, setNewTourTitleError] = useState("");
 
+  const registerForPushNotificationsAsync = async () => {
+    let token;
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    return token;
+  };
   const startWatchingLocation = async () => {
     try {
       const { granted } = await requestForegroundPermissionsAsync();
@@ -48,6 +85,29 @@ const HomeScreen = ({ navigation }) => {
       setLocationErr(e);
     }
   };
+
+  useEffect(async () => {
+    const token = await registerForPushNotificationsAsync();
+    // console.log(Notification);
+    Notification.setNotificationToken(token);
+    // Notification.addLocalNotification();
+    // console.log(await Notifications.getAllScheduledNotificationsAsync());
+
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    // notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+    //   setNotification(notification);
+    // });
+
+    // // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+    // responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+    //   console.log(response);
+    // });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   useEffect(() => {
     // console.log("KEKW");
@@ -129,7 +189,7 @@ const HomeScreen = ({ navigation }) => {
             <>
               <FlatList
                 style={styles.attractionsList}
-                data={state.attractions}
+                data={Attraction.state.attractions}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item, index }) => {
                   return (
@@ -151,7 +211,7 @@ const HomeScreen = ({ navigation }) => {
               />
               <FloatingButton toggleModal={toggleModal} />
 
-              {state.isLoading ? (
+              {Attraction.state.isLoading ? (
                 <View style={styles.loading}>
                   <ActivityIndicator size="large" color="#FF9F1C" />
                 </View>

@@ -1,181 +1,177 @@
-import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import React, { useContext, useEffect } from "react";
+import { View, StyleSheet, ScrollView, Modal, ActivityIndicator } from "react-native";
 import { Button, Text, Input } from "react-native-elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import GMaps_icon from "../../assets/images/google-maps.svg";
 import { EvilIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
+import { Context as TourContext } from "../context/TourContext";
+import { Context as NotificationContext } from "../context/NotificationContext";
+import TourSummaryBar from "../components/TourSummaryBar";
+import moment from "moment";
+import ActiveTourAttraction from "../components/ActiveTourAttraction";
+import ActiveTourAttractionTravelTime from "../components/ActiveTourAttractionTravelTime";
+import { NavigationEvents } from "react-navigation";
 
 const ActiveTourScreen = ({ navigation }) => {
   const tourId = navigation.getParam("_id");
+  const { state, getTour, updateTourStatus } = useContext(TourContext);
+  const Notification = useContext(NotificationContext);
+
+  useEffect(async () => {
+    getTour(tourId);
+    // await Notification.resetLocalNotifications(state.tours);
+  }, []);
+
+  const finishTour = async () => {
+    await updateTourStatus(tourId, "Past");
+    navigation.navigate("TourList");
+  };
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.tourDetails}>
-          <AntDesign name="clockcircle" size={24} color="#011627" />
-          <Text style={styles.attractionDetailText}> 8:30 hours</Text>
-          <EvilIcons name="location" size={28} color="#011627" />
-          <Text style={styles.attractionDetailText}>3 Attractions</Text>
-          <MaterialCommunityIcons name="road" size={28} color="#011627" />
-          <Text style={styles.attractionDetailText}> 14 km</Text>
-        </View>
-        <View style={styles.tourLocation}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "#229186",
-              width: "25%",
-            }}
-          >
-            9:00 am
-          </Text>
-          <Octicons name="primitive-dot" style={styles.dotStyle} size={40} />
-          <View style={styles.tourLocationElement}>
-            <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "bold" }}>Start Location</Text>
-          </View>
-        </View>
-        <View>
-          <Octicons name="primitive-dot" style={[styles.dotStyle, { marginLeft: 99 }]} size={20} />
-          <View style={styles.locationTravelTime}>
-            <Text style={{ fontSize: 11, color: "#FF9F1C", width: "26.4%" }}>
-              30 minutes travel
-            </Text>
-            <Octicons name="primitive-dot" style={[styles.dotStyle, {}]} size={20} />
-          </View>
-          <Octicons name="primitive-dot" style={[styles.dotStyle, { marginLeft: 99 }]} size={20} />
-        </View>
-        <View style={styles.tourLocation}>
-          <Text
-            style={{
-              fontSize: 17,
-              fontWeight: "bold",
-              color: "#229186",
-              width: "25%",
-            }}
-          >
-            9:30 am - 11:30 am
-          </Text>
-          <Octicons name="primitive-dot" style={styles.dotStyle} size={40} />
-          <View style={styles.tourLocationElement}>
+        {/* <NavigationEvents
+          onWillFocus={state.tours.forEach((element) => {
+            console.log(element.title, element.status);
+          })}
+        /> */}
+        {state.tour !== null ? (
+          <>
             <Text
               style={{
-                color: "#FFF",
-                fontSize: 20,
-                fontWeight: "bold",
-                width: "80%",
+                alignSelf: "center",
+                fontSize: 18,
+                marginTop: 10,
+                color: "#229186",
+                fontWeight: "900",
               }}
             >
-              Batu Caves
+              {moment(state.tour.startTime).format("YYYY-MM-DD")}
             </Text>
-            <GMaps_icon />
-          </View>
-        </View>
-        <View>
-          <Octicons name="primitive-dot" style={[styles.dotStyle, { marginLeft: 99 }]} size={20} />
-          <View style={styles.locationTravelTime}>
-            <Text style={{ fontSize: 11, color: "#FF9F1C", width: "26.4%" }}>
-              15 minutes travel
-            </Text>
-            <Octicons name="primitive-dot" style={[styles.dotStyle, {}]} size={20} />
-          </View>
-          <Octicons name="primitive-dot" style={[styles.dotStyle, { marginLeft: 99 }]} size={20} />
-        </View>
-        <View style={styles.tourLocation}>
-          <Text
-            style={{
-              fontSize: 17,
-              fontWeight: "bold",
-              color: "#229186",
-              width: "25%",
-            }}
-          >
-            11:45 am - 2:45 pm
-          </Text>
-          <Octicons name="primitive-dot" style={styles.dotStyle} size={40} />
-          <View style={styles.tourLocationElement}>
-            <Text
-              style={{
-                color: "#FFF",
-                fontSize: 20,
-                fontWeight: "bold",
-                width: "84%",
-              }}
-            >
-              Kepong Metropolitan Park
-            </Text>
-            <GMaps_icon />
-          </View>
-        </View>
-        <View>
-          <Octicons name="primitive-dot" style={[styles.dotStyle, { marginLeft: 99 }]} size={20} />
-          <View style={styles.locationTravelTime}>
-            <Text style={{ fontSize: 11, color: "#FF9F1C", width: "26.4%" }}>
-              25 minutes travel
-            </Text>
-            <Octicons name="primitive-dot" style={[styles.dotStyle, {}]} size={20} />
-          </View>
-          <Octicons name="primitive-dot" style={[styles.dotStyle, { marginLeft: 99 }]} size={20} />
-        </View>
-        <View style={styles.tourLocation}>
-          <Text
-            style={{
-              fontSize: 17,
-              fontWeight: "bold",
-              color: "#229186",
-              width: "25%",
-            }}
-          >
-            3:10 pm - 5:10 pm
-          </Text>
-          <Octicons name="primitive-dot" style={styles.dotStyle} size={40} />
-          <View style={styles.tourLocationElement}>
-            <Text
-              style={{
-                color: "#FFF",
-                fontSize: 20,
-                fontWeight: "bold",
-                width: "84%",
-              }}
-            >
-              Taman Tasik Cempaka
-            </Text>
-            <GMaps_icon />
-          </View>
-        </View>
-        <View>
-          <Octicons name="primitive-dot" style={[styles.dotStyle, { marginLeft: 99 }]} size={20} />
-          <View style={styles.locationTravelTime}>
-            <Text style={{ fontSize: 11, color: "#FF9F1C", width: "26.4%" }}>
-              20 minutes travel
-            </Text>
-            <Octicons name="primitive-dot" style={[styles.dotStyle, {}]} size={20} />
-          </View>
-          <Octicons name="primitive-dot" style={[styles.dotStyle, { marginLeft: 99 }]} size={20} />
-        </View>
-        <View style={[styles.tourLocation, { marginBottom: 15 }]}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "#229186",
-              width: "25%",
-            }}
-          >
-            5:30 pm
-          </Text>
-          <Octicons name="primitive-dot" style={styles.dotStyle} size={40} />
-          <View style={styles.tourLocationElement}>
-            <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "bold" }}>Finish Location</Text>
-          </View>
-        </View>
+            <View style={styles.tourDetails}>
+              <TourSummaryBar tour={state.tour} />
+            </View>
+
+            {state.tour.startLocation.coordinates.length ? (
+              <>
+                <View style={styles.tourLocation}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      fontWeight: "bold",
+                      color: "#229186",
+                      width: "25%",
+                    }}
+                  >
+                    {`${moment(state.tour.startTime).format("HH:mm")}`}
+                  </Text>
+                  <Octicons name="primitive-dot" style={styles.dotStyle} size={40} />
+                  <View style={styles.tourLocationElement}>
+                    <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "bold" }}>
+                      Start location
+                    </Text>
+                  </View>
+                </View>
+                <View>
+                  <Octicons
+                    name="primitive-dot"
+                    style={[styles.dotStyle, { marginLeft: 99 }]}
+                    size={20}
+                  />
+                  <ActiveTourAttractionTravelTime
+                    minutes={Math.round(state.tour.attractions[0].startsAt) % 60}
+                    hours={state.tour.attractions[0].startsAt / 60}
+                  />
+
+                  <Octicons
+                    name="primitive-dot"
+                    style={[styles.dotStyle, { marginLeft: 99 }]}
+                    size={20}
+                  />
+                </View>
+              </>
+            ) : null}
+
+            {state.tour.attractions.map((attraction, index) => {
+              return (
+                <ActiveTourAttraction
+                  key={attraction._id._id}
+                  attraction={attraction}
+                  index={index}
+                  tour={state.tour}
+                />
+              );
+            })}
+
+            {state.tour.finishLocation.coordinates.length ? (
+              <>
+                <View>
+                  <Octicons
+                    name="primitive-dot"
+                    style={[styles.dotStyle, { marginLeft: 99 }]}
+                    size={20}
+                  />
+                  <ActiveTourAttractionTravelTime
+                    minutes={
+                      Math.round(
+                        state.tour.totalTime -
+                          state.tour.attractions[state.tour.attractions.length - 1].startsAt -
+                          state.tour.attractions[state.tour.attractions.length - 1]._id.time
+                      ) % 60
+                    }
+                    hours={
+                      (state.tour.totalTime -
+                        state.tour.attractions[state.tour.attractions.length - 1].startsAt -
+                        state.tour.attractions[state.tour.attractions.length - 1]._id.time) /
+                      60
+                    }
+                  />
+
+                  <Octicons
+                    name="primitive-dot"
+                    style={[styles.dotStyle, { marginLeft: 99 }]}
+                    size={20}
+                  />
+                </View>
+                <View style={styles.tourLocation}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      fontWeight: "bold",
+                      color: "#229186",
+                      width: "25%",
+                    }}
+                  >
+                    {`${moment(state.tour.startTime)
+                      .add(state.tour.totalTime, "minutes")
+                      .format("HH:mm")}`}
+                  </Text>
+                  <Octicons name="primitive-dot" style={styles.dotStyle} size={40} />
+                  <View style={styles.tourLocationElement}>
+                    <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "bold" }}>
+                      Finish location
+                    </Text>
+                  </View>
+                </View>
+              </>
+            ) : null}
+          </>
+        ) : null}
+
         <Button
           title="End Tour Now"
           buttonStyle={styles.buttonStyle}
           titleStyle={{ fontSize: 20, fontWeight: "600" }}
-          onPress={() => navigation.navigate("TourList")}
+          onPress={finishTour}
         />
+        {state.isLoading ? (
+          <Modal animationType="none" transparent={true} visible={true}>
+            <View style={styles.loading}>
+              <ActivityIndicator size="large" color="#FF9F1C" />
+            </View>
+          </Modal>
+        ) : null}
       </ScrollView>
     </View>
   );
@@ -200,10 +196,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  attractionDetailText: {
-    fontSize: 15,
-    fontWeight: "bold",
-  },
+
   tourLocation: {
     flexDirection: "row",
     justifyContent: "center",
@@ -226,21 +219,29 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignContent: "center",
   },
-  locationTravelTime: {
-    flexDirection: "row",
-  },
+
   buttonStyle: {
     marginHorizontal: 80,
     paddingVertical: 20,
     borderRadius: 50,
     backgroundColor: "#E71D36",
-    marginBottom: 15,
+    marginVertical: 30,
+  },
+  loading: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(220,220,220,0.4)",
   },
 });
 
-ActiveTourScreen.navigationOptions = () => {
+ActiveTourScreen.navigationOptions = ({ navigation }) => {
   return {
-    title: "My First KL Visit",
+    title: navigation.getParam("tourTitle"),
     headerBackTitle: " ",
     headerRight: () => (
       <Button

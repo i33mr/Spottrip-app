@@ -1,28 +1,59 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "react-native-elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "react-native-expo-image-cache";
+import { Context as TourContext } from "../context/TourContext";
+import spottripAPI from "../api/spottripAPI";
 
 const TourTile = ({ navigation, tour }) => {
-  const decideScreenNav = () => {
-    if (tour.status === "Active") navigation.navigate("ActiveTour", { _id: tour._id });
-    else if (tour.status === "Past") navigation.navigate("PastTour", { _id: tour._id });
-    else if (tour.status === "Draft")
-      navigation.navigate("TourCreate", { _id: tour._id, tourTitle: tour.title });
-    else if (tour.status === "Saved")
+  const { state, getTour, startLoading, stopLoading } = useContext(TourContext);
+  const [validateTour, setValidateTour] = useState(false);
+
+  const decideScreenNav = async () => {
+    startLoading();
+    const response = await spottripAPI.get(`v1/tours/${tour._id}`);
+    const validTour = { ...response.data.data.tour };
+    stopLoading();
+
+    if (validTour.status === "Active")
+      navigation.navigate("ActiveTour", { _id: validTour._id, tourTitle: validTour.title });
+    else if (validTour.status === "Past") navigation.navigate("PastTour", { _id: validTour._id });
+    else if (validTour.status === "Draft")
+      navigation.navigate("TourCreate", { _id: validTour._id, tourTitle: validTour.title });
+    else if (validTour.status === "Saved")
       navigation.navigate("TourOverview", {
-        _id: tour._id,
-        tourTitle: tour.title,
-        method: tour.timeToSpend ? "generate" : "manual",
+        _id: validTour._id,
+        tourTitle: validTour.title,
+        method: validTour.timeToSpend ? "generate" : "manual",
       });
+
+    // tour = state.tour;
+    // if (state.tour.status === "Active")
+    //   navigation.navigate("ActiveTour", { _id: state.tour._id, tourTitle: state.tour.title });
+    // else if (state.tour.status === "Past") navigation.navigate("PastTour", { _id: state.tour._id });
+    // else if (state.tour.status === "Draft")
+    //   navigation.navigate("TourCreate", { _id: state.tour._id, tourTitle: state.tour.title });
+    // else if (state.tour.status === "Saved")
+    //   navigation.navigate("TourOverview", {
+    //     _id: state.tour._id,
+    //     tourTitle: state.tour.title,
+    //     method: state.tour.timeToSpend ? "generate" : "manual",
+    //   });
     // else if (tour.status === "Saved" && tour.attractions.length > 0 && tour.timeToSpend)
     //   return "TourSettings";
     // else if (tour.status === "Saved" && tour.attractions.length > 0 && !tour.timeToSpend)
     //   return "TourOverview";
   };
+
+  // useEffect(() => {
+  //   if (state.tour !== null) {
+
+  //   }
+  // },[state.tour])
+
   return (
     <TouchableOpacity
       onPress={decideScreenNav}
@@ -35,7 +66,7 @@ const TourTile = ({ navigation, tour }) => {
               <Image
                 style={styles.attractionImg}
                 key={attraction._id.imageCover}
-                uri={`http://8849-95-186-64-50.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                uri={`http://2f00-151-255-174-169.ngrok.io/img/attractions/${attraction._id.imageCover}`}
                 preview={{
                   uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                 }}
@@ -46,7 +77,7 @@ const TourTile = ({ navigation, tour }) => {
               <Image
                 style={styles.attractionImg}
                 key={attraction._id.imageCover}
-                uri={`http://8849-95-186-64-50.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                uri={`http://2f00-151-255-174-169.ngrok.io/img/attractions/${attraction._id.imageCover}`}
                 preview={{
                   uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                 }}

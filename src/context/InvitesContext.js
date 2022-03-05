@@ -3,6 +3,8 @@ import spottripAPI from "../api/spottripAPI";
 
 const inviteReducer = (state, action) => {
   switch (action.type) {
+    case "fetch_user_invites":
+      return { ...state, userInvites: action.payload };
     case "fetch_invites":
       return { ...state, invites: action.payload };
     case "loading":
@@ -25,7 +27,34 @@ const inviteReducer = (state, action) => {
   }
 };
 
-const fetchInvites = (dispatch) => async (tourId) => {
+const fetchUserInvites = (dispatch) => async () => {
+  dispatch({ type: "loading", payload: true });
+
+  try {
+    const response = await spottripAPI.get(`/v1/invites`);
+
+    dispatch({ type: "fetch_user_invites", payload: response.data.data.invites });
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const respondToInvite = (dispatch) => async (tourId, inviteId, status) => {
+  dispatch({ type: "loading", payload: true });
+
+  try {
+    const response = await spottripAPI.patch(`/v1/tours/${tourId}/invites/${inviteId}`, {
+      inviteStatus: status,
+    });
+
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const fetchTourInvites = (dispatch) => async (tourId) => {
   dispatch({ type: "loading", payload: true });
   // console.log(tourId);
   try {
@@ -81,6 +110,13 @@ const clearInviteMessage = (dispatch) => () => {
 
 export const { Provider, Context } = createDataContext(
   inviteReducer,
-  { fetchInvites, sendTourInvite, clearInviteMessage, removeInvite },
-  { invites: [], isLoading: false, inviteMsg: null }
+  {
+    fetchTourInvites,
+    sendTourInvite,
+    clearInviteMessage,
+    removeInvite,
+    fetchUserInvites,
+    respondToInvite,
+  },
+  { userInvites: [], invites: [], isLoading: false, inviteMsg: null }
 );

@@ -49,7 +49,7 @@ const searchAttractions = (dispatch) => async (searchTerm) => {
       `/v1/attractions/search/${searchTerm}/center/101.711309,3.158870`
     );
 
-    console.log(response.data.data.data);
+    // console.log(response.data.data.data);
 
     dispatch({ type: "search_attractions", payload: response.data.data.data });
     dispatch({ type: "loading", payload: false });
@@ -75,10 +75,10 @@ const searchAttractionsToAddToTour =
       const uniqueAttractions = [];
       const tourAttractions = tourResponse.data.data.tour.attractions.map((att) => att._id._id);
 
-      console.log(tourAttractions);
+      // console.log(tourAttractions);
 
       response.data.data.data.forEach((element) => {
-        console.log("res", element._id);
+        // console.log("res", element._id);
         if (!tourAttractions.includes(element._id)) uniqueAttractions.push(element);
       });
 

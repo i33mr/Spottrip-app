@@ -18,16 +18,20 @@ import { Ionicons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import { Context as TourContext } from "../context/TourContext";
 import { Context as InvitesContext } from "../context/InvitesContext";
+import { Context as NotificationContext } from "../context/NotificationContext";
 import { NavigationEvents } from "react-navigation";
 import TourInvite from "../components/TourInvite";
 import TourAttractionTile from "../components/TourAttractionTile";
 import TourSummaryBar from "../components/TourSummaryBar";
+import { StackActions } from "react-navigation";
+import { NavigationActions } from "react-navigation";
 
 const TourOverviewScreen = ({ navigation, route }) => {
   const tourId = navigation.getParam("_id");
 
   const Tour = useContext(TourContext);
   const Invite = useContext(InvitesContext);
+  const Notification = useContext(NotificationContext);
 
   const [isAddFriendFormVisible, setIsAddFriendFormVisible] = useState(false);
   const [isShowFriends, setIsShowFriends] = useState(false);
@@ -38,12 +42,12 @@ const TourOverviewScreen = ({ navigation, route }) => {
   const [tour, setTour] = useState(null);
 
   useEffect(() => {
-    // Invite.fetchInvites(tourId);
+    // Invite.fetchTourInvites(tourId);
     // console.log(tourId);
     // if (tourId !== null) {
     // console.log("Get tour");
     Tour.getTour(tourId);
-    Invite.fetchInvites(tourId);
+    Invite.fetchTourInvites(tourId);
 
     // }
   }, []);
@@ -54,6 +58,7 @@ const TourOverviewScreen = ({ navigation, route }) => {
 
     if (tourId !== null) {
       setTour(Tour.state.tour);
+      // console.log(tour);
       // console.log("tour set");
       // console.log(tour);
     }
@@ -78,9 +83,37 @@ const TourOverviewScreen = ({ navigation, route }) => {
     setRefreshing(true);
     Tour.getTour(tourId);
 
-    Invite.fetchInvites(tourId);
+    Invite.fetchTourInvites(tourId);
 
     setRefreshing(false);
+  };
+
+  const activateTour = async () => {
+    try {
+      await Tour.updateTourStatus(tourId, "Active");
+      // console.log(Tour.state.tours);
+      await Notification.addLocalNotification(tour);
+      const actionToDispatch = StackActions.reset({
+        index: 1,
+        // key: null,
+        actions: [
+          NavigationActions.navigate({ routeName: "TourList" }),
+
+          NavigationActions.navigate({
+            routeName: "ActiveTour",
+            params: {
+              _id: tourId,
+              tourTitle: navigation.getParam("tourTitle"),
+              // method: navigation.getParam("method"),
+            },
+          }),
+        ],
+      });
+      navigation.dispatch(actionToDispatch);
+      // navigation.navigate("ActiveTour", { _id: tourId });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -191,10 +224,11 @@ const TourOverviewScreen = ({ navigation, route }) => {
         {isShowAttractions && tour !== null
           ? // <View>
             tour.attractions.map((attraction) => {
+              // console.log(attraction);
               return (
                 <TourAttractionTile
                   key={attraction._id._id}
-                  attraction={attraction._id}
+                  attraction={attraction}
                   removeAttraction={Tour.removeAttraction}
                   tourId={tourId}
                   getTour={Tour.getTour}
@@ -237,7 +271,7 @@ const TourOverviewScreen = ({ navigation, route }) => {
           title="Start Tour"
           buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186", marginBottom: 10 }]}
           titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-          onPress={() => navigation.navigate("TourList")}
+          onPress={() => activateTour()}
         />
       </ScrollView>
       {Tour.state.isLoading || Invite.state.isLoading ? (
