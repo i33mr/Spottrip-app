@@ -7,6 +7,10 @@ import moment from "moment";
 import ActiveTourAttractionTravelTime from "./ActiveTourAttractionTravelTime";
 
 const ActiveTourAttraction = ({ attraction, index, tour }) => {
+  // console.log(
+  //   tour.attractions[index + 1].startsAt - attraction.startsAt - attraction._id.time
+  //   // -      attraction.extendedTime
+  // );
   return (
     <>
       <View style={styles.tourLocation}>
@@ -23,6 +27,7 @@ const ActiveTourAttraction = ({ attraction, index, tour }) => {
             .format("HH:mm")} - ${moment(tour.startTime)
             .add(Math.round(attraction.startsAt), "minutes")
             .add(Math.round(attraction._id.time), "minutes")
+            .add(Math.round(attraction.extendedTime), "minutes")
             .format("HH:mm")}`}
         </Text>
         <Octicons name="primitive-dot" style={styles.dotStyle} size={40} />
@@ -44,11 +49,17 @@ const ActiveTourAttraction = ({ attraction, index, tour }) => {
             <ActiveTourAttractionTravelTime
               minutes={
                 Math.round(
-                  tour.attractions[index + 1].startsAt - attraction.startsAt - attraction._id.time
+                  tour.attractions[index + 1].startsAt -
+                    attraction.startsAt -
+                    attraction._id.time -
+                    attraction.extendedTime
                 ) % 60
               }
               hours={
-                (tour.attractions[index + 1].startsAt - attraction.startsAt - attraction._id.time) /
+                (tour.attractions[index + 1].startsAt -
+                  attraction.startsAt -
+                  attraction._id.time -
+                  attraction.extendedTime) /
                 60
               }
             />

@@ -26,7 +26,10 @@ const tourReducer = (state, action) => {
           }
         }),
       };
-
+    case "overstay_msg":
+      return { ...state, overstayMsg: action.payload };
+    case "clear_overstay_msg":
+      return { ...state, overstayMsg: "" };
     default:
       return state;
   }
@@ -165,8 +168,68 @@ const updateTourStatus = (dispatch) => async (tourId, status) => {
   }
 };
 
+const resolveOverstay = (dispatch) => async (tourId, attractionId, overStayedTime) => {
+  dispatch({ type: "loading", payload: true });
+
+  // overStayedTime *= 60;
+  console.log(overStayedTime);
+  try {
+    const response = await spottripAPI.patch(`/v1/tours/resolve-overstay/${tourId}`, {
+      overStayedTime,
+      attractionId,
+    });
+
+    console.log(response.data.data.message);
+
+    if (response.data.data.message.method === "no change") {
+      dispatch({ type: "set_tour", payload: response.data.data.tour });
+      // console.log(response.data.data.message);
+    }
+    dispatch({ type: "overstay_msg", payload: response.data.data.message });
+
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    console.log(error.response.data.message);
+    dispatch({ type: "loading", payload: false });
+    throw new Error("Error");
+  }
+};
+
+const resolveOverstayResponse =
+  (dispatch) => async (tourId, attractionId, overStayedTime, choice) => {
+    dispatch({ type: "loading", payload: true });
+
+    // overStayedTime *= 60;
+    // console.log(overStayedTime);
+    try {
+      const response = await spottripAPI.patch(`/v1/tours/resolve-overstay/response/${tourId}`, {
+        overStayedTime,
+        attractionId,
+        choice,
+      });
+
+      console.log(response.data.data.message);
+
+      // if (response.data.data.message.method === "no change") {
+      dispatch({ type: "set_tour", payload: response.data.data.tour });
+      // console.log(response.data.data.message);
+      // }
+      // dispatch({ type: "overstay_msg", payload: `${choice} is done!` });
+
+      dispatch({ type: "loading", payload: false });
+    } catch (error) {
+      console.log(error.response.data.message);
+      dispatch({ type: "loading", payload: false });
+      throw new Error("Error");
+    }
+  };
+
 const clearTour = (dispatch) => () => {
   dispatch({ type: "clear_tour" });
+};
+
+const clearOverstayMsg = (dispatch) => () => {
+  dispatch({ type: "clear_overstay_msg" });
 };
 
 const startLoading = (dispatch) => () => {
@@ -190,6 +253,9 @@ export const { Provider, Context } = createDataContext(
     updateTourStatus,
     startLoading,
     stopLoading,
+    resolveOverstay,
+    clearOverstayMsg,
+    resolveOverstayResponse,
   },
-  { tours: [], isLoading: false, inviteMsg: null, tour: null }
+  { tours: [], isLoading: false, inviteMsg: null, tour: null, overstayMsg: "" }
 );
