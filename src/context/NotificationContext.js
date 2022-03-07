@@ -22,7 +22,7 @@ const addLocalNotification = (dispatch) => async (tour) => {
     content: {
       title: tour.title,
       body: "Your tour just began!",
-      data: { tourId: tour._id },
+      data: { screen: "ActiveTour", _id: tour._id, tourTile: tour.title },
     },
     // trigger: { date: Date.now() + 10 * 1000 },
     trigger: { date: moment(Date.now()).add(5, "seconds").valueOf() },
@@ -54,7 +54,7 @@ const addLocalNotification = (dispatch) => async (tour) => {
             body: `You should start moving to ${
               tour.attractions[index + 1]._id.name
             } within 5 minutes!`,
-            data: { tourId: tour._id, attractionId: attraction._id._id },
+            data: { screen: "ActiveTour", _id: tour._id, tourTile: tour.title },
             sound: true,
           },
 
@@ -99,7 +99,7 @@ const resetLocalNotifications = (dispatch) => async (tours) => {
             content: {
               title: tour.title,
               body: "Your tour just began!",
-              data: { tourId: tour._id },
+              data: { screen: "ActiveTour", _id: tour._id, tourTile: tour.title },
             },
             // trigger: { date: Date.now() + 10 * 1000 },
             trigger: { date: moment(tour.startTime).add(5, "seconds").valueOf() },
@@ -129,7 +129,7 @@ const resetLocalNotifications = (dispatch) => async (tours) => {
                   body: `You should start moving to ${
                     tour.attractions[index + 1]._id.name
                   } within 5 minutes!`,
-                  data: { tourId: tour._id, attractionId: attraction._id._id },
+                  data: { screen: "ActiveTour", _id: tour._id, tourTile: tour.title },
                   sound: true,
                 },
                 // trigger: { date: Date.now() + 10 * 1000 },
@@ -160,9 +160,7 @@ const resetLocalNotifications = (dispatch) => async (tours) => {
   //     });
   //   }
   // });
-  console.log("HERE3");
-
-  // console.log(await Notifications.getAllScheduledNotificationsAsync());
+  console.log("resetLocalNotifications");
 };
 
 export const { Provider, Context } = createDataContext(

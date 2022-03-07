@@ -329,13 +329,15 @@ const ActiveTourScreen = ({ navigation }) => {
                       Math.round(
                         state.tour.totalTime -
                           state.tour.attractions[state.tour.attractions.length - 1].startsAt -
-                          state.tour.attractions[state.tour.attractions.length - 1]._id.time
+                          state.tour.attractions[state.tour.attractions.length - 1]._id.time -
+                          state.tour.attractions[state.tour.attractions.length - 1].extendedTime
                       ) % 60
                     }
                     hours={
                       (state.tour.totalTime -
                         state.tour.attractions[state.tour.attractions.length - 1].startsAt -
-                        state.tour.attractions[state.tour.attractions.length - 1]._id.time) /
+                        state.tour.attractions[state.tour.attractions.length - 1]._id.time -
+                        state.tour.attractions[state.tour.attractions.length - 1].extendedTime) /
                       60
                     }
                   />

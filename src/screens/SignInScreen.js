@@ -13,11 +13,21 @@ import { NavigationEvents } from "react-navigation";
 import { ScrollView } from "react-native-gesture-handler";
 import * as Notifications from "expo-notifications";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 const SignInScreen = ({ navigation }) => {
   const { state, signIn, clearErrorMessage } = useContext(AuthContext);
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [expoPushToken, setExpoPushToken] = useState("");
+  const responseListener = useRef();
+
   // const [showIndicator, setShowIndicator] = useState(false);
 
   const registerForPushNotificationsAsync = async () => {
@@ -61,9 +71,9 @@ const SignInScreen = ({ navigation }) => {
     // });
 
     // // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
-    // responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-    //   console.log(response);
-    // });
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log(response);
+    });
 
     return () => {
       Notifications.removeNotificationSubscription(notificationListener.current);

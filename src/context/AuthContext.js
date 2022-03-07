@@ -10,6 +10,8 @@ const authReducer = (state, action) => {
       return { ...state, errorMessage: action.payload };
     case "signIn":
       return { errorMessage: "", token: action.payload };
+    case "set_token":
+      return { ...state, token: action.payload };
     case "clear_error_message":
       return { ...state, errorMessage: "" };
     case "signOut":
@@ -29,6 +31,8 @@ const tryLocalSignIn = (dispatch) => {
     const token = await AsyncStorage.getItem("token");
     if (token) {
       dispatch({ type: "signIn", payload: token });
+      // await AsyncStorage.removeItem("token");
+
       navigate("mainFlow");
     } else {
       navigate("Welcome");
@@ -132,8 +136,13 @@ const signOut = (dispatch) => {
     navigate("Welcome");
   };
 };
+
+const setToken = (dispatch) => async (token) => {
+  await AsyncStorage.setItem("token", token);
+  dispatch({ type: "set_token", payload: token });
+};
 export const { Provider, Context } = createDataContext(
   authReducer,
-  { signup, signUpPersonalInfo, signIn, signOut, clearErrorMessage, tryLocalSignIn },
+  { signup, signUpPersonalInfo, signIn, signOut, clearErrorMessage, tryLocalSignIn, setToken },
   { token: null, errorMessage: "", isLoading: false, userObj: {} }
 );

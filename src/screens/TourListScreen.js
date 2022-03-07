@@ -43,7 +43,7 @@ const TourListScreen = ({ navigation }) => {
 
   useEffect(() => {
     Notification.resetLocalNotifications(state.tours);
-    Notification.getAllNotifications();
+    // Notification.getAllNotifications();
   }, [state.tours]);
 
   return (

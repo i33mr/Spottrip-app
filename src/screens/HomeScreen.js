@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { Button, Text, Input } from "react-native-elements";
 // import _mockLocation from "../_mockLocation"; // only for testing, don't include in deployment
 import * as Notifications from "expo-notifications";
 
 import { Context as AttractionContext } from "../context/AttractionContext";
-import { Context as NotificationContext } from "../context/NotificationContext";
+// import { Context as NotificationContext } from "../context/NotificationContext";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import Modal from "react-native-modal";
@@ -17,50 +17,25 @@ import FloatingButton from "../components/FloatingButton";
 
 import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//   }),
+// });
 
 const HomeScreen = ({ navigation }) => {
   const Attraction = useContext(AttractionContext);
-  const Notification = useContext(NotificationContext);
+  // const Notification = useContext(NotificationContext);
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [locationErr, setLocationErr] = useState(null);
   const [longitudeLatitude, setLongitudeLatitude] = useState("");
   const [newTourTitle, setNewTourTitle] = useState("");
   const [newTourTitleError, setNewTourTitleError] = useState("");
+  const responseListener = useRef();
 
-  const registerForPushNotificationsAsync = async () => {
-    let token;
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
-      return;
-    }
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log(token);
-
-    if (Platform.OS === "android") {
-      Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
-
-    return token;
-  };
   const startWatchingLocation = async () => {
     try {
       const { granted } = await requestForegroundPermissionsAsync();
@@ -72,10 +47,8 @@ const HomeScreen = ({ navigation }) => {
           distanceInterval: 100,
         },
         (location) => {
-          // console.log(location);
           // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
           setLongitudeLatitude(`101.711309,3.15887`);
-          // console.log(longitudeLatitude);
         }
       );
       if (!granted) {
@@ -86,10 +59,36 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  // const registerForPushNotificationsAsync = async () => {
+  //   let token;
+  //   const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  //   let finalStatus = existingStatus;
+  //   if (existingStatus !== "granted") {
+  //     const { status } = await Notifications.requestPermissionsAsync();
+  //     finalStatus = status;
+  //   }
+  //   if (finalStatus !== "granted") {
+  //     alert("Failed to get push token for push notification!");
+  //     return;
+  //   }
+  //   token = (await Notifications.getExpoPushTokenAsync()).data;
+  //   console.log(token);
+
+  //   if (Platform.OS === "android") {
+  //     Notifications.setNotificationChannelAsync("default", {
+  //       name: "default",
+  //       importance: Notifications.AndroidImportance.MAX,
+  //       vibrationPattern: [0, 250, 250, 250],
+  //       lightColor: "#FF231F7C",
+  //     });
+  //   }
+
+  //   return token;
+  // };
+
   useEffect(async () => {
-    const token = await registerForPushNotificationsAsync();
-    // console.log(Notification);
-    Notification.setNotificationToken(token);
+    // const token = await registerForPushNotificationsAsync();
+    // Notification.setNotificationToken(token);
     // Notification.addLocalNotification();
     // console.log(await Notifications.getAllScheduledNotificationsAsync());
 
@@ -99,9 +98,17 @@ const HomeScreen = ({ navigation }) => {
     // });
 
     // // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
-    // responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-    //   console.log(response);
-    // });
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      if (response.notification.request.content.data.screen === "Invites")
+        navigation.navigate(response.notification.request.content.data.screen);
+      else if (response.notification.request.content.data.screen === "ActiveTour")
+        navigation.navigate(response.notification.request.content.data.screen, {
+          _id: response.notification.request.content.data._id,
+          tourTitle: response.notification.request.content.data.tourTitle,
+        });
+      console.log(response);
+      console.log(response.notification.request.content.data.screen);
+    });
 
     return () => {
       Notifications.removeNotificationSubscription(notificationListener.current);

@@ -8,21 +8,41 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { SearchBar, Button, Text, Icon, Input } from "react-native-elements";
 import { NavigationEvents } from "react-navigation";
 import { Context as InvitesContext } from "../context/InvitesContext";
 const InvitesScreen = () => {
   const { state, fetchUserInvites, respondToInvite } = useContext(InvitesContext);
+  const [refreshing, setRefreshing] = useState(false);
+  const [invites, setInvites] = useState([]);
 
-  // useEffect(async () => {
-  //   fetchUserInvites();
-  // }, []);
+  useEffect(() => {
+    fetchUserInvites();
+  }, []);
+
+  useEffect(() => {
+    setInvites(state.userInvites);
+  }, [state.userInvites]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    // fetchTourInvites(tourId);
+    fetchUserInvites();
+    // fetchToursAndSetNotifications();
+
+    setRefreshing(false);
+  };
+
+  const respondToInviteAndRefresh = (tourId, inviteId, status) => {
+    respondToInvite(tourId, inviteId, status), fetchUserInvites();
+  };
   return (
     <View style={styles.container}>
       <NavigationEvents onWillFocus={fetchUserInvites} />
-      <ScrollView>
-        {state.userInvites.map((invite) => {
+      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+        {invites.map((invite) => {
           // console.log(invite);
           if (invite.status === "Pending") {
             return (
@@ -43,13 +63,17 @@ const InvitesScreen = () => {
                       buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
                       title="Deny"
                       titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-                      onPress={() => respondToInvite(invite.tour._id, invite._id, "Rejected")}
+                      onPress={() =>
+                        respondToInviteAndRefresh(invite.tour._id, invite._id, "Rejected")
+                      }
                     />
                     <Button
                       buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
                       title="Accept"
                       titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-                      onPress={() => respondToInvite(invite.tour._id, invite._id, "Accepted")}
+                      onPress={() =>
+                        respondToInviteAndRefresh(invite.tour._id, invite._id, "Accepted")
+                      }
                     />
                   </View>
                 </View>

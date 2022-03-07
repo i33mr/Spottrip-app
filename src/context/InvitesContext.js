@@ -48,6 +48,9 @@ const respondToInvite = (dispatch) => async (tourId, inviteId, status) => {
       inviteStatus: status,
     });
 
+    const responseAllInvites = await spottripAPI.get(`/v1/invites`);
+    dispatch({ type: "fetch_user_invites", payload: responseAllInvites.data.data.invites });
+
     dispatch({ type: "loading", payload: false });
   } catch (error) {
     console.log(error);
