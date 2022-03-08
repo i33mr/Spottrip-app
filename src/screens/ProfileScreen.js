@@ -4,7 +4,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Image,
   ScrollView,
   Dimensions,
   Modal as RNModal,
@@ -17,13 +16,31 @@ import moment from "moment";
 import Modal from "react-native-modal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { Image } from "react-native-expo-image-cache";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+
+import Park_icon from "../../assets/images/Parks.svg";
+import Historical_icon from "../../assets/images/Historical.svg";
+import Waterfall_icon from "../../assets/images/Waterfall.svg";
+import Beach_icon from "../../assets/images/Beach.svg";
+import Museum_icon from "../../assets/images/Museum.svg";
+import Zoo_icon from "../../assets/images/Zoo.svg";
+import Sport_icon from "../../assets/images/Sport.svg";
+import Markets_icon from "../../assets/images/Markets.svg";
+import Festivals_icon from "../../assets/images/Festivals.svg";
+import Malls_icon from "../../assets/images/Malls.svg";
+import Cultural_icon from "../../assets/images/Cultural.svg";
+import Unique_icon from "../../assets/images/Unique.svg";
 // import { Context as AuthContext } from "../context/AuthContext";
 
 const ProfileScreen = ({ navigation }) => {
-  const { signOut, setToken } = useContext(AuthContext);
+  const { state, signOut, setToken } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalAccountInfoVisible, setModalAccountInfoVisible] = useState(false);
+  const [isModalPreferencesVisible, setModalPreferencesVisible] = useState(false);
+
   const [userEmail, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -33,7 +50,99 @@ const ProfileScreen = ({ navigation }) => {
   const [newPassword, setNewPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
-  useContext;
+  const filterList = [
+    {
+      name: "Parks",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Park_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Historical",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Historical_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Mountains",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Waterfall_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Beach",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Beach_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Museum",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Museum_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Zoo",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Zoo_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Sport",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Sport_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Markets",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Markets_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Festivals",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Festivals_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Malls",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Malls_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Cultural",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Cultural_icon fill={fill} />;
+      },
+    },
+    {
+      name: "Unique",
+      hook: useState(false),
+      icon: function (fill) {
+        return <Unique_icon fill={fill} />;
+      },
+    },
+  ];
+
+  const isFilterSelected = (filter) => {
+    return filterList.filter((obj) => {
+      return obj.name === filter.name;
+    })[0].hook[0];
+  };
+  // useContext;
   // const [userEmail, setEmail] = useState("");
   // const [dateOfBirth, setDateOfBirth] = useState(new Date("2001-01-01"));
 
@@ -57,8 +166,77 @@ const ProfileScreen = ({ navigation }) => {
       setEmail(user.email);
       setFirstName(user.firstName);
       setLastName(user.lastName);
+      filterList.forEach((element) => {
+        if (user.preferences.includes(element.name)) {
+          element.hook[1](true);
+        }
+      });
     }
   }, [user]);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      updateImage(result.uri);
+    }
+  };
+
+  const updateImage = async (uri) => {
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append("photo", {
+      name: "profile.jpg",
+      uri: Platform.OS === "ios" ? uri.replace("file://", "") : uri,
+      type: "image/jpeg",
+    });
+
+    console.log(formData);
+
+    try {
+      // await fetch("v1/users/me", {
+      //   method: "PATCH",
+      //   url: "http://2f00-151-255-174-169.ngrok.io/v1/users/me",
+      //   body: formData,
+      //   headers: {
+      //     Authorization: `Bearer ${state.token}`,
+      //     Access: "application/json",
+      //     "Content-Type": "multipart/form-data; boundary=some string",
+      //   },
+      // });
+      // const response = await spottripAPI.patch("v1/users/me", formData, {
+      //   // headers: {
+      //   //   // Authorization: `Bearer ${state.token}`,
+      //   //   Access: "application/json",
+      //   //   "Content-Type": "multipart/form-data; boundary= sis if",
+      //   // },
+      // });
+      const response = await axios({
+        method: "PATCH",
+        url: "http://2f00-151-255-174-169.ngrok.io/v1/users/me",
+        data: formData,
+        headers: {
+          Authorization: `Bearer ${state.token}`,
+          Access: "application/json",
+          "Content-Type": "multipart/form-data; boundary:null",
+          // "content-type": "multipart/form-data; boundary:undefined",
+        },
+      });
+      // setUser(response.data.data.user);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error.response.data.message);
+      setIsLoading(false);
+    }
+  };
 
   const submitProfileChanges = async () => {
     try {
@@ -103,6 +281,28 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  const updatePreference = async () => {
+    try {
+      setIsLoading(true);
+      const prefArray = [];
+      filterList.forEach((element) => {
+        if (element.hook[0]) {
+          prefArray.push(element.name);
+        }
+      });
+
+      const response = await spottripAPI.patch(`v1/users/me`, { preferences: prefArray });
+      setUser(response.data.data.user);
+      // setChangesPassword("");
+      // setShowPasswordField(false);
+      setIsLoading(false);
+      togglePreferencesModal();
+    } catch (error) {
+      console.log(error);
+      setShowPasswordField(false);
+    }
+  };
+
   const toggleAccountInfoModal = () => {
     setChangesPassword("");
     setShowPasswordField(false);
@@ -110,6 +310,12 @@ const ProfileScreen = ({ navigation }) => {
     setModalAccountInfoVisible(!isModalAccountInfoVisible);
   };
 
+  const togglePreferencesModal = () => {
+    // setChangesPassword("");
+    // setShowPasswordField(false);
+
+    setModalPreferencesVisible(!isModalPreferencesVisible);
+  };
   const onDateChange = (event, selectedDate) => {
     // console.log(event);
     // const currentDate = selectedDate || date;
@@ -122,21 +328,22 @@ const ProfileScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {user != null ? (
-        <Modal isVisible={isModalAccountInfoVisible} avoidKeyboard={true}>
-          <ScrollView
-            style={styles.modalStyle}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Button
-              icon={<MaterialCommunityIcons name="close-thick" size={36} color="#FFF" />}
-              iconPosition="left"
-              onPress={toggleAccountInfoModal}
-              type="clear"
-              style={{ width: 50 }}
-            />
-            <Text style={styles.modalTextStyle}>Personal Info</Text>
-            <View style={styles.inputGroup}>
+        <>
+          <Modal isVisible={isModalAccountInfoVisible} avoidKeyboard={true}>
+            <ScrollView
+              style={styles.modalStyle}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <Button
+                icon={<MaterialCommunityIcons name="close-thick" size={36} color="#FFF" />}
+                iconPosition="left"
+                onPress={toggleAccountInfoModal}
+                type="clear"
+                style={{ width: 50 }}
+              />
+              <Text style={styles.modalTextStyle}>Personal Info</Text>
+              {/* <View style={styles.inputGroup}> */}
               {/* <Input label="Email" /> */}
               <Input
                 label="Email"
@@ -296,32 +503,118 @@ const ProfileScreen = ({ navigation }) => {
                 onPress={() => updatePassword()}
                 type="solid"
               />
-            </View>
+              {/* </View> */}
 
-            {isLoading ? (
-              <RNModal animationType="none" transparent={true} visible={true}>
-                <View style={styles.loading}>
-                  <ActivityIndicator size="large" color="#FF9F1C" />
+              {isLoading ? (
+                <RNModal animationType="none" transparent={true} visible={true}>
+                  <View style={styles.loading}>
+                    <ActivityIndicator size="large" color="#FF9F1C" />
+                  </View>
+                </RNModal>
+              ) : null}
+            </ScrollView>
+          </Modal>
+          <Modal isVisible={isModalPreferencesVisible} avoidKeyboard={true}>
+            <ScrollView
+              style={styles.modalStyle}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <Button
+                icon={<MaterialCommunityIcons name="close-thick" size={36} color="#FFF" />}
+                iconPosition="left"
+                onPress={togglePreferencesModal}
+                type="clear"
+                style={{ width: 50 }}
+              />
+              <Text style={styles.modalTextStyle}>Your Preferred Categories</Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: "#FFF",
+                  fontWeight: "400",
+                  marginTop: 5,
+                  marginLeft: 10,
+                }}
+              >
+                The selected categories are highlighted
+              </Text>
+
+              <View style={{ paddingVertical: 15, marginVertical: 15 }}>
+                <View style={styles.buttonGroup}>
+                  {filterList.map((preference) => {
+                    return (
+                      <TouchableOpacity
+                        key={preference.name}
+                        style={
+                          isFilterSelected(preference)
+                            ? styles.buttonStyleSelected
+                            : styles.preferenceButtonStyle
+                        }
+                        onPress={() => {
+                          preference.hook[1](!isFilterSelected(preference));
+                        }}
+                      >
+                        {preference.icon
+                          ? preference.icon(isFilterSelected(preference) ? "#FFF" : "#229186")
+                          : null}
+                        <Text
+                          style={
+                            isFilterSelected(preference)
+                              ? styles.buttonLabelSelected
+                              : styles.buttonLabel
+                          }
+                        >
+                          {preference.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
-              </RNModal>
-            ) : null}
-          </ScrollView>
-        </Modal>
+              </View>
+              <Button
+                title="Confirm Changes"
+                buttonStyle={{
+                  marginVertical: 20,
+                  backgroundColor: "#229186",
+                  marginHorizontal: 50,
+                  paddingVertical: 20,
+                  borderRadius: 50,
+                  marginBottom: 15,
+                }}
+                titleStyle={{ fontWeight: "bold" }}
+                onPress={() => updatePreference()}
+                type="solid"
+              />
+              {isLoading ? (
+                <RNModal animationType="none" transparent={true} visible={true}>
+                  <View style={styles.loading}>
+                    <ActivityIndicator size="large" color="#FF9F1C" />
+                  </View>
+                </RNModal>
+              ) : null}
+            </ScrollView>
+          </Modal>
+        </>
       ) : null}
       {user != null ? (
-        <ScrollView
-          // directionalLockEnabled
-          // automaticallyAdjustContentInsets={false}
-          // scrollEnabled={false}
-          horizontal={false}
-        >
+        <ScrollView horizontal={false}>
           <View style={styles.ellipse}>
             <View style={styles.upperInfo}>
-              <Image
+              {/* <Image
                 style={styles.profileImg}
                 source={require("../../assets/images/avatars/person4.png")}
+              /> */}
+
+              <Image
+                style={styles.profileImg}
+                // {...{ uri }}
+                uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${user.photo}`}
+                preview={{
+                  uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                }}
               />
-              <TouchableOpacity style={styles.uploadPicButton}>
+              <TouchableOpacity style={styles.uploadPicButton} onPress={pickImage}>
                 <Icon
                   name="camera-enhance"
                   type="MaterialIcons "
@@ -333,9 +626,6 @@ const ProfileScreen = ({ navigation }) => {
               </TouchableOpacity>
               <View style={styles.nameContainer}>
                 <Text style={styles.nameStyle}>{`${user.firstName} ${user.lastName}`}</Text>
-                {/* <TouchableOpacity>
-                  <Icon name="pencil-circle" type="material-community" size={30} color="#FFF" />
-                </TouchableOpacity> */}
               </View>
               <Text style={{ fontSize: 16, marginTop: 15 }}>{user.username}</Text>
             </View>
@@ -364,7 +654,9 @@ const ProfileScreen = ({ navigation }) => {
             <View style={[styles.infoCard]}>
               <View style={styles.infoCardTitle}>
                 <Text style={{ fontWeight: "bold" }}>Preferences</Text>
-                <Icon name="pencil-circle" type="material-community" size={30} color="#229186" />
+                <TouchableOpacity onPress={togglePreferencesModal}>
+                  <Icon name="pencil-circle" type="material-community" size={30} color="#229186" />
+                </TouchableOpacity>
               </View>
               {user != null
                 ? user.preferences.map((preference) => {
@@ -559,6 +851,44 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     // marginTop: -20,
+  },
+  buttonGroup: {
+    // marginTop: 5,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    flexWrap: "wrap",
+  },
+  buttonStyleSelected: {
+    marginTop: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 9,
+    borderRadius: 15,
+    borderColor: "#229186",
+    borderWidth: 1,
+    backgroundColor: "#229186",
+  },
+  preferenceButtonStyle: {
+    // width: 90,
+    marginTop: 5,
+    backgroundColor: "#FFF",
+
+    paddingVertical: 5,
+    paddingHorizontal: 9,
+    borderRadius: 15,
+    borderColor: "#229186",
+    borderWidth: 1,
+  },
+  buttonLabel: {
+    textAlign: "center",
+    color: "#229186",
+    fontWeight: "bold",
+    fontSize: 11,
+  },
+  buttonLabelSelected: {
+    textAlign: "center",
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 11,
   },
 });
 
