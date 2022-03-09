@@ -12,6 +12,10 @@ import { Context as AuthContext } from "../context/AuthContext";
 import { NavigationEvents } from "react-navigation";
 import { ScrollView } from "react-native-gesture-handler";
 import * as Notifications from "expo-notifications";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
+
+// WebBrowser.maybeCompleteAuthSession();
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -80,6 +84,25 @@ const SignInScreen = ({ navigation }) => {
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
+
+  // const [request, response, promptAsync] = Google.useAuthRequest({
+  //   expoClientId: "718190725901-b8lje4luinod3qna74818i1ppbso7hqp.apps.googleusercontent.com",
+  //   scopes: ["profile", "email"],
+  // });
+
+  // useEffect(() => {
+  //   if (response?.type === "success") {
+  //     const { authentication } = response;
+  //   }
+  // }, [response]);
+
+  // const handleGoogleLogin = () => {
+  //   const config = {
+  //     expoClientId: "718190725901-b8lje4luinod3qna74818i1ppbso7hqp.apps.googleusercontent.com",
+  //     scopes: ["profile", "email"],
+  //   };
+  //   Google;
+  // };
 
   const passwordRef = useRef();
   return (
@@ -165,6 +188,11 @@ const SignInScreen = ({ navigation }) => {
             titleStyle={{ color: "#011627", fontSize: 16, fontWeight: "bold" }}
             containerStyle={{ borderRadius: 50, marginTop: 20 }}
             raised
+            // disabled={!request}
+            // onPress={() => {
+            //   promptAsync();
+            //   // handleGoogleLogin();
+            // }}
           />
         </View>
         {state.isLoading ? (

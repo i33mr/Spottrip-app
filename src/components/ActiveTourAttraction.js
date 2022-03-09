@@ -5,12 +5,10 @@ import GMaps_icon from "../../assets/images/google-maps.svg";
 import { Octicons } from "@expo/vector-icons";
 import moment from "moment";
 import ActiveTourAttractionTravelTime from "./ActiveTourAttractionTravelTime";
+import openMap from "react-native-open-maps";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const ActiveTourAttraction = ({ attraction, index, tour }) => {
-  // console.log(
-  //   tour.attractions[index + 1].startsAt - attraction.startsAt - attraction._id.time
-  //   // -      attraction.extendedTime
-  // );
   return (
     <>
       <View style={styles.tourLocation}>
@@ -35,7 +33,19 @@ const ActiveTourAttraction = ({ attraction, index, tour }) => {
           <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "bold", flex: 1 }}>
             {attraction._id.name}
           </Text>
-          <GMaps_icon style={{ flex: 1 }} />
+          <TouchableOpacity
+            onPress={() =>
+              // openMap({ latitude: 37.865101, longitude: -119.53833, provider: "google", zoom: 25 })
+              openMap({
+                latitude: attraction._id.location.coordinates[1],
+                longitude: attraction._id.location.coordinates[0],
+                provider: "google",
+                zoom: 18,
+              })
+            }
+          >
+            <GMaps_icon style={{ flex: 1 }} />
+          </TouchableOpacity>
         </View>
       </View>
       <View>

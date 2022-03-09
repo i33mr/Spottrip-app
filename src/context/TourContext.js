@@ -143,7 +143,9 @@ const addAttractions = (dispatch) => async (tourId, attractionsToAdd) => {
     // await getTour(tourId);
     dispatch({ type: "loading", payload: false });
   } catch (error) {
-    console.log(error);
+    console.log(error.response.data.message);
+    dispatch({ type: "loading", payload: false });
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -224,6 +226,32 @@ const resolveOverstayResponse =
     }
   };
 
+const updateAttractionsOrder = (dispatch) => async (tourId, attractions) => {
+  dispatch({ type: "loading", payload: true });
+
+  // overStayedTime *= 60;
+  // console.log(overStayedTime);
+  try {
+    const response = await spottripAPI.patch(`/v1/tours/reorder-attractions/${tourId}`, {
+      attractions,
+    });
+
+    console.log(response.data.data.tour);
+
+    // if (response.data.data.message.method === "no change") {
+    dispatch({ type: "set_tour", payload: response.data.data.tour });
+    // console.log(response.data.data.message);
+    // }
+    // dispatch({ type: "overstay_msg", payload: `${choice} is done!` });
+
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    console.log(error.response.data.message);
+    dispatch({ type: "loading", payload: false });
+    throw new Error("Error");
+  }
+};
+
 const clearTour = (dispatch) => () => {
   dispatch({ type: "clear_tour" });
 };
@@ -256,6 +284,7 @@ export const { Provider, Context } = createDataContext(
     resolveOverstay,
     clearOverstayMsg,
     resolveOverstayResponse,
+    updateAttractionsOrder,
   },
   { tours: [], isLoading: false, inviteMsg: null, tour: null, overstayMsg: "" }
 );

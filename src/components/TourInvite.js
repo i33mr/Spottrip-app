@@ -1,12 +1,23 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "react-native-elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Image } from "react-native-expo-image-cache";
 
 const TourInvite = ({ invite, removeInvite }) => {
   return (
     <View style={styles.friendView}>
-      <Image style={styles.friendImg} source={require("../../assets/images/avatars/avatar1.png")} />
+      {/* <Image style={styles.friendImg} source={require("../../assets/images/avatars/avatar1.png")} /> */}
+      <View style={styles.friendImgContainer}>
+        <Image
+          style={styles.friendImg}
+          // {...{ uri }}
+          uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${invite.invitee.photo}`}
+          preview={{
+            uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          }}
+        />
+      </View>
       <View style={styles.friendDetail}>
         <Text h4 style={styles.friendDetailText}>
           {`${invite.invitee.firstName} ${invite.invitee.lastName}`}
@@ -105,11 +116,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: "row",
   },
-  friendImg: {
+  friendImgContainer: {
+    height: 110,
+    width: 110,
     marginHorizontal: 5,
-    // borderRadius: 50,
-    // height: "100%",
-    // width: "28%",
+    marginVertical: 5,
+  },
+  friendImg: {
+    // marginHorizontal: 5,
+    borderRadius: 60,
+    height: "100%",
+    width: "100%",
   },
   friendDetailText: {
     color: "#FFF",

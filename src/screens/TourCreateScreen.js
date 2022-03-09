@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import Magic_icon from "../../assets/images/magic.svg";
 import Pointer_icon from "../../assets/images/pointer.svg";
 import { Context as InvitesContext } from "../context/InvitesContext";
+import { Context as TourContext } from "../context/TourContext";
 import { NavigationEvents } from "react-navigation";
 import spottripAPI from "../api/spottripAPI";
 import TourInvite from "../components/TourInvite";
@@ -23,6 +24,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 const TourCreateScreen = ({ navigation }) => {
   const { state, fetchTourInvites, sendTourInvite, clearInviteMessage, removeInvite } =
     useContext(InvitesContext);
+
+  const Tour = useContext(TourContext);
 
   const tourTitle = navigation.getParam("tourTitle");
 
@@ -246,7 +249,7 @@ const TourCreateScreen = ({ navigation }) => {
           />
         </View>
       </ScrollView>
-      {isLoading || state.isLoading ? (
+      {isLoading || state.isLoading || Tour.isLoading ? (
         <RNModal animationType="none" transparent={true} visible={true}>
           <View style={styles.loading}>
             <ActivityIndicator size="large" color="#FF9F1C" />

@@ -24,7 +24,6 @@ let counter = 0;
 
 setInterval(() => {
   // () => {
-  console.log("KEKW");
   Location.EventEmitter.emit("Expo.locationChanged", {
     watchId: Location._getCurrentWatchId(),
     location: getLocation(counter),

@@ -22,7 +22,7 @@ const addLocalNotification = (dispatch) => async (tour) => {
     content: {
       title: tour.title,
       body: "Your tour just began!",
-      data: { screen: "ActiveTour", _id: tour._id, tourTile: tour.title },
+      data: { screen: "ActiveTour", _id: tour._id, tourTitle: tour.title },
     },
     // trigger: { date: Date.now() + 10 * 1000 },
     trigger: { date: moment(Date.now()).add(5, "seconds").valueOf() },
@@ -54,7 +54,7 @@ const addLocalNotification = (dispatch) => async (tour) => {
             body: `You should start moving to ${
               tour.attractions[index + 1]._id.name
             } within 5 minutes!`,
-            data: { screen: "ActiveTour", _id: tour._id, tourTile: tour.title },
+            data: { screen: "ActiveTour", _id: tour._id, tourTitle: tour.title },
             sound: true,
           },
 
@@ -99,7 +99,7 @@ const resetLocalNotifications = (dispatch) => async (tours) => {
             content: {
               title: tour.title,
               body: "Your tour just began!",
-              data: { screen: "ActiveTour", _id: tour._id, tourTile: tour.title },
+              data: { screen: "ActiveTour", _id: tour._id, tourTitle: tour.title },
             },
             // trigger: { date: Date.now() + 10 * 1000 },
             trigger: { date: moment(tour.startTime).add(5, "seconds").valueOf() },
@@ -129,7 +129,7 @@ const resetLocalNotifications = (dispatch) => async (tours) => {
                   body: `You should start moving to ${
                     tour.attractions[index + 1]._id.name
                   } within 5 minutes!`,
-                  data: { screen: "ActiveTour", _id: tour._id, tourTile: tour.title },
+                  data: { screen: "ActiveTour", _id: tour._id, tourTitle: tour.title },
                   sound: true,
                 },
                 // trigger: { date: Date.now() + 10 * 1000 },

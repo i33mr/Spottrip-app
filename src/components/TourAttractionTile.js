@@ -31,7 +31,11 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId }) => {
             } hours`}</Text>
           </View>
 
-          <Text style={styles.elementDetailText}>{attraction.addBy}</Text>
+          <Text style={styles.elementDetailText}>
+            {attraction.addBy !== "Auto generated"
+              ? `Added By: ${attraction.addBy}`
+              : attraction.addBy}
+          </Text>
         </View>
       </View>
       <TouchableOpacity

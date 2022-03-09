@@ -52,14 +52,6 @@ const HomeScreenHeader = ({ navigation, longitudeLatitude }) => {
       const queryString = `category[in]=${queryCategories.join(",")}`;
       fetchAttractions(queryCategories.length > 0 ? queryString : "", longitudeLatitude);
       setSearchErr("");
-      // filterList.sort(function (x, y) {
-      //   // true values first
-      //   return x.hook[0] === y.hook[0] ? 0 : x.hook[0] ? -1 : 1;
-      //   // false values first
-      //   // return (x === y)? 0 : x? 1 : -1;
-      // });
-      // setRerenderFlatList(!rerenderFlatList);
-      // console.log(filterList);
     },
     filterList.map((el) => {
       return el.hook[0];

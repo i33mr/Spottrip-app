@@ -56,7 +56,6 @@ const signup = (dispatch) => {
 
     // make api request to sign up with these email and password
     try {
-      // console.log({ ...user });
       const response = await spottripApi.post("/v1/users/signup", {
         ...user,
       });
@@ -70,11 +69,9 @@ const signup = (dispatch) => {
       // navigate to mainFlow
       navigate("SignupDone"); // from navigationRef.js
     } catch (error) {
-      console.log("TESTS Error");
+      // console.log("TESTS Error");
       // if sign up fail, reflect error message
-      // console.log(error);
-      console.log(error.response.data.message);
-      // console.log(response);
+      // console.log(error.response.data.message);
 
       dispatch({
         type: "add_error",
@@ -87,7 +84,7 @@ const signup = (dispatch) => {
 
 const signUpPersonalInfo = (dispatch) => (userObj) => {
   dispatch({ type: "add_personal_info", payload: userObj });
-  console.log(userObj);
+  // console.log(userObj);
 };
 
 // eslint-disable-next-line arrow-body-style

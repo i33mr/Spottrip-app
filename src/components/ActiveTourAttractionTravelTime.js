@@ -5,7 +5,6 @@ import { Octicons } from "@expo/vector-icons";
 import moment from "moment";
 
 const ActiveTourAttractionTravelTime = ({ minutes, hours }) => {
-  // console.log(minutes, hours);
   return (
     <View style={styles.locationTravelTime}>
       <Text style={{ fontSize: 11, color: "#FF9F1C", width: "26.4%" }}>

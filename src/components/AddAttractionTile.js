@@ -4,14 +4,14 @@ import { Image } from "react-native-expo-image-cache";
 import { SearchBar, Button, Text, Icon, Input } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 
-const AddAttractionTile = ({ attraction, selectedAttractions, setSelectedAttractions }) => {
+const AddAttractionTile = ({ attraction, updateArray }) => {
   const [selected, setSelected] = useState(false);
 
   useEffect(() => {
     if (selected) {
-      setSelectedAttractions([...selectedAttractions, attraction._id]);
+      updateArray("add", attraction._id);
     } else {
-      setSelectedAttractions(selectedAttractions.filter((att) => att._id !== attraction._id));
+      updateArray("remove", attraction._id);
     }
   }, [selected]);
   return (

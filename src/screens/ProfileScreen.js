@@ -199,38 +199,27 @@ const ProfileScreen = ({ navigation }) => {
       type: "image/jpeg",
     });
 
-    console.log(formData);
+    // console.log(formData);
 
     try {
-      // await fetch("v1/users/me", {
-      //   method: "PATCH",
-      //   url: "http://2f00-151-255-174-169.ngrok.io/v1/users/me",
-      //   body: formData,
-      //   headers: {
-      //     Authorization: `Bearer ${state.token}`,
-      //     Access: "application/json",
-      //     "Content-Type": "multipart/form-data; boundary=some string",
-      //   },
-      // });
-      // const response = await spottripAPI.patch("v1/users/me", formData, {
-      //   // headers: {
-      //   //   // Authorization: `Bearer ${state.token}`,
-      //   //   Access: "application/json",
-      //   //   "Content-Type": "multipart/form-data; boundary= sis if",
-      //   // },
-      // });
-      const response = await axios({
+      const response = await fetch("http://2f00-151-255-174-169.ngrok.io/v1/users/me", {
         method: "PATCH",
-        url: "http://2f00-151-255-174-169.ngrok.io/v1/users/me",
-        data: formData,
+        body: formData,
         headers: {
           Authorization: `Bearer ${state.token}`,
           Access: "application/json",
-          "Content-Type": "multipart/form-data; boundary:null",
-          // "content-type": "multipart/form-data; boundary:undefined",
+          "Content-Type": "multipart/form-data;",
         },
       });
-      // setUser(response.data.data.user);
+
+      if (!response.ok) {
+        const message = `An error has occurred: ${response.status}`;
+        throw new Error(message);
+      }
+
+      const responseJSON = await response.json();
+
+      setUser(responseJSON.data.user);
       setIsLoading(false);
     } catch (error) {
       console.log(error.response.data.message);
@@ -606,14 +595,16 @@ const ProfileScreen = ({ navigation }) => {
                 source={require("../../assets/images/avatars/person4.png")}
               /> */}
 
-              <Image
-                style={styles.profileImg}
-                // {...{ uri }}
-                uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${user.photo}`}
-                preview={{
-                  uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-                }}
-              />
+              <View style={styles.profileImgContainer}>
+                <Image
+                  style={styles.profileImg}
+                  // {...{ uri }}
+                  uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${user.photo}`}
+                  preview={{
+                    uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                  }}
+                />
+              </View>
               <TouchableOpacity style={styles.uploadPicButton} onPress={pickImage}>
                 <Icon
                   name="camera-enhance"
@@ -713,9 +704,13 @@ const styles = StyleSheet.create({
     // temp
     height: Dimensions.get("window").width - 128,
   },
-  profileImg: {
+  profileImgContainer: {
     height: 150,
     width: 150,
+  },
+  profileImg: {
+    height: "100%",
+    width: "100%",
     borderRadius: 75,
   },
   uploadPicButton: {

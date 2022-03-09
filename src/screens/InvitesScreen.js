@@ -4,7 +4,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Image,
   ScrollView,
   Modal,
   ActivityIndicator,
@@ -13,6 +12,8 @@ import {
 import { SearchBar, Button, Text, Icon, Input } from "react-native-elements";
 import { NavigationEvents } from "react-navigation";
 import { Context as InvitesContext } from "../context/InvitesContext";
+import { Image } from "react-native-expo-image-cache";
+
 const InvitesScreen = () => {
   const { state, fetchUserInvites, respondToInvite } = useContext(InvitesContext);
   const [refreshing, setRefreshing] = useState(false);
@@ -47,17 +48,27 @@ const InvitesScreen = () => {
           if (invite.status === "Pending") {
             return (
               <View style={styles.invite} key={invite._id}>
-                <Image
+                {/* <Image
                   style={styles.invitePic}
                   source={require("../../assets/images/avatars/person1.jpeg")}
-                />
+                /> */}
+                <View style={{ width: 110, height: 110 }}>
+                  <Image
+                    style={styles.invitePic}
+                    // {...{ uri }}
+                    uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${invite.inviter.photo}`}
+                    preview={{
+                      uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                    }}
+                  />
+                </View>
                 <View style={styles.inviteDetail}>
                   <Text h4 style={[styles.inviteDetailText, { fontWeight: "bold" }]}>
                     {invite.tour.title}
                   </Text>
                   <Text
                     style={styles.inviteDetailText}
-                  >{`By: ${invite.invitee.firstName} ${invite.invitee.lastName}`}</Text>
+                  >{`By: ${invite.inviter.firstName} ${invite.inviter.lastName}`}</Text>
                   <View style={styles.buttonGroup}>
                     <Button
                       buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
@@ -161,9 +172,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   invitePic: {
-    maxHeight: 110,
-    maxWidth: 110,
-    borderRadius: 50,
+    // maxHeight: 110,
+    // maxWidth: 110,
+    height: "100%",
+    width: "100%",
+    borderRadius: 60,
   },
   inviteDetail: {
     flex: 1,

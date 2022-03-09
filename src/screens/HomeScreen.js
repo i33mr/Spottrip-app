@@ -14,6 +14,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AttractionTile from "../components/AttractionTile";
 import HomeScreenHeader from "../components/HomeScreenHeader";
 import FloatingButton from "../components/FloatingButton";
+import FlashMessage from "react-native-flash-message";
 
 import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
 
@@ -106,8 +107,8 @@ const HomeScreen = ({ navigation }) => {
           _id: response.notification.request.content.data._id,
           tourTitle: response.notification.request.content.data.tourTitle,
         });
-      console.log(response);
-      console.log(response.notification.request.content.data.screen);
+      // console.log(response);
+      // console.log(response.notification.request.content.data.screen);
     });
 
     return () => {

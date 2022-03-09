@@ -20,12 +20,9 @@ const attractionReducer = (state, action) => {
 const fetchAttractions = (dispatch) => async (filters, longitudeLatitude) => {
   const km = 10;
 
-  // console.log(useContext(AuthContext).state.token);
   dispatch({ type: "loading", payload: true });
 
   try {
-    // console.log(filters ? true : false);
-    // console.log(longitudeLatitude);
     const response = await spottripAPI.get(
       `/v1/attractions/attractions-within/${km}/center/${longitudeLatitude}${
         filters ? `?${filters}` : ""
@@ -40,16 +37,11 @@ const fetchAttractions = (dispatch) => async (filters, longitudeLatitude) => {
 };
 
 const searchAttractions = (dispatch) => async (searchTerm) => {
-  // console.log(useContext(AuthContext).state.token);
   dispatch({ type: "loading", payload: true });
-  // console.log("searchTerm", searchTerm);
   try {
-    // console.log(filters ? true : false);
     const response = await spottripAPI.get(
       `/v1/attractions/search/${searchTerm}/center/101.711309,3.158870`
     );
-
-    // console.log(response.data.data.data);
 
     dispatch({ type: "search_attractions", payload: response.data.data.data });
     dispatch({ type: "loading", payload: false });
@@ -60,11 +52,8 @@ const searchAttractions = (dispatch) => async (searchTerm) => {
 
 const searchAttractionsToAddToTour =
   (dispatch) => async (searchTerm, tourId, longitudeLatitude) => {
-    // console.log(useContext(AuthContext).state.token);
     dispatch({ type: "loading", payload: true });
-    // console.log("searchTerm", searchTerm);
     try {
-      // console.log(filters ? true : false);
       const response = await spottripAPI.get(
         `/v1/attractions/search/${searchTerm}/center/101.711309,3.158870`
       );
@@ -75,14 +64,9 @@ const searchAttractionsToAddToTour =
       const uniqueAttractions = [];
       const tourAttractions = tourResponse.data.data.tour.attractions.map((att) => att._id._id);
 
-      // console.log(tourAttractions);
-
       response.data.data.data.forEach((element) => {
-        // console.log("res", element._id);
         if (!tourAttractions.includes(element._id)) uniqueAttractions.push(element);
       });
-
-      // console.log(response.data.data.data);
 
       dispatch({ type: "search_attractions", payload: uniqueAttractions });
       dispatch({ type: "loading", payload: false });

@@ -19,6 +19,7 @@ import { Context as TourContext } from "../context/TourContext";
 import { Image } from "react-native-expo-image-cache";
 import AddAttractionTile from "../components/AddAttractionTile";
 import { NavigationEvents } from "react-navigation";
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 const TourAddAttractionScreen = ({ navigation }) => {
   const tourId = navigation.getParam("_id");
@@ -29,8 +30,9 @@ const TourAddAttractionScreen = ({ navigation }) => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchErr, setSearchErr] = useState("");
-  const [selectedAttractions, setSelectedAttractions] = useState([]);
+  // const [selectedAttractions, setSelectedAttractions] = useState([]);
 
+  let selectedAttractions = [];
   const onSubmitSearch = () => {
     if (searchTerm === "") {
       setSearchErr("Please enter search term");
@@ -42,13 +44,33 @@ const TourAddAttractionScreen = ({ navigation }) => {
     }
   };
 
-  const onAddAttractions = () => {
+  const onAddAttractions = async () => {
+    console.log(selectedAttractions);
     if (!selectedAttractions.length) {
       setSearchErr("Please select at least one attraction to add, or go back to view your tour");
     } else {
-      Tour.addAttractions(tourId, selectedAttractions);
-      navigation.navigate("TourOverview");
+      try {
+        await Tour.addAttractions(tourId, selectedAttractions);
+        navigation.navigate("TourOverview");
+      } catch (error) {
+        showMessage({
+          message: "Couldn't add attraction",
+          description: error.message,
+          type: "danger",
+          duration: 4000,
+          // floating: true,
+        });
+      }
     }
+  };
+
+  const updateAddArray = (method, id) => {
+    if (method === "add") {
+      selectedAttractions = [...selectedAttractions, id];
+    } else {
+      selectedAttractions = selectedAttractions.filter((attId) => attId !== id);
+    }
+    console.log(selectedAttractions);
   };
   return (
     // <View style={styles.container}>
@@ -124,12 +146,13 @@ const TourAddAttractionScreen = ({ navigation }) => {
           />
         </View> */}
       {Attraction.state.searchResults.map((attraction) => {
-        console.log(attraction);
+        // console.log(attraction);
         return (
           <AddAttractionTile
             key={attraction._id}
+            updateArray={updateAddArray}
             selectedAttractions={selectedAttractions}
-            setSelectedAttractions={setSelectedAttractions}
+            // setSelectedAttractions={setSelectedAttractions}
             attraction={attraction}
           />
           // <TouchableOpacity key={attraction._id} style={styles.elementView}>
@@ -224,6 +247,9 @@ const TourAddAttractionScreen = ({ navigation }) => {
           </View>
         </Modal>
       ) : null}
+      {/* {console.log("Do we reach add?")} */}
+
+      <FlashMessage position="top" />
     </ScrollView>
 
     // </View>

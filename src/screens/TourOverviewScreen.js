@@ -16,6 +16,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { EvilIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
+
 import { Context as TourContext } from "../context/TourContext";
 import { Context as InvitesContext } from "../context/InvitesContext";
 import { Context as NotificationContext } from "../context/NotificationContext";
@@ -25,6 +27,11 @@ import TourAttractionTile from "../components/TourAttractionTile";
 import TourSummaryBar from "../components/TourSummaryBar";
 import { StackActions } from "react-navigation";
 import { NavigationActions } from "react-navigation";
+import DraggableFlatList, {
+  ScaleDecorator,
+  ShadowDecorator,
+  OpacityDecorator,
+} from "react-native-draggable-flatlist";
 
 const TourOverviewScreen = ({ navigation, route }) => {
   const tourId = navigation.getParam("_id");
@@ -40,6 +47,9 @@ const TourOverviewScreen = ({ navigation, route }) => {
   const [isSending, setIsSending] = useState(false);
   const [invites, setInvites] = useState([]);
   const [tour, setTour] = useState(null);
+  const [reordering, setReordering] = useState(false);
+  const [reorderedAttractions, setReorderedAttractions] = useState([]);
+  const [attractions, setAttractions] = useState([]);
 
   useEffect(() => {
     // Invite.fetchTourInvites(tourId);
@@ -63,9 +73,11 @@ const TourOverviewScreen = ({ navigation, route }) => {
       // console.log(tour);
     }
   }, [Tour.state.tour]);
-  // useEffect(() => {
-  //   if (tour !== null) navigation.setParams({ method: tour.timeToSpend ? "generate" : "manual" });
-  // }, [tour]);
+  useEffect(() => {
+    if (tour !== null) {
+      setAttractions(tour.attractions);
+    }
+  }, [tour]);
   useEffect(() => {
     // console.log("Setting invites");
     setInvites(Invite.state.invites);
@@ -116,164 +128,295 @@ const TourOverviewScreen = ({ navigation, route }) => {
     }
   };
 
+  const reorderAttractions = async () => {
+    await Tour.updateAttractionsOrder(tourId, attractions);
+  };
+
   return (
     <View style={styles.container}>
-      {/* <NavigationEvents onWillFocus={Tour.clearTour} /> */}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        <View style={styles.addFriendView}>
-          <Button
-            title="Add Friend"
-            icon={<AntDesign name="addusergroup" size={24} color="#FFF" />}
-            buttonStyle={styles.addFriendButtonStyle}
-            titleStyle={{ fontSize: 20, fontWeight: "bold" }}
-            onPress={() => setIsAddFriendFormVisible(!isAddFriendFormVisible)}
-          />
-          {isAddFriendFormVisible ? (
-            <View style={styles.addFriendForm}>
-              <Text
-                style={{ color: "#FFF", paddingHorizontal: 10, fontWeight: "bold", fontSize: 18 }}
-              >
-                Enter Your Friend's Username
-              </Text>
-              {Invite.state.inviteMsg ? (
-                <Text style={Invite.state.inviteMsg.code === 200 ? styles.success : styles.error}>
-                  {Invite.state.inviteMsg.msg}
-                </Text>
-              ) : null}
-              <Input
-                // label="Enter Your Friend’s Username"
-                inputStyle={styles.usernameInputStyle}
-                inputContainerStyle={{ borderBottomWidth: 0 }}
-                // style={{ marginTop: 15 }}
-                labelStyle={{ color: "#FFF" }}
-                value={friendUsername}
-                onChangeText={setFriendUsername}
+      {tour !== null ? (
+        <DraggableFlatList
+          data={attractions}
+          onDragEnd={({ data }) => setAttractions(data)}
+          keyExtractor={(item) => item._id._id}
+          renderItem={({ item, index, drag, isActive }) => {
+            return isShowAttractions ? (
+              <OpacityDecorator>
+                <ShadowDecorator>
+                  <View style={{ flexDirection: "row" }}>
+                    <View style={{ flex: 1 }}>
+                      <TourAttractionTile
+                        attraction={item}
+                        removeAttraction={Tour.removeAttraction}
+                        tourId={tourId}
+                        getTour={Tour.getTour}
+                      />
+                    </View>
+                    {reordering ? (
+                      <TouchableOpacity
+                        onLongPress={drag}
+                        style={{
+                          position: "absolute",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          top: 10,
+                          bottom: 0,
+                          left: -5,
+                          backgroundColor: "rgba(220,220,220,0.5)",
+                          borderTopLeftRadius: 25,
+                          borderBottomLeftRadius: 25,
+                        }}
+                      >
+                        <MaterialIcons
+                          name="drag-indicator"
+                          size={45}
+                          color="#011627"
+                          style={{
+                            shadowColor: "#000",
+                            shadowOffset: {
+                              width: 0,
+                              height: 12,
+                            },
+                            shadowOpacity: 0.58,
+                            shadowRadius: 16.0,
+
+                            elevation: 24,
+                            // backgroundColor: "rgba(220,220,220,0.5)",
+                          }}
+                        />
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                </ShadowDecorator>
+              </OpacityDecorator>
+            ) : null;
+          }}
+          ListHeaderComponent={
+            <>
+              <View style={styles.addFriendView}>
+                <Button
+                  title="Add Friend"
+                  icon={<AntDesign name="addusergroup" size={24} color="#FFF" />}
+                  buttonStyle={styles.addFriendButtonStyle}
+                  titleStyle={{ fontSize: 20, fontWeight: "bold" }}
+                  onPress={() => setIsAddFriendFormVisible(!isAddFriendFormVisible)}
+                />
+                {isAddFriendFormVisible ? (
+                  <View style={styles.addFriendForm}>
+                    <Text
+                      style={{
+                        color: "#FFF",
+                        paddingHorizontal: 10,
+                        fontWeight: "bold",
+                        fontSize: 18,
+                      }}
+                    >
+                      Enter Your Friend's Username
+                    </Text>
+                    {Invite.state.inviteMsg ? (
+                      <Text
+                        style={Invite.state.inviteMsg.code === 200 ? styles.success : styles.error}
+                      >
+                        {Invite.state.inviteMsg.msg}
+                      </Text>
+                    ) : null}
+                    <Input
+                      // label="Enter Your Friend’s Username"
+                      inputStyle={styles.usernameInputStyle}
+                      inputContainerStyle={{ borderBottomWidth: 0 }}
+                      // style={{ marginTop: 15 }}
+                      labelStyle={{ color: "#FFF" }}
+                      value={friendUsername}
+                      onChangeText={setFriendUsername}
+                    />
+                    <Button
+                      title="Send Invite"
+                      buttonStyle={styles.inviteButtonStyle}
+                      titleStyle={{ fontSize: 20, fontWeight: "600" }}
+                      onPress={sendInvite}
+                      loading={isSending ? true : false}
+                      disabled={isSending ? true : false}
+                      disabledStyle={{ backgroundColor: "#229186" }}
+                    />
+                  </View>
+                ) : null}
+              </View>
+              <View
+                style={{
+                  borderBottomColor: "#011627",
+                  borderBottomWidth: 1,
+                  marginVertical: 10,
+                }}
               />
               <Button
-                title="Send Invite"
-                buttonStyle={styles.inviteButtonStyle}
-                titleStyle={{ fontSize: 20, fontWeight: "600" }}
-                onPress={sendInvite}
-                loading={isSending ? true : false}
-                disabled={isSending ? true : false}
-                disabledStyle={{ backgroundColor: "#229186" }}
-                // loading
+                title="Friends"
+                icon={
+                  <MaterialIcons
+                    name={isShowFriends ? "arrow-drop-down" : "arrow-right"}
+                    size={36}
+                    color="#011627"
+                    style={{ padding: 0 }}
+                  />
+                }
+                buttonStyle={styles.showElementsButtonStyle}
+                titleStyle={{ fontSize: 20, fontWeight: "bold", color: "#000" }}
+                type="clear"
+                style={{ alignItems: "flex-start" }}
+                onPress={() => setIsShowFriends(!isShowFriends)}
+              />
+              {isShowFriends ? (
+                <View style={styles.showFriendsView}>
+                  {invites.map((invite) => {
+                    return (
+                      <TourInvite
+                        invite={invite}
+                        key={invite._id}
+                        removeInvite={Invite.removeInvite}
+                      />
+                    );
+                  })}
+                </View>
+              ) : null}
+              <View
+                style={{
+                  borderBottomColor: "#011627",
+                  borderBottomWidth: 1,
+                  marginVertical: 10,
+                }}
+              />
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <Button
+                  title="Attractions"
+                  icon={
+                    <MaterialIcons
+                      name={isShowAttractions ? "arrow-drop-down" : "arrow-right"}
+                      size={36}
+                      color="#011627"
+                      style={{ padding: 0 }}
+                    />
+                  }
+                  buttonStyle={styles.showElementsButtonStyle}
+                  titleStyle={{ fontSize: 20, fontWeight: "bold", color: "#000" }}
+                  type="clear"
+                  style={{ alignItems: "flex-start" }}
+                  onPress={() => setIsShowAttractions(!isShowAttractions)}
+                />
+                {isShowAttractions && !reordering ? (
+                  <TouchableOpacity onPress={() => setReordering(true)} style={{ marginRight: 10 }}>
+                    <FontAwesome name="list-ol" size={36} color="#011627" />
+                  </TouchableOpacity>
+                ) : null}
+                {reordering ? (
+                  <View style={{ flexDirection: "row" }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        reorderAttractions();
+                        setReordering(false);
+                      }}
+                      style={{ marginRight: 10 }}
+                    >
+                      <MaterialIcons name="save" size={36} color="#011627" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setReordering(false);
+                        setAttractions(tour.attractions);
+                      }}
+                      style={{ marginRight: 10 }}
+                    >
+                      <MaterialIcons name="cancel" size={36} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                ) : null}
+              </View>
+            </>
+          }
+          ListFooterComponent={
+            <>
+              <View
+                style={{
+                  borderBottomColor: "#011627",
+                  borderBottomWidth: 1,
+                  marginVertical: 10,
+                }}
+              />
+              {tour !== null ? <TourSummaryBar tour={tour} /> : null}
+
+              <View style={styles.buttonGroup}>
+                <View style={styles.buttonContainer}>
+                  <Button
+                    // icon={<Magic_icon fill="#FDFFFC" />}
+                    // style={{ flex: 1 }}
+                    title="Add Attractions"
+                    buttonStyle={[styles.buttonStyle, { borderColor: "#229186", borderWidth: 1 }]}
+                    titleStyle={{ color: "#229186", fontWeight: "bold" }}
+                    onPress={() => navigation.navigate("TourAddAttraction", { _id: tourId })}
+                    type="outline"
+                  />
+                </View>
+                <View style={styles.buttonContainer}>
+                  <Button
+                    title="Save Tour"
+                    buttonStyle={[styles.buttonStyle, { borderColor: "#FF9F1C", borderWidth: 1 }]}
+                    titleStyle={{ color: "#FF9F1C", fontWeight: "bold" }}
+                    onPress={() => navigation.navigate("TourList")}
+                    type="outline"
+                  />
+                </View>
+              </View>
+              <Button
+                title="Start Tour"
+                buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186", marginBottom: 10 }]}
+                titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
+                onPress={() => activateTour()}
+              />
+            </>
+          }
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        />
+      ) : null}
+      {/* <>
+          <View
+            style={{
+              borderBottomColor: "#011627",
+              borderBottomWidth: 1,
+              marginVertical: 10,
+            }}
+          />
+          {tour !== null ? <TourSummaryBar tour={tour} /> : null}
+
+          <View style={styles.buttonGroup}>
+            <View style={styles.buttonContainer}>
+              <Button
+                // icon={<Magic_icon fill="#FDFFFC" />}
+                // style={{ flex: 1 }}
+                title="Add Attractions"
+                buttonStyle={[styles.buttonStyle, { borderColor: "#229186", borderWidth: 1 }]}
+                titleStyle={{ color: "#229186", fontWeight: "bold" }}
+                onPress={() => navigation.navigate("TourAddAttraction", { _id: tourId })}
+                type="outline"
               />
             </View>
-          ) : null}
-        </View>
-        <View
-          style={{
-            borderBottomColor: "#011627",
-            borderBottomWidth: 1,
-            marginVertical: 10,
-          }}
-        />
-        <Button
-          title="Friends"
-          icon={
-            <MaterialIcons
-              name={isShowFriends ? "arrow-drop-down" : "arrow-right"}
-              size={36}
-              color="black"
-              style={{ padding: 0 }}
-            />
-          }
-          buttonStyle={styles.showElementsButtonStyle}
-          titleStyle={{ fontSize: 20, fontWeight: "bold", color: "#000" }}
-          type="clear"
-          style={{ alignItems: "flex-start" }}
-          onPress={() => setIsShowFriends(!isShowFriends)}
-        />
-        {isShowFriends ? (
-          <View style={styles.showFriendsView}>
-            {invites.map((invite) => {
-              return (
-                <TourInvite invite={invite} key={invite._id} removeInvite={Invite.removeInvite} />
-              );
-            })}
+            <View style={styles.buttonContainer}>
+              <Button
+                title="Save Tour"
+                buttonStyle={[styles.buttonStyle, { borderColor: "#FF9F1C", borderWidth: 1 }]}
+                titleStyle={{ color: "#FF9F1C", fontWeight: "bold" }}
+                onPress={() => navigation.navigate("TourList")}
+                type="outline"
+              />
+            </View>
           </View>
-        ) : null}
-        <View
-          style={{
-            borderBottomColor: "#011627",
-            borderBottomWidth: 1,
-            marginVertical: 10,
-          }}
-        />
-        <Button
-          title="Attractions"
-          icon={
-            <MaterialIcons
-              name={isShowAttractions ? "arrow-drop-down" : "arrow-right"}
-              size={36}
-              color="black"
-              style={{ padding: 0 }}
-            />
-          }
-          buttonStyle={styles.showElementsButtonStyle}
-          titleStyle={{ fontSize: 20, fontWeight: "bold", color: "#000" }}
-          type="clear"
-          style={{ alignItems: "flex-start" }}
-          onPress={() => setIsShowAttractions(!isShowAttractions)}
-        />
-        {isShowAttractions && tour !== null
-          ? // <View>
-            tour.attractions.map((attraction) => {
-              // console.log(attraction);
-              return (
-                <TourAttractionTile
-                  key={attraction._id._id}
-                  attraction={attraction}
-                  removeAttraction={Tour.removeAttraction}
-                  tourId={tourId}
-                  getTour={Tour.getTour}
-                />
-              );
-            })
-          : null}
-        <View
-          style={{
-            borderBottomColor: "#011627",
-            borderBottomWidth: 1,
-            marginVertical: 10,
-          }}
-        />
-        {tour !== null ? <TourSummaryBar tour={tour} /> : null}
-
-        <View style={styles.buttonGroup}>
-          <View style={styles.buttonContainer}>
-            <Button
-              // icon={<Magic_icon fill="#FDFFFC" />}
-              // style={{ flex: 1 }}
-              title="Add Attractions"
-              buttonStyle={[styles.buttonStyle, { borderColor: "#229186", borderWidth: 1 }]}
-              titleStyle={{ color: "#229186", fontWeight: "bold" }}
-              onPress={() => navigation.navigate("TourAddAttraction", { _id: tourId })}
-              type="outline"
-            />
-          </View>
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Save Tour"
-              buttonStyle={[styles.buttonStyle, { borderColor: "#FF9F1C", borderWidth: 1 }]}
-              titleStyle={{ color: "#FF9F1C", fontWeight: "bold" }}
-              onPress={() => navigation.navigate("TourList")}
-              type="outline"
-            />
-          </View>
-        </View>
-        <Button
-          title="Start Tour"
-          buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186", marginBottom: 10 }]}
-          titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-          onPress={() => activateTour()}
-        />
-      </ScrollView>
+          <Button
+            title="Start Tour"
+            buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186", marginBottom: 10 }]}
+            titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
+            onPress={() => activateTour()}
+          />
+        </> */}
+      {/* </ScrollView> */}
       {Tour.state.isLoading || Invite.state.isLoading ? (
         <Modal animationType="none" transparent={true} visible={true}>
           <View style={styles.loading}>
@@ -423,7 +566,7 @@ TourOverviewScreen.navigationOptions = ({ navigation }) => {
             method: navigation.getParam("method"),
           })
         }
-        icon={<Ionicons name="settings-sharp" size={24} color="black" />}
+        icon={<Ionicons name="settings-sharp" size={24} color="#011627" />}
         type="clear"
       />
     ),
