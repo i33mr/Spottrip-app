@@ -64,8 +64,8 @@ const setManualTourSettings = (dispatch) => async (tourId, tourSettings, setTour
     dispatch({ type: "loading", payload: false });
   } catch (error) {
     console.log(error.response.data.message);
-
     dispatch({ type: "loading", payload: false });
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -86,8 +86,8 @@ const generateTour = (dispatch) => async (tourId, longitudeLatitude, tourSetting
     dispatch({ type: "loading", payload: false });
   } catch (error) {
     console.log(error.response.data.message);
-
     dispatch({ type: "loading", payload: false });
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -124,7 +124,9 @@ const removeAttraction = (dispatch) => async (tourId, attractionId) => {
     // await getTour(tourId);
     dispatch({ type: "loading", payload: false });
   } catch (error) {
-    console.log(error);
+    console.log(error.response.data.message);
+    dispatch({ type: "loading", payload: false });
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -166,7 +168,7 @@ const updateTourStatus = (dispatch) => async (tourId, status) => {
   } catch (error) {
     console.log(error.response.data.message);
     dispatch({ type: "loading", payload: false });
-    throw new Error("Error");
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -193,7 +195,7 @@ const resolveOverstay = (dispatch) => async (tourId, attractionId, overStayedTim
   } catch (error) {
     console.log(error.response.data.message);
     dispatch({ type: "loading", payload: false });
-    throw new Error("Error");
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -248,7 +250,31 @@ const updateAttractionsOrder = (dispatch) => async (tourId, attractions) => {
   } catch (error) {
     console.log(error.response.data.message);
     dispatch({ type: "loading", payload: false });
-    throw new Error("Error");
+    throw new Error(error.response.data.message);
+  }
+};
+
+const deleteTour = (dispatch) => async (tourId) => {
+  dispatch({ type: "loading", payload: true });
+
+  // overStayedTime *= 60;
+  // console.log(overStayedTime);
+  try {
+    const response = await spottripAPI.delete(`/v1/tours/${tourId}`);
+
+    // console.log(response.data.data.tour);
+
+    // if (response.data.data.message.method === "no change") {
+    // dispatch({ type: "set_tour", payload: response.data.data.tour });
+    // console.log(response.data.data.message);
+    // }
+    // dispatch({ type: "overstay_msg", payload: `${choice} is done!` });
+
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    console.log(error.response.data.message);
+    dispatch({ type: "loading", payload: false });
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -285,6 +311,7 @@ export const { Provider, Context } = createDataContext(
     clearOverstayMsg,
     resolveOverstayResponse,
     updateAttractionsOrder,
+    deleteTour,
   },
   { tours: [], isLoading: false, inviteMsg: null, tour: null, overstayMsg: "" }
 );

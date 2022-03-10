@@ -32,6 +32,9 @@ import DraggableFlatList, {
   ShadowDecorator,
   OpacityDecorator,
 } from "react-native-draggable-flatlist";
+import spottripAPI from "../api/spottripAPI";
+import TourHostTile from "../components/TourHostTile";
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 const TourOverviewScreen = ({ navigation, route }) => {
   const tourId = navigation.getParam("_id");
@@ -50,6 +53,8 @@ const TourOverviewScreen = ({ navigation, route }) => {
   const [reordering, setReordering] = useState(false);
   const [reorderedAttractions, setReorderedAttractions] = useState([]);
   const [attractions, setAttractions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     // Invite.fetchTourInvites(tourId);
@@ -60,6 +65,21 @@ const TourOverviewScreen = ({ navigation, route }) => {
     Invite.fetchTourInvites(tourId);
 
     // }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      // setIsLoading(true);
+      try {
+        const response = await spottripAPI.get(`v1/users/me`);
+        setUserId(response.data.data.user._id);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+
+    // clean useEffect
   }, []);
 
   useEffect(() => {
@@ -101,37 +121,114 @@ const TourOverviewScreen = ({ navigation, route }) => {
   };
 
   const activateTour = async () => {
-    try {
-      await Tour.updateTourStatus(tourId, "Active");
-      // console.log(Tour.state.tours);
-      await Notification.addLocalNotification(tour);
-      const actionToDispatch = StackActions.reset({
-        index: 1,
-        // key: null,
-        actions: [
-          NavigationActions.navigate({ routeName: "TourList" }),
-
-          NavigationActions.navigate({
-            routeName: "ActiveTour",
-            params: {
-              _id: tourId,
-              tourTitle: navigation.getParam("tourTitle"),
-              // method: navigation.getParam("method"),
-            },
-          }),
-        ],
+    if (attractions.length < 2) {
+      showMessage({
+        message: "Couldn't start tour",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+        hideOnPress: true,
       });
-      navigation.dispatch(actionToDispatch);
-      // navigation.navigate("ActiveTour", { _id: tourId });
+    } else {
+      try {
+        await Tour.updateTourStatus(tourId, "Active");
+        // console.log(Tour.state.tours);
+        await Notification.addLocalNotification(tour);
+        const actionToDispatch = StackActions.reset({
+          index: 1,
+          // key: null,
+          actions: [
+            NavigationActions.navigate({ routeName: "TourList" }),
+
+            NavigationActions.navigate({
+              routeName: "ActiveTour",
+              params: {
+                _id: tourId,
+                tourTitle: navigation.getParam("tourTitle"),
+                // method: navigation.getParam("method"),
+              },
+            }),
+          ],
+        });
+        navigation.dispatch(actionToDispatch);
+        // navigation.navigate("ActiveTour", { _id: tourId });
+      } catch (error) {
+        showMessage({
+          message: "Couldn't start tour",
+          description: error.message,
+          type: "danger",
+          duration: 4000,
+          floating: true,
+          hideOnPress: true,
+        });
+      }
+    }
+  };
+
+  const deleteTour = async () => {
+    try {
+      await Tour.deleteTour(tourId);
+      navigation.navigate("TourList");
     } catch (error) {
-      console.log(error);
+      showMessage({
+        message: "Couldn't delete tour",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+        hideOnPress: true,
+      });
     }
   };
 
   const reorderAttractions = async () => {
-    await Tour.updateAttractionsOrder(tourId, attractions);
+    try {
+      await Tour.updateAttractionsOrder(tourId, attractions);
+    } catch (error) {
+      setAttractions(tour.attractions);
+      showMessage({
+        message: "Couldn't change attractions' order",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+        hideOnPress: true,
+      });
+    }
+  };
+  const removeAttractionFromTour = async (attractionId) => {
+    try {
+      await Tour.removeAttraction(tourId, attractionId);
+    } catch (error) {
+      showMessage({
+        message: "Couldn't Remove Attraction",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+        hideOnPress: true,
+      });
+    }
   };
 
+  const removeInviteFromTour = async (inviteId, inviteeId) => {
+    try {
+      await Invite.removeInvite(tourId, inviteId);
+      if (userId === inviteeId) {
+        navigation.navigate("TourList");
+      }
+    } catch (error) {
+      showMessage({
+        message: "Couldn't Remove Invite",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+        hideOnPress: true,
+      });
+    }
+  };
   return (
     <View style={styles.container}>
       {tour !== null ? (
@@ -147,7 +244,7 @@ const TourOverviewScreen = ({ navigation, route }) => {
                     <View style={{ flex: 1 }}>
                       <TourAttractionTile
                         attraction={item}
-                        removeAttraction={Tour.removeAttraction}
+                        removeAttraction={removeAttractionFromTour}
                         tourId={tourId}
                         getTour={Tour.getTour}
                       />
@@ -241,6 +338,14 @@ const TourOverviewScreen = ({ navigation, route }) => {
                   </View>
                 ) : null}
               </View>
+              {/* <View
+                style={{
+                  borderBottomColor: "#011627",
+                  borderBottomWidth: 1,
+                  marginVertical: 10,
+                }}
+              />
+              <TourHostTile host={tour.host} /> */}
               <View
                 style={{
                   borderBottomColor: "#011627",
@@ -266,15 +371,20 @@ const TourOverviewScreen = ({ navigation, route }) => {
               />
               {isShowFriends ? (
                 <View style={styles.showFriendsView}>
-                  {invites.map((invite) => {
-                    return (
-                      <TourInvite
-                        invite={invite}
-                        key={invite._id}
-                        removeInvite={Invite.removeInvite}
-                      />
-                    );
-                  })}
+                  <>
+                    <TourHostTile host={tour.host} />
+                    {invites.map((invite) => {
+                      return (
+                        <TourInvite
+                          userId={userId}
+                          invite={invite}
+                          key={invite._id}
+                          removeInvite={removeInviteFromTour}
+                          navigation={navigation}
+                        />
+                      );
+                    })}
+                  </>
                 </View>
               ) : null}
               <View
@@ -350,7 +460,12 @@ const TourOverviewScreen = ({ navigation, route }) => {
                     title="Add Attractions"
                     buttonStyle={[styles.buttonStyle, { borderColor: "#229186", borderWidth: 1 }]}
                     titleStyle={{ color: "#229186", fontWeight: "bold" }}
-                    onPress={() => navigation.navigate("TourAddAttraction", { _id: tourId })}
+                    onPress={() =>
+                      navigation.navigate("TourAddAttraction", {
+                        _id: tourId,
+                        tourTitle: navigation.getParam("tourTitle"),
+                      })
+                    }
                     type="outline"
                   />
                 </View>
@@ -364,12 +479,24 @@ const TourOverviewScreen = ({ navigation, route }) => {
                   />
                 </View>
               </View>
-              <Button
-                title="Start Tour"
-                buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186", marginBottom: 10 }]}
-                titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-                onPress={() => activateTour()}
-              />
+              <View style={styles.buttonGroup}>
+                <View style={styles.buttonContainer}>
+                  <Button
+                    title="Start Tour"
+                    buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
+                    titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
+                    onPress={() => activateTour()}
+                  />
+                </View>
+                <View style={styles.buttonContainer}>
+                  <Button
+                    title="Delete Tour"
+                    buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
+                    titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
+                    onPress={() => deleteTour()}
+                  />
+                </View>
+              </View>
             </>
           }
           showsVerticalScrollIndicator={false}
@@ -417,13 +544,14 @@ const TourOverviewScreen = ({ navigation, route }) => {
           />
         </> */}
       {/* </ScrollView> */}
-      {Tour.state.isLoading || Invite.state.isLoading ? (
+      {Tour.state.isLoading || Invite.state.isLoading || isLoading ? (
         <Modal animationType="none" transparent={true} visible={true}>
           <View style={styles.loading}>
             <ActivityIndicator size="large" color="#FF9F1C" />
           </View>
         </Modal>
       ) : null}
+      <FlashMessage position={"top"} />
     </View>
   );
 };

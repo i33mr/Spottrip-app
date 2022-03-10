@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   attractionDetailText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "bold",
   },
   loading: {

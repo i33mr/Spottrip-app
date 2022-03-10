@@ -1,19 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "react-native-elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image } from "react-native-expo-image-cache";
 import { NavigationContainer } from "@react-navigation/native";
 
-const TourInvite = ({ invite, removeInvite, userId, navigation }) => {
-  // const deleteInvite = async () => {
-  //   console.log(userId, invite.invitee._id);
-
-  //   await removeInvite(invite._id, invite.invitee._id);
-  //   if (userId === invite.invitee._id) {
-  //     navigation.navigate("TourList");
-  //   }
-  // };
+const TourHostTile = ({ host }) => {
   return (
     <View style={styles.friendView}>
       {/* <Image style={styles.friendImg} source={require("../../assets/images/avatars/avatar1.png")} /> */}
@@ -21,7 +13,7 @@ const TourInvite = ({ invite, removeInvite, userId, navigation }) => {
         <Image
           style={styles.friendImg}
           // {...{ uri }}
-          uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${invite.invitee.photo}`}
+          uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${host.photo}`}
           preview={{
             uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
           }}
@@ -29,43 +21,11 @@ const TourInvite = ({ invite, removeInvite, userId, navigation }) => {
       </View>
       <View style={styles.friendDetail}>
         <Text h4 style={styles.friendDetailText}>
-          {`${invite.invitee.firstName} ${invite.invitee.lastName}`}
+          {`${host.firstName} ${host.lastName}`}
         </Text>
-        <Text style={styles.friendDetailText}>{invite.invitee.username}</Text>
-        <Text
-          style={
-            invite.status === "Accepted"
-              ? styles.inviteStatusApproved
-              : invite.status === "Pending"
-              ? styles.inviteStatusPending
-              : styles.inviteStatusRejected
-          }
-        >
-          {invite.status}
-        </Text>
+        <Text style={styles.friendDetailText}>{host.username}</Text>
+        <Text style={styles.inviteStatusApproved}>Host</Text>
       </View>
-      <TouchableOpacity
-        style={{
-          position: "absolute",
-          bottom: 10,
-          right: 10,
-        }}
-        onPress={() => removeInvite(invite._id, invite.invitee._id)}
-      >
-        <View
-          style={{
-            backgroundColor: "#E71D36",
-            padding: 5,
-            borderRadius: 50,
-          }}
-        >
-          <MaterialCommunityIcons
-            name={userId === invite.invitee._id ? "exit-to-app" : "close-thick"}
-            size={36}
-            color="#FFF"
-          />
-        </View>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -200,4 +160,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TourInvite;
+export default TourHostTile;

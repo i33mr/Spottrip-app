@@ -14,12 +14,17 @@ const authReducer = (state, action) => {
       return { ...state, token: action.payload };
     case "clear_error_message":
       return { ...state, errorMessage: "" };
+    case "clear_forgot_password_msg":
+      return { ...state, forgotPasswordMsg: "" };
     case "signOut":
       return { token: null, errorMessage: "" };
     case "loading":
       return { ...state, isLoading: action.payload };
     case "add_personal_info":
       return { ...state, userObj: { ...state.userObj, ...action.payload } };
+    case "set_forgot_password_msg":
+      return { ...state, forgotPasswordMsg: action.payload };
+
     default:
       return state;
   }
@@ -124,7 +129,6 @@ const signIn = (dispatch) => {
 // eslint-disable-next-line arrow-body-style
 const signOut = (dispatch) => {
   return async () => {
-    // somehow signOut!
     await spottripApi.post("/v1/users/logout");
     await Notifications.cancelAllScheduledNotificationsAsync();
     await AsyncStorage.removeItem("token");
@@ -138,8 +142,37 @@ const setToken = (dispatch) => async (token) => {
   await AsyncStorage.setItem("token", token);
   dispatch({ type: "set_token", payload: token });
 };
+
+const forgotPassword = (dispatch) => async (email) => {
+  dispatch({ type: "loading", payload: true });
+
+  try {
+    const response = await spottripApi.post("/v1/users/forgotPassword", { email });
+
+    dispatch({ type: "set_forgot_password_msg", payload: response.data.message });
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    dispatch({ type: "set_forgot_password_msg", payload: error.response.data.message });
+    dispatch({ type: "loading", payload: false });
+  }
+};
+
+const clearForgotPasswordMessage = (dispatch) => () => {
+  dispatch({ type: "clear_forgot_password_msg" });
+};
+
 export const { Provider, Context } = createDataContext(
   authReducer,
-  { signup, signUpPersonalInfo, signIn, signOut, clearErrorMessage, tryLocalSignIn, setToken },
-  { token: null, errorMessage: "", isLoading: false, userObj: {} }
+  {
+    signup,
+    signUpPersonalInfo,
+    signIn,
+    signOut,
+    clearErrorMessage,
+    tryLocalSignIn,
+    setToken,
+    forgotPassword,
+    clearForgotPasswordMessage,
+  },
+  { token: null, errorMessage: "", isLoading: false, userObj: {}, forgotPasswordMsg: "" }
 );

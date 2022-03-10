@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -16,6 +16,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
 // import { Picker } from "@react-native-picker/picker";
 import TimeField from "react-simple-timefield";
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 import { Context as TourContext } from "../context/TourContext";
 
@@ -112,28 +113,12 @@ const TourSettingsScreen = ({ navigation }) => {
   };
 
   const setTourSettings = async () => {
-    if (!startLocation || !finishLocation || !editPermission) {
-      setErr("Please fill all the fields");
-    } else {
-      if (creationMethod === "manual") {
-        const settingsObj = {
-          startLocation: {
-            coordinates: startLocation === "Current location" ? longitudeLatitude.split(",") : [],
-          },
-          finishLocation: {
-            coordinates: finishLocation === "Current location" ? longitudeLatitude.split(",") : [],
-          },
-          editPermission,
-          status: "Saved",
-        };
-        await setManualTourSettings(tourId, settingsObj, tourTitle ? false : true);
-        navigateToScreen();
-      } else if (creationMethod === "generate") {
-        if (!timeToSpend) {
-          setErr("Please fill all the fields");
-        } else {
+    try {
+      if (!startLocation || !finishLocation || !editPermission) {
+        setErr("Please fill all the fields");
+      } else {
+        if (creationMethod === "manual") {
           const settingsObj = {
-            timeToSpend: timeToSpend * 60,
             startLocation: {
               coordinates: startLocation === "Current location" ? longitudeLatitude.split(",") : [],
             },
@@ -144,10 +129,39 @@ const TourSettingsScreen = ({ navigation }) => {
             editPermission,
             status: "Saved",
           };
-          await generateTour(tourId, longitudeLatitude, settingsObj, tourTitle ? false : true);
+          await setManualTourSettings(tourId, settingsObj, tourTitle ? false : true);
           navigateToScreen();
+        } else if (creationMethod === "generate") {
+          if (!timeToSpend) {
+            setErr("Please fill all the fields");
+          } else {
+            const settingsObj = {
+              timeToSpend: timeToSpend * 60,
+              startLocation: {
+                coordinates:
+                  startLocation === "Current location" ? longitudeLatitude.split(",") : [],
+              },
+              finishLocation: {
+                coordinates:
+                  finishLocation === "Current location" ? longitudeLatitude.split(",") : [],
+              },
+              editPermission,
+              status: "Saved",
+            };
+
+            await generateTour(tourId, longitudeLatitude, settingsObj, tourTitle ? false : true);
+            navigateToScreen();
+          }
         }
       }
+    } catch (error) {
+      flashMessageRef.current.showMessage({
+        message: "You can't perform this action",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+      });
     }
   };
 
@@ -161,99 +175,105 @@ const TourSettingsScreen = ({ navigation }) => {
     { label: "Last location in the tour", value: "Last location in the tour" },
   ];
 
+  const flashMessageRef = useRef();
+
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-      {err ? (
-        <Text style={{ paddingHorizontal: 20, color: "#FF0000", fontWeight: "bold" }}>{err}</Text>
-      ) : null}
-      {creationMethod === "generate" ? (
-        <Input
-          label="Time To Spend (in hours)"
-          inputStyle={styles.inputStyle}
-          inputContainerStyle={{ borderBottomWidth: 0 }}
-          labelStyle={styles.labelStyle}
-          autoCorrect={false}
-          autoCapitalize="sentences"
-          leftIcon={<AntDesign name="clockcircle" size={40} color="#229186" />}
-          inputContainerStyle={styles.inputContainer}
-          leftIconContainerStyle={{ marginLeft: 10 }}
-          placeholder="HH"
-          keyboardType="number-pad"
-          // keyboardType="decimal-pad"
-          onChangeText={setTimeToSpend}
-          value={timeToSpend}
-          returnKeyType="done"
-        />
-      ) : null}
+    <View style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+        {err ? (
+          <Text style={{ paddingHorizontal: 20, color: "#FF0000", fontWeight: "bold" }}>{err}</Text>
+        ) : null}
+        {creationMethod === "generate" ? (
+          <Input
+            label="Time To Spend (in hours)"
+            inputStyle={styles.inputStyle}
+            inputContainerStyle={{ borderBottomWidth: 0 }}
+            labelStyle={styles.labelStyle}
+            autoCorrect={false}
+            autoCapitalize="sentences"
+            leftIcon={<AntDesign name="clockcircle" size={40} color="#229186" />}
+            inputContainerStyle={styles.inputContainer}
+            leftIconContainerStyle={{ marginLeft: 10 }}
+            placeholder="HH"
+            keyboardType="number-pad"
+            // keyboardType="decimal-pad"
+            onChangeText={setTimeToSpend}
+            value={timeToSpend}
+            returnKeyType="done"
+          />
+        ) : null}
 
-      <RNPickerSelect onValueChange={setStartLocation} items={startLocations}>
-        <Input
-          label="Start Location"
-          inputStyle={styles.inputStyle}
-          inputContainerStyle={{ borderBottomWidth: 0 }}
-          labelStyle={styles.labelStyle}
-          autoCorrect={false}
-          autoCapitalize="sentences"
-          leftIcon={<Fontisto name="flag" size={40} color="#229186" />}
-          inputContainerStyle={styles.inputContainer}
-          leftIconContainerStyle={{ marginLeft: 10 }}
-          placeholder="Select location..."
-          value={startLocation}
-        />
-      </RNPickerSelect>
-      <RNPickerSelect onValueChange={setFinishLocation} items={finishLocations}>
-        <Input
-          label="Finish Location"
-          inputStyle={styles.inputStyle}
-          inputContainerStyle={{ borderBottomWidth: 0 }}
-          labelStyle={styles.labelStyle}
-          autoCorrect={false}
-          autoCapitalize="sentences"
-          leftIcon={<Finish_icon />}
-          inputContainerStyle={styles.inputContainer}
-          leftIconContainerStyle={{ marginLeft: 10 }}
-          placeholder="Select location..."
-          value={finishLocation}
-        />
-      </RNPickerSelect>
-      <RNPickerSelect
-        onValueChange={setEditPermission}
-        items={[
-          { label: "Host Only", value: "Host" },
-          { label: "All", value: "All" },
-        ]}
-      >
-        <Input
-          label="Edit permission"
-          inputStyle={styles.inputStyle}
-          inputContainerStyle={{ borderBottomWidth: 0 }}
-          labelStyle={styles.labelStyle}
-          autoCorrect={false}
-          autoCapitalize="sentences"
-          leftIcon={<FontAwesome name="unlock-alt" size={40} color="#229186" />}
-          inputContainerStyle={styles.inputContainer}
-          leftIconContainerStyle={{ marginLeft: 10 }}
-          placeholder="Select an option..."
-          value={editPermission}
-        />
-      </RNPickerSelect>
+        <RNPickerSelect onValueChange={setStartLocation} items={startLocations}>
+          <Input
+            label="Start Location"
+            inputStyle={styles.inputStyle}
+            inputContainerStyle={{ borderBottomWidth: 0 }}
+            labelStyle={styles.labelStyle}
+            autoCorrect={false}
+            autoCapitalize="sentences"
+            leftIcon={<Fontisto name="flag" size={40} color="#229186" />}
+            inputContainerStyle={styles.inputContainer}
+            leftIconContainerStyle={{ marginLeft: 10 }}
+            placeholder="Select location..."
+            value={startLocation}
+          />
+        </RNPickerSelect>
+        <RNPickerSelect onValueChange={setFinishLocation} items={finishLocations}>
+          <Input
+            label="Finish Location"
+            inputStyle={styles.inputStyle}
+            inputContainerStyle={{ borderBottomWidth: 0 }}
+            labelStyle={styles.labelStyle}
+            autoCorrect={false}
+            autoCapitalize="sentences"
+            leftIcon={<Finish_icon />}
+            inputContainerStyle={styles.inputContainer}
+            leftIconContainerStyle={{ marginLeft: 10 }}
+            placeholder="Select location..."
+            value={finishLocation}
+          />
+        </RNPickerSelect>
+        <RNPickerSelect
+          onValueChange={setEditPermission}
+          items={[
+            { label: "Host Only", value: "Host" },
+            { label: "All", value: "All" },
+          ]}
+        >
+          <Input
+            label="Edit permission"
+            inputStyle={styles.inputStyle}
+            inputContainerStyle={{ borderBottomWidth: 0 }}
+            labelStyle={styles.labelStyle}
+            autoCorrect={false}
+            autoCapitalize="sentences"
+            leftIcon={<FontAwesome name="unlock-alt" size={40} color="#229186" />}
+            inputContainerStyle={styles.inputContainer}
+            leftIconContainerStyle={{ marginLeft: 10 }}
+            placeholder="Select an option..."
+            value={editPermission}
+          />
+        </RNPickerSelect>
 
-      {/* TODO:Change when adding settings to the inside */}
-      <Button
-        title={creationMethod === "generate" ? "Generate Tour" : "Save settings"}
-        buttonStyle={styles.buttonStyle}
-        titleStyle={{ fontSize: 20, fontWeight: "600" }}
-        onPress={setTourSettings}
-      />
-      {/* <FloatingButton /> */}
-      {state.isLoading ? (
-        <Modal animationType="none" transparent={true} visible={true}>
-          <View style={styles.loading}>
-            <ActivityIndicator size="large" color="#FF9F1C" />
-          </View>
-        </Modal>
-      ) : null}
-    </ScrollView>
+        {/* TODO:Change when adding settings to the inside */}
+        <Button
+          title={creationMethod === "generate" ? "Generate Tour" : "Save settings"}
+          buttonStyle={styles.buttonStyle}
+          titleStyle={{ fontSize: 20, fontWeight: "600" }}
+          onPress={setTourSettings}
+        />
+
+        {/* <FloatingButton /> */}
+        {state.isLoading ? (
+          <Modal animationType="none" transparent={true} visible={true}>
+            <View style={styles.loading}>
+              <ActivityIndicator size="large" color="#FF9F1C" />
+            </View>
+          </Modal>
+        ) : null}
+      </ScrollView>
+      <FlashMessage position={"top"} ref={flashMessageRef} />
+    </View>
   );
 };
 

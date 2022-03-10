@@ -44,7 +44,7 @@ const InvitesScreen = () => {
       <NavigationEvents onWillFocus={fetchUserInvites} />
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {invites.map((invite) => {
-          // console.log(invite);
+          console.log(invite);
           if (invite.status === "Pending") {
             return (
               <View style={styles.invite} key={invite._id}>
@@ -92,55 +92,6 @@ const InvitesScreen = () => {
             );
           }
         })}
-
-        {/* <View style={styles.invite}>
-          <Image
-            style={styles.invitePic}
-            source={require("../../assets/images/avatars/person2.jpeg")}
-          />
-          <View style={styles.inviteDetail}>
-            <Text h4 style={[styles.inviteDetailText, { fontWeight: "bold" }]}>
-              Weekend in Malacca
-            </Text>
-            <Text style={styles.inviteDetailText}>By: Walter White</Text>
-            <View style={styles.buttonGroup}>
-              <Button
-                buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
-                title="Deny"
-                titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-              />
-              <Button
-                buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
-                title="Accept"
-                titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-              />
-            </View>
-          </View>
-        </View>
-        <View style={styles.invite}>
-          <Image
-            style={styles.invitePic}
-            source={require("../../assets/images/avatars/person3.jpeg")}
-          />
-          <View style={styles.inviteDetail}>
-            <Text h4 style={[styles.inviteDetailText, { fontWeight: "bold" }]}>
-              One Day at the Coast dsf sdf fs sf
-            </Text>
-            <Text style={styles.inviteDetailText}>By: Ross Geller</Text>
-            <View style={styles.buttonGroup}>
-              <Button
-                buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
-                title="Deny"
-                titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-              />
-              <Button
-                buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
-                title="Accept"
-                titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-              />
-            </View>
-          </View>
-        </View> */}
       </ScrollView>
       {state.isLoading ? (
         <Modal animationType="none" transparent={true} visible={true}>

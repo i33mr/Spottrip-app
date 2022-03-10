@@ -103,7 +103,9 @@ const removeInvite = (dispatch) => async (tourId, inviteId) => {
     dispatch({ type: "remove_invite", payload: inviteId });
     dispatch({ type: "loading", payload: false });
   } catch (error) {
-    console.log(error);
+    console.log(error.response.data.message);
+    dispatch({ type: "loading", payload: false });
+    throw new Error(error.response.data.message);
   }
 };
 

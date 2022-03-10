@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -23,6 +23,7 @@ import ActiveTourAttractionTravelTime from "../components/ActiveTourAttractionTr
 import { NavigationEvents } from "react-navigation";
 import Modal from "react-native-modal";
 // import { FlatList,  } from "react-native-gesture-handler";
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 const ActiveTourScreen = ({ navigation }) => {
   const tourId = navigation.getParam("_id");
@@ -47,8 +48,18 @@ const ActiveTourScreen = ({ navigation }) => {
   }, []);
 
   const finishTour = async () => {
-    await updateTourStatus(tourId, "Past");
-    navigation.navigate("TourList");
+    try {
+      await updateTourStatus(tourId, "Past");
+      navigation.navigate("TourList");
+    } catch (error) {
+      showMessage({
+        message: "Couldn't end tour",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+      });
+    }
   };
 
   const toggleModal = () => {
@@ -68,7 +79,21 @@ const ActiveTourScreen = ({ navigation }) => {
   const nextModalView = () => {
     setNextModal(true);
   };
+  const modalFlashMessageRef = useRef();
 
+  const sendOverstayRequest = async () => {
+    try {
+      await resolveOverstay(tourId, selectedAttraction, overstayTime * 1);
+    } catch (error) {
+      modalFlashMessageRef.current.showMessage({
+        message: "You can't edit this tour",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+      });
+    }
+  };
   const overstaySendResponse = async (tourId, selectedAttraction, overstayTime, choice) => {
     await resolveOverstayResponse(tourId, selectedAttraction, overstayTime, choice);
     toggleModal();
@@ -89,6 +114,9 @@ const ActiveTourScreen = ({ navigation }) => {
             type="clear"
             style={{ width: 50 }}
           />
+          {!isNextModal ? (
+            <Text style={styles.modalTextStyle}>Select the attraction you overstayed at</Text>
+          ) : null}
 
           {state.tour != null && !isNextModal
             ? state.tour.attractions.map((attraction, index, attractions) => {
@@ -153,7 +181,7 @@ const ActiveTourScreen = ({ navigation }) => {
                 title="Next"
                 buttonStyle={styles.modalNextButton}
                 titleStyle={{ color: "#FFF", fontWeight: "bold" }}
-                onPress={() => resolveOverstay(tourId, selectedAttraction, overstayTime * 1)}
+                onPress={sendOverstayRequest}
                 type="solid"
                 // disabled={selectedAttraction ? false : true}
               />
@@ -246,6 +274,7 @@ const ActiveTourScreen = ({ navigation }) => {
             </RNModal>
           ) : null}
         </ScrollView>
+        <FlashMessage position={"top"} ref={modalFlashMessageRef} />
       </Modal>
       <ScrollView showsVerticalScrollIndicator={false}>
         {state.tour !== null ? (
@@ -410,6 +439,7 @@ const ActiveTourScreen = ({ navigation }) => {
           </RNModal>
         ) : null}
       </ScrollView>
+      <FlashMessage position={"top"} />
     </View>
   );
 };

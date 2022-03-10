@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -30,9 +30,9 @@ const TourAddAttractionScreen = ({ navigation }) => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchErr, setSearchErr] = useState("");
-  // const [selectedAttractions, setSelectedAttractions] = useState([]);
+  const [selectedAttractions, setSelectedAttractions] = useState([]);
 
-  let selectedAttractions = [];
+  // let selectedAttractions = [];
   const onSubmitSearch = () => {
     if (searchTerm === "") {
       setSearchErr("Please enter search term");
@@ -47,57 +47,74 @@ const TourAddAttractionScreen = ({ navigation }) => {
   const onAddAttractions = async () => {
     console.log(selectedAttractions);
     if (!selectedAttractions.length) {
-      setSearchErr("Please select at least one attraction to add, or go back to view your tour");
+      // setSearchErr("Please select at least one attraction to add, or go back to view your tour");
+      flashMessageRef.current.showMessage({
+        message: "Please select at least one attraction to add, or go back to view your tour",
+        type: "danger",
+        duration: 4000,
+        floating: true,
+      });
     } else {
       try {
+        setSearchErr("");
         await Tour.addAttractions(tourId, selectedAttractions);
         navigation.navigate("TourOverview");
       } catch (error) {
-        showMessage({
+        flashMessageRef.current.showMessage({
           message: "Couldn't add attraction",
           description: error.message,
           type: "danger",
           duration: 4000,
-          // floating: true,
+          floating: true,
         });
       }
     }
   };
 
   const updateAddArray = (method, id) => {
+    // if (method === "add") {
+    //   selectedAttractions = [...selectedAttractions, id];
+    // } else {
+    //   selectedAttractions = selectedAttractions.filter((attId) => attId !== id);
+    // }
     if (method === "add") {
-      selectedAttractions = [...selectedAttractions, id];
+      setSelectedAttractions([...selectedAttractions, id]);
     } else {
-      selectedAttractions = selectedAttractions.filter((attId) => attId !== id);
+      setSelectedAttractions(selectedAttractions.filter((attId) => attId !== id));
     }
     console.log(selectedAttractions);
   };
+
+  const flashMessageRef = useRef();
+
   return (
     // <View style={styles.container}>
-    <ScrollView style={styles.container}>
-      <NavigationEvents onWillFocus={Attraction.clearSearchResults} />
-      {searchErr ? (
-        <Text style={{ paddingHorizontal: 20, color: "#FF0000", fontWeight: "bold" }}>
-          {searchErr}
-        </Text>
-      ) : null}
-      <Text style={styles.instructionsStyle}>Select Attractions to Add to the Tour </Text>
-      <SearchBar
-        containerStyle={styles.searchContainer}
-        inputContainerStyle={{ backgroundColor: "white" }}
-        leftIconContainerStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
-        inputStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
-        placeholder="Explore Attractions..."
-        value={searchTerm}
-        onChangeText={setSearchTerm}
-        returnKeyType={"search"}
-        raised
-        onSubmitEditing={onSubmitSearch}
-        // keyboardOpeningTime={Number.MAX_SAFE_INTEGER}
-        keyboardAppearance="dark"
-      />
+    <View style={styles.container}>
+      {/* <ScrollView style={styles.container}> */}
+      <ScrollView>
+        <NavigationEvents onWillFocus={Attraction.clearSearchResults} />
+        {searchErr ? (
+          <Text style={{ paddingHorizontal: 20, color: "#FF0000", fontWeight: "bold" }}>
+            {searchErr}
+          </Text>
+        ) : null}
+        <Text style={styles.instructionsStyle}>Select Attractions to Add to the Tour </Text>
+        <SearchBar
+          containerStyle={styles.searchContainer}
+          inputContainerStyle={{ backgroundColor: "white" }}
+          leftIconContainerStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
+          inputStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
+          placeholder="Explore Attractions..."
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+          returnKeyType={"search"}
+          raised
+          onSubmitEditing={onSubmitSearch}
+          // keyboardOpeningTime={Number.MAX_SAFE_INTEGER}
+          keyboardAppearance="dark"
+        />
 
-      {/* <View>
+        {/* <View>
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -145,59 +162,59 @@ const TourAddAttractionScreen = ({ navigation }) => {
             renderItem={({ item }) => item.item}
           />
         </View> */}
-      {Attraction.state.searchResults.map((attraction) => {
-        // console.log(attraction);
-        return (
-          <AddAttractionTile
-            key={attraction._id}
-            updateArray={updateAddArray}
-            selectedAttractions={selectedAttractions}
-            // setSelectedAttractions={setSelectedAttractions}
-            attraction={attraction}
-          />
-          // <TouchableOpacity key={attraction._id} style={styles.elementView}>
-          //   <Image
-          //     style={styles.attractionImg}
-          //     // {...{ uri }}
-          //     uri={`http://2f00-151-255-174-169.ngrok.io/img/attractions/${attraction.imageCover}`}
-          //     preview={{
-          //       uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-          //     }}
-          //   />
-          //   {/* <Image
-          //     style={styles.attractionImg}
-          //     source={require("../../assets/images/attractions/lepoh.png")}
-          //   /> */}
-          //   <View style={styles.AttractionDetail}>
-          //     <Text h4 style={styles.elementDetailText}>
-          //       {attraction.name}
-          //     </Text>
-          //     <Text style={styles.elementDetailText}> {attraction.category}</Text>
-          //     <Text style={styles.elementDetailText}>
-          //       {`${Math.floor(attraction.time / 60)}${
-          //         attraction.time % 60 != 0 ? `:${attraction.time % 60}` : ""
-          //       } hours`}{" "}
-          //     </Text>
-          //   </View>
-          //   <TouchableOpacity>
-          //     <Ionicons
-          //       name="checkmark-circle"
-          //       size={48}
-          //       color="#229186"
-          //       style={{
-          //         position: "absolute",
-          //         bottom: 5,
-          //         right: 10,
-          //         // padding: 5,
-          //         borderRadius: 50,
-          //         // marginTop: 10,
-          //       }}
-          //     />
-          //   </TouchableOpacity>
-          // </TouchableOpacity>
-        );
-      })}
-      {/* <TouchableOpacity style={styles.elementView}>
+        {Attraction.state.searchResults.map((attraction) => {
+          // console.log(attraction);
+          return (
+            <AddAttractionTile
+              key={attraction._id}
+              updateArray={updateAddArray}
+              selectedAttractions={selectedAttractions}
+              // setSelectedAttractions={setSelectedAttractions}
+              attraction={attraction}
+            />
+            // <TouchableOpacity key={attraction._id} style={styles.elementView}>
+            //   <Image
+            //     style={styles.attractionImg}
+            //     // {...{ uri }}
+            //     uri={`http://2f00-151-255-174-169.ngrok.io/img/attractions/${attraction.imageCover}`}
+            //     preview={{
+            //       uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+            //     }}
+            //   />
+            //   {/* <Image
+            //     style={styles.attractionImg}
+            //     source={require("../../assets/images/attractions/lepoh.png")}
+            //   /> */}
+            //   <View style={styles.AttractionDetail}>
+            //     <Text h4 style={styles.elementDetailText}>
+            //       {attraction.name}
+            //     </Text>
+            //     <Text style={styles.elementDetailText}> {attraction.category}</Text>
+            //     <Text style={styles.elementDetailText}>
+            //       {`${Math.floor(attraction.time / 60)}${
+            //         attraction.time % 60 != 0 ? `:${attraction.time % 60}` : ""
+            //       } hours`}{" "}
+            //     </Text>
+            //   </View>
+            //   <TouchableOpacity>
+            //     <Ionicons
+            //       name="checkmark-circle"
+            //       size={48}
+            //       color="#229186"
+            //       style={{
+            //         position: "absolute",
+            //         bottom: 5,
+            //         right: 10,
+            //         // padding: 5,
+            //         borderRadius: 50,
+            //         // marginTop: 10,
+            //       }}
+            //     />
+            //   </TouchableOpacity>
+            // </TouchableOpacity>
+          );
+        })}
+        {/* <TouchableOpacity style={styles.elementView}>
           <Image
             style={styles.attractionImg}
             source={require("../../assets/images/attractions/Serendah.png")}
@@ -224,41 +241,41 @@ const TourAddAttractionScreen = ({ navigation }) => {
             />
           </TouchableOpacity>
         </TouchableOpacity> */}
-      <Button
-        title="Add Attractions"
-        buttonStyle={[
-          {
-            backgroundColor: "#229186",
-            marginVertical: 10,
-            marginHorizontal: 90,
-            paddingHorizontal: 10,
-            paddingVertical: 10,
-            borderRadius: 50,
-          },
-        ]}
-        titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-        // onPress={() => navigation.navigate("TourOverview")}
-        onPress={onAddAttractions}
-      />
-      {Attraction.state.isLoading || Tour.state.isLoading ? (
-        <Modal animationType="none" transparent={true} visible={true}>
-          <View style={styles.loading}>
-            <ActivityIndicator size="large" color="#FF9F1C" />
-          </View>
-        </Modal>
-      ) : null}
-      {/* {console.log("Do we reach add?")} */}
-
-      <FlashMessage position="top" />
-    </ScrollView>
+        <Button
+          title="Add Attractions"
+          buttonStyle={[
+            {
+              backgroundColor: "#229186",
+              marginVertical: 10,
+              marginHorizontal: 90,
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+              borderRadius: 50,
+            },
+          ]}
+          titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
+          // onPress={() => navigation.navigate("TourOverview")}
+          onPress={onAddAttractions}
+        />
+        {Attraction.state.isLoading || Tour.state.isLoading ? (
+          <Modal animationType="none" transparent={true} visible={true}>
+            <View style={styles.loading}>
+              <ActivityIndicator size="large" color="#FF9F1C" />
+            </View>
+          </Modal>
+        ) : null}
+        {/* {console.log("Do we reach add?")} */}
+      </ScrollView>
+      <FlashMessage position={"top"} ref={flashMessageRef} />
+    </View>
 
     // </View>
   );
 };
 
-TourAddAttractionScreen.navigationOptions = () => {
+TourAddAttractionScreen.navigationOptions = ({ navigation }) => {
   return {
-    title: "Tour Title",
+    title: navigation.getParam("tourTitle"),
     headerBackTitle: " ",
   };
 };

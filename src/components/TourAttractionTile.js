@@ -44,7 +44,7 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId }) => {
           bottom: 10,
           right: 10,
         }}
-        onPress={() => removeAttraction(tourId, attraction._id._id)}
+        onPress={() => removeAttraction(attraction._id._id)}
       >
         <View
           style={{

@@ -18,6 +18,7 @@ import { NavigationEvents } from "react-navigation";
 import spottripAPI from "../api/spottripAPI";
 import TourInvite from "../components/TourInvite";
 import Modal from "react-native-modal";
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -83,6 +84,21 @@ const TourCreateScreen = ({ navigation }) => {
   const toggleModal = async () => {
     if (!isModalVisible) await fetchTourInvites(tourId);
     setModalVisible(!isModalVisible);
+  };
+
+  const removeInviteFromTour = async (inviteId, inviteeId) => {
+    try {
+      await removeInvite(tourId, inviteId);
+    } catch (error) {
+      showMessage({
+        message: "Couldn't Remove Invite",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+        hideOnPress: true,
+      });
+    }
   };
 
   return (
@@ -205,7 +221,9 @@ const TourCreateScreen = ({ navigation }) => {
         {isShowFriends ? (
           <View style={styles.showFriendsView}>
             {invites.map((invite) => {
-              return <TourInvite invite={invite} key={invite._id} removeInvite={removeInvite} />;
+              return (
+                <TourInvite invite={invite} key={invite._id} removeInvite={removeInviteFromTour} />
+              );
             })}
           </View>
         ) : null}
@@ -256,6 +274,7 @@ const TourCreateScreen = ({ navigation }) => {
           </View>
         </RNModal>
       ) : null}
+      <FlashMessage position={"top"} />
     </View>
   );
 };

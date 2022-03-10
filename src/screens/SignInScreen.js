@@ -154,7 +154,11 @@ const SignInScreen = ({ navigation }) => {
             style={{ marginTop: 0 }}
             ref={passwordRef}
           />
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("ForgotPassword");
+            }}
+          >
             <Text style={styles.fPassword}>Forgot Password?</Text>
           </TouchableOpacity>
 

@@ -105,7 +105,16 @@ const TourTile = ({ navigation, tour }) => {
       <View style={styles.tourDetail}>
         <Text style={[styles.tourTitle, { fontSize: 18 }]}>{tour.title}</Text>
         <Text style={[styles.tourTitle, { fontSize: 15 }]}>{`${tour.status} Tour`}</Text>
-        {tour.guests.length ? <Text style={{ color: "#FFF", marginTop: 5 }}>Group:</Text> : null}
+        {tour.guests.length ? (
+          <>
+            {/* {" "} */}
+            <Text style={{ color: "#FFF", marginTop: 5 }}>Group:</Text>
+            <Text style={{ color: "#FF9F1C", marginTop: 5, fontSize: 13 }}>
+              {`${tour.host.firstName} ${tour.host.lastName}`}
+            </Text>
+          </>
+        ) : null}
+
         {tour.guests.map((guest, index) => {
           if (index < 2)
             return (

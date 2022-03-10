@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from "react-navigation-tabs";
 import { Icon } from "react-native-elements";
 import WelcomeScreen from "./src/screens/WelcomeScreen";
 import SignInScreen from "./src/screens/SignInScreen";
+import ForgotPasswordScreen from "./src/screens/ForgotPasswordScreen";
 import ResolveAuthScreen from "./src/screens/ResolveAuthScreen";
 import SignupPersonalInfoScreen from "./src/screens/SignupPersonalInfoScreen";
 import SignupChoosePreferencesScreen from "./src/screens/SignupChoosePreferencesScreen";
@@ -74,6 +75,7 @@ const switchNavigator = createSwitchNavigator(
       SignupPersonalInfo: SignupPersonalInfoScreen,
       SignupChoosePreferences: SignupChoosePreferencesScreen,
       SignupDone: SignupDoneScreen,
+      ForgotPassword: ForgotPasswordScreen,
     }),
     mainFlow: createBottomTabNavigator(
       {
