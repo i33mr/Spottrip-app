@@ -13,7 +13,7 @@ const TourHostTile = ({ host }) => {
         <Image
           style={styles.friendImg}
           // {...{ uri }}
-          uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${host.photo}`}
+          uri={`http://4007-95-186-116-119.ngrok.io/img/users/${host.photo}`}
           preview={{
             uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
           }}

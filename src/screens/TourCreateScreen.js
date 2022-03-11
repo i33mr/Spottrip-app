@@ -140,11 +140,13 @@ const TourCreateScreen = ({ navigation }) => {
             title="Continue"
             buttonStyle={[styles.modalButtonStyle]}
             titleStyle={{ fontSize: 22, fontWeight: "bold" }}
-            onPress={() => {
-              {
-                newTourTitle ? createNewTour() : setNewTourTitleError("Tour title cannot be empty");
-              }
-            }}
+            onPress={() =>
+              navigation.navigate("TourSettings", {
+                method: "generate",
+                _id: tourId,
+                tourTitle: tourTitle,
+              })
+            }
           />
         </View>
       </Modal>

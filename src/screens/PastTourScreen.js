@@ -1,30 +1,91 @@
-import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
+import React, { useContext, useState, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Modal as RNModal,
+  ActivityIndicator,
+} from "react-native";
 import { Button, Text, Input } from "react-native-elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import Magic_icon from "../../assets/images/magic.svg";
-import Pointer_icon from "../../assets/images/pointer.svg";
 import { EvilIcons } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import Modal from "react-native-modal";
+import { Context as TourContext } from "../context/TourContext";
+import { Image } from "react-native-expo-image-cache";
+import TourSummaryBar from "../components/TourSummaryBar";
+import spottripAPI from "../api/spottripAPI";
 
 const PastTourScreen = ({ navigation }) => {
-  const [isAddFriendFormVisible, setIsAddFriendFormVisible] = useState(false);
+  const tourId = navigation.getParam("_id");
+
+  const { state, getTour, addAttractions } = useContext(TourContext);
+
   const [isShowFriends, setIsShowFriends] = useState(false);
   const [isShowAttractions, setIsShowAttractions] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [newTourTitle, setNewTourTitle] = useState("");
+  const [newTourTitleError, setNewTourTitleError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [tour, setTour] = useState(null);
+  const [attractions, setAttractions] = useState([]);
+
+  useEffect(() => {
+    getTour(tourId);
+  }, []);
+
+  useEffect(() => {
+    if (tourId !== null) {
+      setTour(state.tour);
+    }
+  }, [state.tour]);
+
+  useEffect(() => {
+    if (tour !== null) {
+      setAttractions(tour.attractions);
+    }
+  }, [tour]);
+
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
 
-  // temp for demo
-  const parent =
-    navigation.dangerouslyGetParent().state.routes[
-      navigation.dangerouslyGetParent().state.routes.length - 2
-    ]["routeName"];
+  const createNewTour = async () => {
+    setIsLoading(true);
+    try {
+      const response = await spottripAPI.post(`/v1/tours`, { title: newTourTitle });
+
+      console.log(response.data.data.tour._id);
+      await addAttractions(
+        response.data.data.tour._id,
+        attractions.map((att) => att._id)
+      );
+
+      toggleModal();
+      setIsLoading(false);
+
+      navigation.navigate("TourOverview", {
+        _id: response.data.data.tour._id,
+        tourTitle: newTourTitle,
+        method: "manual",
+      });
+      // navigation.navigate("TourOverview", {
+      //   _id: validTour._id,
+      //   tourTitle: validTour.title,
+      //   method: validTour.timeToSpend ? "generate" : "manual",
+      // });
+
+      setNewTourTitle("");
+      setNewTourTitleError("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Modal isVisible={isModalVisible} avoidKeyboard={true}>
@@ -37,23 +98,40 @@ const PastTourScreen = ({ navigation }) => {
             style={{ width: 50 }}
           />
           <Text style={styles.modalTextStyle}>Enter Tour Title</Text>
+          {newTourTitleError ? (
+            <Text
+              style={{ color: "#E71D36", marginTop: 15, alignSelf: "center", fontWeight: "bold" }}
+            >
+              {newTourTitleError}
+            </Text>
+          ) : null}
 
           <Input
             inputStyle={styles.modalInputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             style={{ marginBottom: 0 }}
+            value={newTourTitle}
+            onChangeText={setNewTourTitle}
           />
           {/* <Button title="Create New Tour" onPress={toggleModal} /> */}
           <Button
-            title="Retake Tour"
+            title="Create New Tour"
             buttonStyle={[styles.modalButtonStyle]}
             titleStyle={{ fontSize: 22, fontWeight: "bold" }}
             onPress={() => {
-              toggleModal();
-              navigation.navigate("TourOverview");
+              {
+                newTourTitle ? createNewTour() : setNewTourTitleError("Tour title cannot be empty");
+              }
             }}
           />
         </View>
+        {state.isLoading || isLoading ? (
+          <RNModal animationType="none" transparent={true} visible={true}>
+            <View style={styles.loading}>
+              <ActivityIndicator size="large" color="#FF9F1C" />
+            </View>
+          </RNModal>
+        ) : null}
       </Modal>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View
@@ -80,36 +158,28 @@ const PastTourScreen = ({ navigation }) => {
           onPress={() => setIsShowFriends(!isShowFriends)}
         />
         {isShowFriends ? (
-          <View>
-            <View style={styles.elementView}>
-              <Image
-                style={styles.friendImg}
-                source={require("../../assets/images/avatars/avatar1.png")}
-              />
-              <View>
-                <Text h4 style={styles.elementDetaliText}>
-                  David Spencer
-                </Text>
-                <Text style={styles.elementDetaliText}>6avid77</Text>
-                {/* <Text style={[styles.elementDetaliText, { color: "#229186" }]}>
-                  Approved
-                </Text> */}
-              </View>
-              {/*  */}
-            </View>
-            <View style={styles.elementView}>
-              <Image
-                style={styles.friendImg}
-                source={require("../../assets/images/avatars/avatar2.png")}
-              />
-              <View>
-                <Text h4 style={styles.elementDetaliText}>
-                  Pamela Fuller
-                </Text>
-                <Text style={styles.elementDetaliText}>pam002</Text>
-              </View>
-            </View>
-          </View>
+          <>
+            {tour.guests.map((guest) => {
+              <View style={styles.elementView}>
+                <View style={styles.friendImgContainer}>
+                  <Image
+                    style={styles.friendImg}
+                    // {...{ uri }}
+                    uri={`http://4007-95-186-116-119.ngrok.io/img/users/${guest.photo}`}
+                    preview={{
+                      uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                    }}
+                  />
+                </View>
+                <View>
+                  <Text h4 style={styles.elementDetailText}>
+                    {`${guest.firstName} ${guest.lastName}`}
+                  </Text>
+                  <Text style={styles.elementDetailText}>{guest.username}</Text>
+                </View>
+              </View>;
+            })}
+          </>
         ) : null}
         <View
           style={{
@@ -135,20 +205,49 @@ const PastTourScreen = ({ navigation }) => {
           onPress={() => setIsShowAttractions(!isShowAttractions)}
         />
         {isShowAttractions ? (
-          <View>
-            <TouchableOpacity style={styles.elementView}>
+          // <View>
+          <>
+            {attractions.map((attraction) => {
+              return (
+                <TouchableOpacity style={styles.elementView} key={attraction._id._id}>
+                  <Image
+                    style={styles.attractionImg}
+                    // {...{ uri }}
+                    uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                    preview={{
+                      uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                    }}
+                  />
+                  <View style={styles.attractionDetail}>
+                    <Text h4 style={styles.elementDetailText}>
+                      {attraction._id.name}
+                    </Text>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                      <Text style={styles.elementDetailText}>{attraction._id.category}</Text>
+                      <Octicons name="primitive-dot" style={styles.dotStyle} color="#FFF" />
+                      <Text style={styles.elementDetailText}>{`${Math.floor(
+                        attraction._id.time / 60
+                      )}${
+                        attraction._id.time % 60 != 0 ? `:${attraction._id.time % 60}` : ""
+                      } hours`}</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+            {/* <TouchableOpacity style={styles.elementView}>
               <Image
                 style={styles.attractionImg}
                 source={require("../../assets/images/attractions/batu-caves1.jpg")}
               />
               <View>
-                <Text h4 style={styles.elementDetaliText}>
+                <Text h4 style={styles.elementDetailText}>
                   Batu Caves
                 </Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={styles.elementDetaliText}>Historical</Text>
+                  <Text style={styles.elementDetailText}>Historical</Text>
                   <Octicons name="primitive-dot" style={styles.dotStyle} color="#FFF" />
-                  <Text style={styles.elementDetaliText}>2 hours</Text>
+                  <Text style={styles.elementDetailText}>2 hours</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -158,13 +257,13 @@ const PastTourScreen = ({ navigation }) => {
                 source={require("../../assets/images/attractions/Kepong-Metropolitan-Park.png")}
               />
               <View style={styles.AttractionDetali}>
-                <Text h4 style={styles.elementDetaliText}>
+                <Text h4 style={styles.elementDetailText}>
                   Kepong Metropolitan Park
                 </Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={styles.elementDetaliText}>Park</Text>
+                  <Text style={styles.elementDetailText}>Park</Text>
                   <Octicons name="primitive-dot" style={styles.dotStyle} color="#FFF" />
-                  <Text style={styles.elementDetaliText}>3 hours</Text>
+                  <Text style={styles.elementDetailText}>3 hours</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -174,18 +273,19 @@ const PastTourScreen = ({ navigation }) => {
                 source={require("../../assets/images/attractions/Taman-Tasik-Cempaka.png")}
               />
               <View style={styles.AttractionDetali}>
-                <Text h4 style={styles.elementDetaliText}>
+                <Text h4 style={styles.elementDetailText}>
                   Taman Tasik Cempaka
                 </Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={styles.elementDetaliText}>Park</Text>
+                  <Text style={styles.elementDetailText}>Park</Text>
                   <Octicons name="primitive-dot" style={styles.dotStyle} color="#FFF" />
-                  <Text style={styles.elementDetaliText}>3 hours</Text>
+                  <Text style={styles.elementDetailText}>3 hours</Text>
                 </View>
               </View>
-            </TouchableOpacity>
-          </View>
-        ) : null}
+            </TouchableOpacity> */}
+          </>
+        ) : // </View>
+        null}
         <View
           style={{
             borderBottomColor: "#011627",
@@ -193,14 +293,7 @@ const PastTourScreen = ({ navigation }) => {
             marginVertical: 10,
           }}
         />
-        <View style={styles.tourDetails}>
-          <AntDesign name="clockcircle" size={24} color="#011627" />
-          <Text style={styles.attractionDetailText}> 8:30 hours</Text>
-          <EvilIcons name="location" size={28} color="#011627" />
-          <Text style={styles.attractionDetailText}>3 Attractions</Text>
-          <MaterialCommunityIcons name="road" size={28} color="#011627" />
-          <Text style={styles.attractionDetailText}> 14 km</Text>
-        </View>
+        {tour !== null ? <TourSummaryBar tour={tour} /> : null}
         <Button
           title="Retake Tour"
           buttonStyle={[styles.buttonStyle, { borderColor: "#229186", borderWidth: 1 }]}
@@ -210,6 +303,13 @@ const PastTourScreen = ({ navigation }) => {
           type="outline"
         />
       </ScrollView>
+      {state.isLoading || isLoading ? (
+        <RNModal animationType="none" transparent={true} visible={true}>
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color="#FF9F1C" />
+          </View>
+        </RNModal>
+      ) : null}
     </View>
   );
 };
@@ -234,20 +334,30 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: "row",
   },
-  friendImg: {
+  friendImgContainer: {
+    height: 110,
+    width: 110,
     marginHorizontal: 5,
+    marginVertical: 5,
+  },
+  friendImg: {
+    // marginHorizontal: 5,
+    borderRadius: 60,
+    height: "100%",
+    width: "100%",
   },
   AttractionDetali: {
     flex: 1,
   },
-  elementDetaliText: {
+  elementDetailText: {
     color: "#FFF",
     fontWeight: "500",
     marginTop: 5,
   },
   buttonStyle: {
-    // paddingHorizontal: 10,
-    // paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginTop: 10,
     borderRadius: 50,
     marginBottom: 10,
     marginHorizontal: 90,
@@ -306,11 +416,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#229186",
     marginBottom: 20,
   },
+  loading: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(220,220,220,0.4)",
+  },
+  attractionDetail: {
+    resizeMode: "contain",
+
+    fontWeight: "bold",
+    flex: 1,
+    flexWrap: "wrap",
+    flexDirection: "row",
+    paddingRight: 10,
+    // paddingBottom: 50,
+  },
 });
 
-PastTourScreen.navigationOptions = () => {
+PastTourScreen.navigationOptions = ({ navigation }) => {
   return {
-    title: "Tour Title",
+    title: navigation.getParam("tourTitle"),
     headerBackTitle: " ",
   };
 };

@@ -21,7 +21,7 @@ const TourInvite = ({ invite, removeInvite, userId, navigation }) => {
         <Image
           style={styles.friendImg}
           // {...{ uri }}
-          uri={`http://2f00-151-255-174-169.ngrok.io/img/users/${invite.invitee.photo}`}
+          uri={`http://4007-95-186-116-119.ngrok.io/img/users/${invite.invitee.photo}`}
           preview={{
             uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
           }}

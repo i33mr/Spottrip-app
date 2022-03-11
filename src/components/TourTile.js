@@ -20,7 +20,8 @@ const TourTile = ({ navigation, tour }) => {
 
     if (validTour.status === "Active")
       navigation.navigate("ActiveTour", { _id: validTour._id, tourTitle: validTour.title });
-    else if (validTour.status === "Past") navigation.navigate("PastTour", { _id: validTour._id });
+    else if (validTour.status === "Past")
+      navigation.navigate("PastTour", { _id: validTour._id, tourTitle: validTour.title });
     else if (validTour.status === "Draft")
       navigation.navigate("TourCreate", { _id: validTour._id, tourTitle: validTour.title });
     else if (validTour.status === "Saved")
@@ -66,7 +67,7 @@ const TourTile = ({ navigation, tour }) => {
               <Image
                 style={styles.attractionImg}
                 key={attraction._id.imageCover}
-                uri={`http://2f00-151-255-174-169.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${attraction._id.imageCover}`}
                 preview={{
                   uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                 }}
@@ -77,7 +78,7 @@ const TourTile = ({ navigation, tour }) => {
               <Image
                 style={styles.attractionImg}
                 key={attraction._id.imageCover}
-                uri={`http://2f00-151-255-174-169.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${attraction._id.imageCover}`}
                 preview={{
                   uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                 }}
