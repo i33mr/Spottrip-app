@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -17,13 +17,14 @@ import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from 
 // import { Picker } from "@react-native-picker/picker";
 import TimeField from "react-simple-timefield";
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
-
+import { withNavigationFocus } from "react-navigation";
 import { Context as TourContext } from "../context/TourContext";
 
 import { StackActions } from "react-navigation";
 import { NavigationActions } from "react-navigation";
+import useLocation from "../hooks/useLocation";
 
-const TourSettingsScreen = ({ navigation }) => {
+const TourSettingsScreen = ({ isFocused, navigation }) => {
   const creationMethod = navigation.getParam("method");
   const tourId = navigation.getParam("_id");
 
@@ -36,7 +37,7 @@ const TourSettingsScreen = ({ navigation }) => {
   const [editPermission, setEditPermission] = useState("");
   // const [startOrSave, setStartOrSave] = useState("");
   const [timeToSpend, setTimeToSpend] = useState("");
-  const [locationErr, setLocationErr] = useState(null);
+  // const [locationErr, setLocationErr] = useState(null);
   const [longitudeLatitude, setLongitudeLatitude] = useState("");
   const [err, setErr] = useState("");
 
@@ -58,32 +59,14 @@ const TourSettingsScreen = ({ navigation }) => {
     }
   }, []);
 
-  const startWatchingLocation = async () => {
-    try {
-      const { granted } = await requestForegroundPermissionsAsync();
-      await watchPositionAsync(
-        {
-          accuracy: Accuracy.BestForNavigation,
-          // timeInterval: 100000,
-          distanceInterval: 100,
-        },
-        (location) => {
-          // console.log(location);
-          // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
-          setLongitudeLatitude(`101.711309,3.15887`);
-        }
-      );
-      if (!granted) {
-        throw new Error("Location permission not granted");
-      }
-    } catch (e) {
-      setLocationErr(e);
-    }
-  };
-
-  useEffect(() => {
-    startWatchingLocation();
-  }, []);
+  const callback = useCallback((location) => {
+    // console.log(location);
+    // addLocation(location, state.recording);
+    // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
+    setLongitudeLatitude(`101.711309,3.15887`);
+    console.log("Settings tracking");
+  });
+  const [locationErr] = useLocation(isFocused, callback);
 
   const navigateToScreen = () => {
     // if there was a tourTitle passed, then it is a new tour, and we navigate to the main tours screen
@@ -329,4 +312,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TourSettingsScreen;
+export default withNavigationFocus(TourSettingsScreen);

@@ -14,6 +14,8 @@ import { AntDesign } from "@expo/vector-icons";
 import GMaps_icon from "../../assets/images/google-maps.svg";
 import { EvilIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+
 import { Context as TourContext } from "../context/TourContext";
 import { Context as NotificationContext } from "../context/NotificationContext";
 import TourSummaryBar from "../components/TourSummaryBar";
@@ -26,6 +28,18 @@ import Modal from "react-native-modal";
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 const ActiveTourScreen = ({ navigation }) => {
+  // navigation.setOptions({
+  //   title: navigation.getParam("tourTitle"),
+  //   headerBackTitle: " ",
+  //   headerRight: () => (
+  //     <Button
+  //       icon={<MaterialCommunityIcons name="bell" size={24} color="#229186" />}
+  //       type="clear"
+  //       onPress={toggleTourNotificationsFunction}
+  //     />
+  //   ),
+  // });
+
   const tourId = navigation.getParam("_id");
   const {
     state,
@@ -34,7 +48,9 @@ const ActiveTourScreen = ({ navigation }) => {
     resolveOverstay,
     clearOverstayMsg,
     resolveOverstayResponse,
+    toggleTourNotifications,
   } = useContext(TourContext);
+
   const Notification = useContext(NotificationContext);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedAttraction, setSelectedAttraction] = useState("");
@@ -46,6 +62,16 @@ const ActiveTourScreen = ({ navigation }) => {
     getTour(tourId);
     // await Notification.resetLocalNotifications(state.tours);
   }, []);
+
+  // useEffect(() => {
+  //   if (state.tour !== null)
+  //     navigation.setParams({
+  //       toggleTourNotifications: toggleTourNotifications(
+  //         tourId,
+  //         state.tour._id.enableNotifications
+  //       ),
+  //     });
+  // }, [state.tour]);
 
   const finishTour = async () => {
     try {
@@ -98,6 +124,28 @@ const ActiveTourScreen = ({ navigation }) => {
     await resolveOverstayResponse(tourId, selectedAttraction, overstayTime, choice);
     toggleModal();
   };
+
+  // console.log(state.tour !== null);
+  // if (state.tour !== null)
+  //   ActiveTourScreen.navigationOptions = ({ navigation }) => {
+  //     return {
+  //       title: navigation.getParam("tourTitle"),
+  //       headerBackTitle: " ",
+  //       headerRight: () => (
+  //         <Button
+  //           icon={
+  //             <MaterialCommunityIcons
+  //               name="bell"
+  //               size={24}
+  //               color={state.tour._id.enableNotifications ? "#229186" : "#E71D36"}
+  //             />
+  //           }
+  //           type="clear"
+  //           onPress={() => toggleTourNotifications(state.tour._id.enableNotifications)}
+  //         />
+  //       ),
+  //     };
+  //   };
 
   return (
     <View style={styles.container}>
@@ -279,11 +327,63 @@ const ActiveTourScreen = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         {state.tour !== null ? (
           <>
+            <View style={{ paddingTop: 0, flexDirection: "row", marginTop: 10 }}>
+              <Button
+                icon={<Ionicons name="chevron-back" size={30} color="#0a84ff" />}
+                // style={{ flex: 1 }}
+                buttonStyle={{
+                  alignSelf: "flex-start",
+                  backgroundColor: "#FFF",
+                  marginBottom: 0,
+                  paddingBottom: 0,
+                  marginLeft: -10,
+                }}
+                containerStyle={{ marginBottom: 0, paddingBottom: 0 }}
+              />
+              <Text
+                style={{
+                  alignSelf: "center",
+                  textAlign: "center",
+                  flex: 1,
+                  fontSize: 18,
+                  fontWeight: "bold",
+                }}
+              >
+                {navigation.getParam("tourTitle")}
+              </Text>
+              <Button
+                icon={
+                  <MaterialCommunityIcons
+                    name="bell"
+                    size={24}
+                    color={state.tour.enableNotifications ? "#229186" : "#E71D36"}
+                    // color={"#229186"}
+                  />
+                }
+                // style={{ flex: 1 }}
+                buttonStyle={{
+                  alignSelf: "flex-start",
+                  backgroundColor: "#FFF",
+                  // marginBottom: 0,
+                  // paddingBottom: 0,
+                  // marginLeft: -10,
+                }}
+                // containerStyle={{ marginBottom: 0, paddingBottom: 0 }}
+                onPress={() => toggleTourNotifications(tourId, state.tour.enableNotifications)}
+              />
+            </View>
+            <View
+              style={{
+                borderBottomColor: "#011627",
+                borderBottomWidth: 1,
+                marginVertical: 10,
+              }}
+            />
             <Text
               style={{
                 alignSelf: "center",
                 fontSize: 18,
-                marginTop: 10,
+                // marginTop: 10,
                 color: "#229186",
                 fontWeight: "900",
               }}
@@ -582,15 +682,28 @@ const styles = StyleSheet.create({
 
 ActiveTourScreen.navigationOptions = ({ navigation }) => {
   return {
-    title: navigation.getParam("tourTitle"),
-    headerBackTitle: " ",
-    headerRight: () => (
-      <Button
-        icon={<MaterialCommunityIcons name="bell" size={24} color="#229186" />}
-        type="clear"
-      />
-    ),
+    //   headerRight: () => <Text>Sign up</Text>,
+    headerShown: false,
   };
+  //   return {
+  //     title: navigation.getParam("tourTitle"),
+  //     headerBackTitle: " ",
+  //     headerRight: () => (
+  //       <Button
+  //         icon={
+  //           <MaterialCommunityIcons
+  //             name="bell"
+  //             size={24}
+  //             // color={state.tour._id.enableNotifications ? "#229186" : "#E71D36"}
+  //             color={"#229186"}
+  //           />
+  //         }
+  //         type="clear"
+  //         // onPress={() => toggleTourNotifications(state.tour._id.enableNotifications)}
+  //         onPress={() => navigation.getParam("toggleTourNotifications")()}
+  //       />
+  //     ),
+  //   };
 };
 
 export default ActiveTourScreen;

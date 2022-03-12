@@ -88,9 +88,7 @@ const TourAddAttractionScreen = ({ navigation }) => {
   const flashMessageRef = useRef();
 
   return (
-    // <View style={styles.container}>
     <View style={styles.container}>
-      {/* <ScrollView style={styles.container}> */}
       <ScrollView>
         <NavigationEvents onWillFocus={Attraction.clearSearchResults} />
         {searchErr ? (
@@ -110,137 +108,21 @@ const TourAddAttractionScreen = ({ navigation }) => {
           returnKeyType={"search"}
           raised
           onSubmitEditing={onSubmitSearch}
-          // keyboardOpeningTime={Number.MAX_SAFE_INTEGER}
           keyboardAppearance="dark"
         />
 
-        {/* <View>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={[
-              {
-                item: (
-                  <Button
-                    buttonStyle={isPrefPressed ? styles.buttonStylePressed : styles.buttonStyle}
-                    onPress={() => {
-                      setIsPrefPressed(!isPrefPressed);
-                    }}
-                    title="Your preferences"
-                    titleStyle={{ fontWeight: "bold" }}
-                  />
-                ),
-                key: 1,
-              },
-              {
-                item: (
-                  <Button
-                    buttonStyle={isParksPressed ? styles.buttonStylePressed : styles.buttonStyle}
-                    onPress={() => {
-                      setIsParksPressed(!isParksPressed);
-                    }}
-                    title="Parks"
-                    titleStyle={{ fontWeight: "bold" }}
-                  />
-                ),
-                key: 2,
-              },
-              {
-                item: (
-                  <Button
-                    buttonStyle={isWaterPressed ? styles.buttonStylePressed : styles.buttonStyle}
-                    onPress={() => {
-                      setIsWaterPressed(!isWaterPressed);
-                    }}
-                    title="Waterfalls"
-                    titleStyle={{ fontWeight: "bold" }}
-                  />
-                ),
-                key: 3,
-              },
-            ]}
-            renderItem={({ item }) => item.item}
-          />
-        </View> */}
         {Attraction.state.searchResults.map((attraction) => {
-          // console.log(attraction);
           return (
             <AddAttractionTile
+              navigation={navigation}
               key={attraction._id}
               updateArray={updateAddArray}
               selectedAttractions={selectedAttractions}
-              // setSelectedAttractions={setSelectedAttractions}
               attraction={attraction}
             />
-            // <TouchableOpacity key={attraction._id} style={styles.elementView}>
-            //   <Image
-            //     style={styles.attractionImg}
-            //     // {...{ uri }}
-            //     uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${attraction.imageCover}`}
-            //     preview={{
-            //       uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-            //     }}
-            //   />
-            //   {/* <Image
-            //     style={styles.attractionImg}
-            //     source={require("../../assets/images/attractions/lepoh.png")}
-            //   /> */}
-            //   <View style={styles.AttractionDetail}>
-            //     <Text h4 style={styles.elementDetailText}>
-            //       {attraction.name}
-            //     </Text>
-            //     <Text style={styles.elementDetailText}> {attraction.category}</Text>
-            //     <Text style={styles.elementDetailText}>
-            //       {`${Math.floor(attraction.time / 60)}${
-            //         attraction.time % 60 != 0 ? `:${attraction.time % 60}` : ""
-            //       } hours`}{" "}
-            //     </Text>
-            //   </View>
-            //   <TouchableOpacity>
-            //     <Ionicons
-            //       name="checkmark-circle"
-            //       size={48}
-            //       color="#229186"
-            //       style={{
-            //         position: "absolute",
-            //         bottom: 5,
-            //         right: 10,
-            //         // padding: 5,
-            //         borderRadius: 50,
-            //         // marginTop: 10,
-            //       }}
-            //     />
-            //   </TouchableOpacity>
-            // </TouchableOpacity>
           );
         })}
-        {/* <TouchableOpacity style={styles.elementView}>
-          <Image
-            style={styles.attractionImg}
-            source={require("../../assets/images/attractions/Serendah.png")}
-          />
-          <View style={styles.AttractionDetail}>
-            <Text h4 style={styles.elementDetailText}>
-              Serendah Waterfall
-            </Text>
-            <Text style={styles.elementDetailText}>Waterfall </Text>
-            <Text style={styles.elementDetailText}>2:15 hours </Text>
-          </View>
-          <TouchableOpacity>
-            <Ionicons
-              name="checkmark-circle"
-              size={48}
-              color="#FFF"
-              style={{
-                position: "absolute",
-                bottom: 10,
-                right: 10,
-                padding: 5,
-                borderRadius: 50,
-              }}
-            />
-          </TouchableOpacity>
-        </TouchableOpacity> */}
+
         <Button
           title="Add Attractions"
           buttonStyle={[
@@ -254,7 +136,6 @@ const TourAddAttractionScreen = ({ navigation }) => {
             },
           ]}
           titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-          // onPress={() => navigation.navigate("TourOverview")}
           onPress={onAddAttractions}
         />
         {Attraction.state.isLoading || Tour.state.isLoading ? (
@@ -264,7 +145,6 @@ const TourAddAttractionScreen = ({ navigation }) => {
             </View>
           </Modal>
         ) : null}
-        {/* {console.log("Do we reach add?")} */}
       </ScrollView>
       <FlashMessage position={"top"} ref={flashMessageRef} />
     </View>
@@ -307,52 +187,6 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 
-  buttonStyle: {
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "#CACCC9",
-  },
-  buttonStylePressed: {
-    // marginBottom: 10,
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "red",
-  },
-
-  elementView: {
-    // height: 200,
-    borderRadius: 15,
-    backgroundColor: "#011627",
-    marginTop: 10,
-    flexDirection: "row",
-    marginHorizontal: 10,
-
-    // borderRadius: 15,
-    // backgroundColor: "#011627",
-    // marginTop: 10,
-    // flexDirection: "row",
-  },
-  attractionImg: {
-    // height: "100%",
-    height: 150,
-    width: 170,
-    borderTopLeftRadius: 15,
-    borderBottomLeftRadius: 15,
-    marginRight: 15,
-  },
-  AttractionDetail: {
-    flex: 1,
-    paddingBottom: 10,
-  },
-  elementDetailText: {
-    color: "#FFF",
-    fontWeight: "500",
-    marginTop: 5,
-  },
   loading: {
     position: "absolute",
     left: 0,

@@ -91,7 +91,8 @@ const resetLocalNotifications = (dispatch) => async (tours) => {
   // make sure that tours are active and the notification time is greater than the current time
   await Promise.all(
     tours.map(async (tour) => {
-      if (tour.status === "Active") {
+      console.log("tour.enableNotifications", tour.enableNotifications);
+      if (tour.status === "Active" && tour.enableNotifications) {
         if (moment(tour.startTime).add(10, "seconds").valueOf() - Date.now() - 5 > 0) {
           // console.log(tour.title);
           // console.log(moment(tour.startTime).add(10, "seconds").valueOf());
@@ -109,7 +110,7 @@ const resetLocalNotifications = (dispatch) => async (tours) => {
     })
   );
   tours.map(async (tour) => {
-    if (tour.status === "Active") {
+    if (tour.status === "Active" && tour.enableNotifications) {
       await Promise.all(
         tour.attractions.map(async (attraction, index) => {
           if (index < tour.attractions.length - 1) {

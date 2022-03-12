@@ -17,6 +17,7 @@ import TourTile from "../components/TourTile";
 
 const TourListScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [tours, setTours] = useState([]);
 
   const { state, fetchTours } = useContext(TourContext);
   const Notification = useContext(NotificationContext);
@@ -24,6 +25,8 @@ const TourListScreen = ({ navigation }) => {
   // useEffect(() => {
   //   fetchTours();
   // }, []);
+
+  // searchTerm;
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -43,8 +46,19 @@ const TourListScreen = ({ navigation }) => {
 
   useEffect(() => {
     Notification.resetLocalNotifications(state.tours);
-    // Notification.getAllNotifications();
+    Notification.getAllNotifications();
+    setTours(state.tours);
   }, [state.tours]);
+
+  const handleSearch = (searchTerm) => {
+    setSearchTerm(searchTerm);
+    const formatQuery = searchTerm.toLowerCase();
+    const tempTours = state.tours.filter((tour) => {
+      if (tour.title.toLowerCase().includes(formatQuery)) return tour;
+    });
+    setTours(tempTours);
+    console.log(formatQuery);
+  };
 
   return (
     <View style={styles.container}>
@@ -58,7 +72,7 @@ const TourListScreen = ({ navigation }) => {
             inputStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
             placeholder="Search by tour title..."
             value={searchTerm}
-            onChangeText={setSearchTerm}
+            onChangeText={handleSearch}
             returnKeyType={"search"}
             raised
           />
@@ -67,7 +81,7 @@ const TourListScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.toursList}>
-          {state.tours.map((tour) => {
+          {tours.map((tour) => {
             // console.log(tour);
             return <TourTile navigation={navigation} tour={tour} key={tour._id} />;
           })}
@@ -120,53 +134,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     // marginBottom: 70,
   },
-  tourItem: {
-    backgroundColor: "#011627",
-    borderRadius: 15,
-    marginBottom: 10,
-    padding: 10,
-    flexDirection: "row",
-    flex: 1,
-    flexWrap: "wrap",
-  },
-  tourItemActive: {
-    backgroundColor: "#229186",
-    borderRadius: 15,
-    marginBottom: 10,
-    padding: 10,
-    flexDirection: "row",
-    flex: 1,
-    flexWrap: "wrap",
-  },
-  imgLayout: {
-    flexDirection: "row",
-    flex: 1,
-    alignItems: "flex-start",
-    flexWrap: "wrap",
-    // backgroundColor: "rgba(202,204,201, 0.4)",
-    marginRight: 5,
-  },
-  attractionImg: {
-    width: "50%",
-    // width: 25,
-    height: 80,
-  },
-  tourDetail: {
-    // height: 70,
-    fontWeight: "bold",
-    width: 0,
-    flexGrow: 1,
-  },
-  tourTitle: {
-    fontWeight: "700",
-    color: "#FFF",
-  },
-  tourExtraDetail: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 2,
-    // flex: 1,
-  },
+
   loading: {
     position: "absolute",
     left: 0,

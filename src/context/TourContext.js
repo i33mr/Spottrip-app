@@ -172,6 +172,27 @@ const updateTourStatus = (dispatch) => async (tourId, status) => {
   }
 };
 
+const toggleTourNotifications = (dispatch) => async (tourId, currentState) => {
+  console.log("currentState", currentState);
+  dispatch({ type: "loading", payload: true });
+  try {
+    console.log("Here");
+    const response = await spottripAPI.patch(`/v1/tours/${tourId}`, {
+      enableNotifications: !currentState,
+    });
+
+    // console.log("tour", response.data.data.tour);
+    dispatch({ type: "set_tour", payload: response.data.data.tour });
+    // console.log();
+
+    dispatch({ type: "loading", payload: false });
+  } catch (error) {
+    console.log(error.response.data.message);
+    dispatch({ type: "loading", payload: false });
+    throw new Error(error.response.data.message);
+  }
+};
+
 const resolveOverstay = (dispatch) => async (tourId, attractionId, overStayedTime) => {
   dispatch({ type: "loading", payload: true });
 
@@ -312,6 +333,7 @@ export const { Provider, Context } = createDataContext(
     resolveOverstayResponse,
     updateAttractionsOrder,
     deleteTour,
+    toggleTourNotifications,
   },
   { tours: [], isLoading: false, inviteMsg: null, tour: null, overstayMsg: "" }
 );

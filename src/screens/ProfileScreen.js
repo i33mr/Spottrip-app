@@ -682,9 +682,6 @@ const ProfileScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    // alignItems: "center",
-    // justifyContent: "center",
-    // alignContent: "center",
     flex: 1,
   },
   ellipse: {
@@ -747,13 +744,7 @@ const styles = StyleSheet.create({
   infoCard: {
     padding: 15,
     marginHorizontal: 15,
-    // borderColor: "rgba(0,0,0,0.7)",
-    // borderWidth: 1,
     backgroundColor: "white",
-    // borderRadius: 8,
-    // paddingVertical: 45,
-    // paddingHorizontal: 25,
-    // width: "100%",
     marginVertical: 10,
     shadowColor: "#171717",
     shadowOffset: { width: -2, height: 4 },

@@ -163,7 +163,7 @@ const TourCreateScreen = ({ navigation }) => {
             onPress={() => setIsAddFriendFormVisible(!isAddFriendFormVisible)}
           />
           {isAddFriendFormVisible ? (
-            <View style={styles.addFriendForm}>
+            <View>
               <Text
                 style={{ color: "#FFF", paddingHorizontal: 10, fontWeight: "bold", fontSize: 18 }}
               >
@@ -306,9 +306,7 @@ const styles = StyleSheet.create({
     // borderBottomRightRadius: 15,
     marginTop: 10,
   },
-  addFriendForm: {
-    // height: 200,
-  },
+
   usernameInputStyle: {
     paddingVertical: 15,
     borderRadius: 50,
@@ -322,45 +320,14 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     backgroundColor: "#229186",
     marginBottom: 20,
-    // marginTop: -20,
   },
   showFriendsButtonStyle: {
     borderColor: "red",
     paddingVertical: 0,
     paddingHorizontal: 0,
     marginLeft: -10,
-    // borderWidth: 3,
-    // marginTop: 0,
   },
   showFriendsView: {},
-  friendView: {
-    // height: 200,
-    borderRadius: 15,
-    backgroundColor: "#011627",
-    marginTop: 10,
-    flexDirection: "row",
-  },
-  friendImg: {
-    marginHorizontal: 5,
-    // borderRadius: 50,
-    // height: "100%",
-    // width: "28%",
-  },
-  friendDetailText: {
-    color: "#FFF",
-    fontWeight: "500",
-    marginTop: 5,
-  },
-  inviteStatusApproved: {
-    color: "#229186",
-    fontWeight: "500",
-    marginTop: 5,
-  },
-  inviteStatusPending: {
-    color: "#FF9F1C",
-    fontWeight: "500",
-    marginTop: 5,
-  },
 
   buttonStyle: {
     // paddingHorizontal: 5,
@@ -410,13 +377,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 20,
   },
-  modalInputStyle: {
-    paddingVertical: 15,
-    borderRadius: 50,
-    paddingHorizontal: 10,
-    backgroundColor: "#FFF",
-    marginVertical: 20,
-  },
+
   modalButtonStyle: {
     marginHorizontal: 50,
     paddingVertical: 10,

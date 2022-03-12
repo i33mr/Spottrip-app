@@ -4,7 +4,7 @@ import { Image } from "react-native-expo-image-cache";
 import { SearchBar, Button, Text, Icon, Input } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 
-const AddAttractionTile = ({ attraction, updateArray }) => {
+const AddAttractionTile = ({ attraction, updateArray, navigation }) => {
   const [selected, setSelected] = useState(false);
 
   useEffect(() => {
@@ -15,7 +15,15 @@ const AddAttractionTile = ({ attraction, updateArray }) => {
     }
   }, [selected]);
   return (
-    <TouchableOpacity style={styles.elementView}>
+    <TouchableOpacity
+      style={styles.elementView}
+      onPress={() =>
+        navigation.navigate("AttractionDetail", {
+          _id: attraction._id,
+          title: attraction.name,
+        })
+      }
+    >
       <Image
         style={styles.attractionImg}
         // {...{ uri }}
@@ -60,48 +68,6 @@ const AddAttractionTile = ({ attraction, updateArray }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#FFF",
-    flexDirection: "column",
-    flex: 1,
-  },
-  instructionsStyle: {
-    marginTop: 10,
-    marginLeft: 10,
-    fontSize: 18,
-    color: "#011627",
-  },
-  searchContainer: {
-    // marginTop: 30,
-    backgroundColor: "rgba(0,0,0,0)",
-    borderBottomColor: "transparent",
-    borderTopColor: "transparent",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
-    elevation: 6,
-  },
-
-  buttonStyle: {
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "#CACCC9",
-  },
-  buttonStylePressed: {
-    // marginBottom: 10,
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "red",
-  },
-
   elementView: {
     // height: 200,
     borderRadius: 15,
@@ -131,16 +97,6 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "500",
     marginTop: 5,
-  },
-  loading: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(220,220,220,0.4)",
   },
 });
 

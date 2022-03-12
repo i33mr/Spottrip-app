@@ -87,6 +87,7 @@ const TourOverviewScreen = ({ navigation, route }) => {
     // console.log(Tour.state.tour);
 
     if (tourId !== null) {
+      console.log("fetching", tourId);
       setTour(Tour.state.tour);
       // console.log(tour);
       // console.log("tour set");
@@ -243,6 +244,7 @@ const TourOverviewScreen = ({ navigation, route }) => {
                   <View style={{ flexDirection: "row" }}>
                     <View style={{ flex: 1 }}>
                       <TourAttractionTile
+                        navigation={navigation}
                         attraction={item}
                         removeAttraction={removeAttractionFromTour}
                         tourId={tourId}
@@ -594,27 +596,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     marginLeft: -10,
   },
-  elementView: {
-    borderRadius: 15,
-    backgroundColor: "#011627",
-    marginTop: 10,
-    flexDirection: "row",
-  },
-  friendImg: {
-    marginHorizontal: 5,
-  },
-  AttractionDetali: {
-    flex: 1,
-  },
-  elementDetaliText: {
-    color: "#FFF",
-    fontWeight: "500",
-    marginTop: 5,
-  },
-  dotStyle: {
-    marginHorizontal: 5,
-    marginTop: 3,
-  },
+
   buttonContainer: {
     flex: 1,
     paddingHorizontal: 5,
@@ -636,28 +618,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  attractionImg: {
-    borderTopLeftRadius: 15,
-    borderBottomLeftRadius: 15,
-    height: 150,
-    width: 150,
-    marginRight: 10,
-  },
-  tourDetails: {
-    backgroundColor: "#FF9F1C",
-    // height: 50,
-    // marginBottom: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  attractionDetailText: {
-    fontSize: 15,
-    fontWeight: "bold",
-  },
+
   loading: {
     position: "absolute",
     left: 0,

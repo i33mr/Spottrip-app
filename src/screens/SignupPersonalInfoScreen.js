@@ -289,12 +289,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: "#011627",
   },
-  fPassword: {
-    marginRight: 15,
-    textAlign: "right",
-    fontWeight: "600",
-    color: "#011627",
-  },
+
   buttonStyle: {
     marginTop: 10,
     paddingVertical: 20,

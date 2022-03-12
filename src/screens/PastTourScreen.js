@@ -209,7 +209,16 @@ const PastTourScreen = ({ navigation }) => {
           <>
             {attractions.map((attraction) => {
               return (
-                <TouchableOpacity style={styles.elementView} key={attraction._id._id}>
+                <TouchableOpacity
+                  style={styles.elementView}
+                  key={attraction._id._id}
+                  onPress={() =>
+                    navigation.navigate("AttractionDetail", {
+                      _id: attraction._id._id,
+                      title: attraction._id.name,
+                    })
+                  }
+                >
                   <Image
                     style={styles.attractionImg}
                     // {...{ uri }}
@@ -346,9 +355,7 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
   },
-  AttractionDetali: {
-    flex: 1,
-  },
+
   elementDetailText: {
     color: "#FFF",
     fontWeight: "500",
@@ -370,21 +377,7 @@ const styles = StyleSheet.create({
     width: 150,
     marginRight: 10,
   },
-  tourDetails: {
-    backgroundColor: "#FF9F1C",
-    // height: 50,
-    marginBottom: 10,
-    paddingVertical: 5,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  attractionDetailText: {
-    fontSize: 15,
-    fontWeight: "bold",
-  },
+
   dotStyle: {
     marginHorizontal: 5,
     marginTop: 3,

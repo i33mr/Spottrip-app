@@ -6,9 +6,17 @@ import { Octicons } from "@expo/vector-icons";
 
 import { Image } from "react-native-expo-image-cache";
 
-const TourAttractionTile = ({ attraction, removeAttraction, tourId }) => {
+const TourAttractionTile = ({ attraction, removeAttraction, tourId, navigation }) => {
   return (
-    <TouchableOpacity style={styles.elementView}>
+    <TouchableOpacity
+      style={styles.elementView}
+      onPress={() =>
+        navigation.navigate("AttractionDetail", {
+          _id: attraction._id._id,
+          title: attraction._id.name,
+        })
+      }
+    >
       <Image
         style={styles.attractionImg}
         // {...{ uri }}
@@ -77,9 +85,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     // paddingBottom: 50,
   },
-  AttractionDetali: {
-    flex: 1,
-  },
+
   elementDetailText: {
     color: "#FFF",
     fontWeight: "500",

@@ -90,21 +90,6 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 
-  buttonStyle: {
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "#CACCC9",
-  },
-  buttonStylePressed: {
-    // marginBottom: 10,
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "red",
-  },
   loading: {
     position: "absolute",
     left: 0,

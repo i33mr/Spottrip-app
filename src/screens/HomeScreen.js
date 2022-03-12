@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { Button, Text, Input } from "react-native-elements";
 // import _mockLocation from "../_mockLocation"; // only for testing, don't include in deployment
@@ -15,8 +15,9 @@ import AttractionTile from "../components/AttractionTile";
 import HomeScreenHeader from "../components/HomeScreenHeader";
 import FloatingButton from "../components/FloatingButton";
 import FlashMessage from "react-native-flash-message";
-
+import { withNavigationFocus } from "react-navigation";
 import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
+import useLocation from "../hooks/useLocation";
 
 // Notifications.setNotificationHandler({
 //   handleNotification: async () => ({
@@ -26,39 +27,48 @@ import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from 
 //   }),
 // });
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ isFocused, navigation }) => {
   const Attraction = useContext(AttractionContext);
-  // const Notification = useContext(NotificationContext);
 
   const [isModalVisible, setModalVisible] = useState(false);
-  const [locationErr, setLocationErr] = useState(null);
+  // const [locationErr, setLocationErr] = useState(null);
   const [longitudeLatitude, setLongitudeLatitude] = useState("");
   const [newTourTitle, setNewTourTitle] = useState("");
   const [newTourTitleError, setNewTourTitleError] = useState("");
   const responseListener = useRef();
 
-  const startWatchingLocation = async () => {
-    try {
-      const { granted } = await requestForegroundPermissionsAsync();
-      // How accurate the location is, timeInterval is checking the location every 1 second, distanceInterval checks every 10 meters
-      await watchPositionAsync(
-        {
-          accuracy: Accuracy.BestForNavigation,
-          // timeInterval: 100000,
-          distanceInterval: 100,
-        },
-        (location) => {
-          // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
-          setLongitudeLatitude(`101.711309,3.15887`);
-        }
-      );
-      if (!granted) {
-        throw new Error("Location permission not granted");
-      }
-    } catch (e) {
-      setLocationErr(e);
-    }
-  };
+  // console.log(isFocused);
+  const callback = useCallback((location) => {
+    // console.log(location);
+    // addLocation(location, state.recording);
+    // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
+    setLongitudeLatitude(`101.711309,3.15887`);
+    console.log("HOME still tracking");
+  });
+  const [locationErr] = useLocation(isFocused, callback);
+
+  // const startWatchingLocation = async () => {
+  //   try {
+  //     const { granted } = await requestForegroundPermissionsAsync();
+  //     // How accurate the location is, timeInterval is checking the location every 1 second, distanceInterval checks every 10 meters
+  //     await watchPositionAsync(
+  //       {
+  //         accuracy: Accuracy.BestForNavigation,
+  //         // timeInterval: 100000,
+  //         distanceInterval: 100,
+  //       },
+  //       (location) => {
+  //         // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
+  //         setLongitudeLatitude(`101.711309,3.15887`);
+  //       }
+  //     );
+  //     if (!granted) {
+  //       throw new Error("Location permission not granted");
+  //     }
+  //   } catch (e) {
+  //     setLocationErr(e);
+  //   }
+  // };
 
   // const registerForPushNotificationsAsync = async () => {
   //   let token;
@@ -117,10 +127,10 @@ const HomeScreen = ({ navigation }) => {
     };
   }, []);
 
-  useEffect(() => {
-    // console.log("KEKW");
-    startWatchingLocation();
-  }, []);
+  // useEffect(() => {
+  //   // console.log("KEKW");
+  //   startWatchingLocation();
+  // }, []);
 
   const createNewTour = () => {
     toggleModal();
@@ -246,85 +256,15 @@ const styles = StyleSheet.create({
     flex: 1,
     // marginBottom: 70,
   },
-  searchContainer: {
-    marginTop: 30,
-    backgroundColor: "rgba(0,0,0,0)",
-    borderBottomColor: "transparent",
-    borderTopColor: "transparent",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
-    elevation: 6,
-  },
-  buttonOuterLayout: {
-    flex: 1,
-    backgroundColor: "blue",
-  },
-  buttonStyle: {
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "#CACCC9",
-  },
-  buttonStylePressed: {
-    // marginBottom: 10,
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "red",
-  },
+
   attractionsList: {
     // marginTop: 20,
     // paddingBottom: 70,
   },
-  attractionItem: {
-    height: 200,
-    // backgroundColor: "blue",
-    borderRadius: 15,
-    marginBottom: 10,
-  },
-  attractionImg: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 15,
-  },
-  attractionDetail: {
-    marginTop: -70,
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
-    height: 70,
-    padding: 10,
-    fontWeight: "bold",
-    // justifyContent:""
-  },
-  attractionTitle: {
-    fontWeight: "600",
-  },
-  floatingViewStyle: {
-    position: "absolute",
-    alignSelf: "center",
-    bottom: 10,
-    resizeMode: "contain",
-  },
-  floatingButtonStyle: {
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    backgroundColor: "#229186",
-  },
-  dotStyle: {
-    marginHorizontal: 5,
-    marginTop: 3,
-  },
+
   modalStyle: {
     backgroundColor: "#011627",
     borderRadius: 15,
-    // flex:1
   },
   modalTextStyle: {
     color: "#FFF",
@@ -360,4 +300,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default withNavigationFocus(HomeScreen);

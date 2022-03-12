@@ -57,6 +57,7 @@ const tourFlow = createStackNavigator({
   TourAddAttraction: TourAddAttractionScreen,
   ActiveTour: ActiveTourScreen,
   PastTour: PastTourScreen,
+  AttractionDetail: AttractionDetailScreen,
 });
 
 tourFlow.navigationOptions = () => {

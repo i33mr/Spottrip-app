@@ -26,14 +26,6 @@ const AttractionTile = ({
           uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         }}
       />
-      {/* <Image
-        style={styles.attractionImg}
-        // source={{
-        //   uri: `http://4007-95-186-116-119.ngrok.io/img/attractions/${imageCover}`,
-        // }}
-        {...{ uri }}
-        // source={require("../../assets/images/attractions/batu-caves1.jpg")}
-      /> */}
 
       <View style={styles.attractionDetail}>
         <View style={{ flexDirection: "row" }}>
