@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from "react-native";
 import { Button, Text, Input } from "react-native-elements";
 // import _mockLocation from "../_mockLocation"; // only for testing, don't include in deployment
 import * as Notifications from "expo-notifications";
@@ -18,7 +18,8 @@ import FlashMessage from "react-native-flash-message";
 import { withNavigationFocus } from "react-navigation";
 import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
 import useLocation from "../hooks/useLocation";
-
+import No_results_icon from "../../assets/images/no-results.svg";
+import Svg from "react-native-svg";
 // Notifications.setNotificationHandler({
 //   handleNotification: async () => ({
 //     shouldShowAlert: true,
@@ -46,6 +47,7 @@ const HomeScreen = ({ isFocused, navigation }) => {
     console.log("HOME still tracking");
   });
   const [locationErr] = useLocation(isFocused, callback);
+  const [refreshing, setRefreshing] = useState(false);
 
   // const startWatchingLocation = async () => {
   //   try {
@@ -144,7 +146,15 @@ const HomeScreen = ({ isFocused, navigation }) => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+  const onRefresh = () => {
+    setRefreshing(true);
+    // fetchTourInvites(tourId);
+    // fetchUserInvites();
+    // fetchToursAndSetNotifications();
+    // Attraction.fetchAttractions
 
+    setRefreshing(false);
+  };
   return (
     <View style={styles.container}>
       <Modal isVisible={isModalVisible} avoidKeyboard={true}>
@@ -223,10 +233,45 @@ const HomeScreen = ({ isFocused, navigation }) => {
                   );
                 }}
                 ListHeaderComponent={
-                  <HomeScreenHeader navigation={navigation} longitudeLatitude={longitudeLatitude} />
+                  <>
+                    <HomeScreenHeader
+                      navigation={navigation}
+                      longitudeLatitude={longitudeLatitude}
+                    />
+                    {Attraction.state.attractions.length ? null : (
+                      <View
+                        style={{
+                          // position: "absolute",
+                          // left: 0,
+                          // right: 0,
+                          // top: 0,
+                          // bottom: 0,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <No_results_icon height={300} />
+                        <Text
+                          style={{
+                            color: "#FF9F1C",
+                            fontSize: 16,
+                            fontWeight: "bold",
+                            textAlign: "center",
+                            margin: 10,
+                          }}
+                        >
+                          Sorry, that filter combination has no results near you. Please try
+                          different filters or use the search bar
+                        </Text>
+                        {/* <Text style={{ color: "#FF9F1C", fontSize: 16, fontWeight: "bold" }}></Text> */}
+                      </View>
+                    )}
+                  </>
                 }
                 ListFooterComponent={<View style={{ height: 70 }}></View>}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
               />
+
               <FloatingButton toggleModal={toggleModal} />
 
               {Attraction.state.isLoading ? (

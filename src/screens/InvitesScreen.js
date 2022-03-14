@@ -13,7 +13,7 @@ import { SearchBar, Button, Text, Icon, Input } from "react-native-elements";
 import { NavigationEvents } from "react-navigation";
 import { Context as InvitesContext } from "../context/InvitesContext";
 import { Image } from "react-native-expo-image-cache";
-
+import No_invites_icon from "../../assets/images/no-invites.svg";
 const InvitesScreen = () => {
   const { state, fetchUserInvites, respondToInvite } = useContext(InvitesContext);
   const [refreshing, setRefreshing] = useState(false);
@@ -44,54 +44,77 @@ const InvitesScreen = () => {
       <NavigationEvents onWillFocus={fetchUserInvites} />
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {invites.map((invite) => {
-          console.log(invite);
-          if (invite.status === "Pending") {
-            return (
-              <View style={styles.invite} key={invite._id}>
-                {/* <Image
+          // console.log(invite);
+          // if (invite.status === "Pending") {
+          return (
+            <View style={styles.invite} key={invite._id}>
+              {/* <Image
                   style={styles.invitePic}
                   source={require("../../assets/images/avatars/person1.jpeg")}
                 /> */}
-                <View style={{ width: 110, height: 110 }}>
-                  <Image
-                    style={styles.invitePic}
-                    // {...{ uri }}
-                    uri={`http://4007-95-186-116-119.ngrok.io/img/users/${invite.inviter.photo}`}
-                    preview={{
-                      uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-                    }}
+              <View style={{ width: 110, height: 110 }}>
+                <Image
+                  style={styles.invitePic}
+                  // {...{ uri }}
+                  uri={`http://4007-95-186-116-119.ngrok.io/img/users/${invite.inviter.photo}`}
+                  preview={{
+                    uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                  }}
+                />
+              </View>
+              <View style={styles.inviteDetail}>
+                <Text h4 style={[styles.inviteDetailText, { fontWeight: "bold" }]}>
+                  {invite.tour.title}
+                </Text>
+                <Text
+                  style={styles.inviteDetailText}
+                >{`By: ${invite.inviter.firstName} ${invite.inviter.lastName}`}</Text>
+                <View style={styles.buttonGroup}>
+                  <Button
+                    buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
+                    title="Deny"
+                    titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
+                    onPress={() =>
+                      respondToInviteAndRefresh(invite.tour._id, invite._id, "Rejected")
+                    }
+                  />
+                  <Button
+                    buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
+                    title="Accept"
+                    titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
+                    onPress={() =>
+                      respondToInviteAndRefresh(invite.tour._id, invite._id, "Accepted")
+                    }
                   />
                 </View>
-                <View style={styles.inviteDetail}>
-                  <Text h4 style={[styles.inviteDetailText, { fontWeight: "bold" }]}>
-                    {invite.tour.title}
-                  </Text>
-                  <Text
-                    style={styles.inviteDetailText}
-                  >{`By: ${invite.inviter.firstName} ${invite.inviter.lastName}`}</Text>
-                  <View style={styles.buttonGroup}>
-                    <Button
-                      buttonStyle={[styles.buttonStyle, { backgroundColor: "#E71D36" }]}
-                      title="Deny"
-                      titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-                      onPress={() =>
-                        respondToInviteAndRefresh(invite.tour._id, invite._id, "Rejected")
-                      }
-                    />
-                    <Button
-                      buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
-                      title="Accept"
-                      titleStyle={[styles.inviteDetailText, { fontWeight: "bold" }]}
-                      onPress={() =>
-                        respondToInviteAndRefresh(invite.tour._id, invite._id, "Accepted")
-                      }
-                    />
-                  </View>
-                </View>
               </View>
-            );
-          }
+            </View>
+          );
+          // }
         })}
+        {invites.length ? null : (
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: 30,
+            }}
+          >
+            <No_invites_icon height={300} />
+            <Text
+              style={{
+                color: "#229186",
+                fontSize: 24,
+                fontWeight: "bold",
+                textAlign: "center",
+                margin: 10,
+              }}
+            >
+              Your received invites will appear here!
+            </Text>
+            {/* <Text style={{ color: "#FF9F1C", fontSize: 16, fontWeight: "bold" }}></Text> */}
+          </View>
+        )}
       </ScrollView>
       {state.isLoading ? (
         <Modal animationType="none" transparent={true} visible={true}>

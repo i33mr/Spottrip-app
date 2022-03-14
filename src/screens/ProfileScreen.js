@@ -494,7 +494,7 @@ const ProfileScreen = ({ navigation }) => {
               />
               {/* </View> */}
 
-              {isLoading ? (
+              {isLoading || state.isLoading ? (
                 <RNModal animationType="none" transparent={true} visible={true}>
                   <View style={styles.loading}>
                     <ActivityIndicator size="large" color="#FF9F1C" />

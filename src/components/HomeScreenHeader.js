@@ -25,6 +25,8 @@ const HomeScreenHeader = ({ navigation, longitudeLatitude }) => {
 
   const filterList = [
     { name: "Your Preferences", hook: useState(true) },
+    { name: "Parks", hook: useState(false) },
+    { name: "Historical", hook: useState(false) },
     { name: "Mountains", hook: useState(false) },
     { name: "Beach", hook: useState(false) },
     { name: "Museum", hook: useState(false) },

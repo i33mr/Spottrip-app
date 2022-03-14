@@ -150,6 +150,7 @@ const TourCreateScreen = ({ navigation }) => {
           />
         </View>
       </Modal>
+
       <ScrollView
         keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}

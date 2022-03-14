@@ -129,12 +129,16 @@ const signIn = (dispatch) => {
 // eslint-disable-next-line arrow-body-style
 const signOut = (dispatch) => {
   return async () => {
-    await spottripApi.post("/v1/users/logout");
-    await Notifications.cancelAllScheduledNotificationsAsync();
-    await AsyncStorage.removeItem("token");
-    dispatch({ type: "signOut" });
+    dispatch({ type: "loading", payload: true });
+    try {
+      await spottripApi.post("/v1/users/logout");
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      await AsyncStorage.removeItem("token");
+      dispatch({ type: "signOut" });
+      dispatch({ type: "loading", payload: false });
 
-    navigate("Welcome");
+      navigate("Welcome");
+    } catch (error) {}
   };
 };
 

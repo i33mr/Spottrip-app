@@ -53,25 +53,15 @@ const ActiveTourScreen = ({ navigation }) => {
 
   const Notification = useContext(NotificationContext);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedAttraction, setSelectedAttraction] = useState("");
+  const [selectedAttraction, setSelectedAttraction] = useState(null);
   const [isNextModal, setNextModal] = useState(false);
   const [overstayTime, setOverstayTime] = useState("");
-  const [overstayTimeErr, setOverstayTimeErr] = useState("");
+  // const [overstayTimeErr, setOverstayTimeErr] = useState("");
 
   useEffect(async () => {
     getTour(tourId);
     // await Notification.resetLocalNotifications(state.tours);
   }, []);
-
-  // useEffect(() => {
-  //   if (state.tour !== null)
-  //     navigation.setParams({
-  //       toggleTourNotifications: toggleTourNotifications(
-  //         tourId,
-  //         state.tour._id.enableNotifications
-  //       ),
-  //     });
-  // }, [state.tour]);
 
   const finishTour = async () => {
     try {
@@ -90,16 +80,11 @@ const ActiveTourScreen = ({ navigation }) => {
 
   const toggleModal = () => {
     // setAttractionHooksList();
-    setSelectedAttraction("");
-    setOverstayTime("");
+    setSelectedAttraction(null);
+    // setOverstayTime("");
     setNextModal(false);
     clearOverstayMsg();
     setModalVisible(!isModalVisible);
-  };
-
-  const selectAttraction = (attractionId) => {
-    setSelectedAttraction(attractionId);
-    // console.log(attraction);
   };
 
   const nextModalView = () => {
@@ -109,7 +94,20 @@ const ActiveTourScreen = ({ navigation }) => {
 
   const sendOverstayRequest = async () => {
     try {
-      await resolveOverstay(tourId, selectedAttraction, overstayTime * 1);
+      let tempOverstayTime =
+        Date.now() -
+        moment(state.tour.startTime)
+          .add(Math.round(selectedAttraction.startsAt), "minutes")
+          .add(Math.round(selectedAttraction._id.time), "minutes")
+          .add(Math.round(selectedAttraction.extendedTime), "minutes")
+          .valueOf();
+
+      // convert ms to minutes
+      tempOverstayTime /= 60000;
+      setOverstayTime(tempOverstayTime / 60000);
+
+      console.log(tempOverstayTime);
+      await resolveOverstay(tourId, selectedAttraction._id._id, tempOverstayTime);
     } catch (error) {
       modalFlashMessageRef.current.showMessage({
         message: "You can't edit this tour",
@@ -120,32 +118,10 @@ const ActiveTourScreen = ({ navigation }) => {
       });
     }
   };
-  const overstaySendResponse = async (tourId, selectedAttraction, overstayTime, choice) => {
-    await resolveOverstayResponse(tourId, selectedAttraction, overstayTime, choice);
+  const overstaySendResponse = async (choice) => {
+    await resolveOverstayResponse(tourId, selectedAttraction._id._id, overstayTime, choice);
     toggleModal();
   };
-
-  // console.log(state.tour !== null);
-  // if (state.tour !== null)
-  //   ActiveTourScreen.navigationOptions = ({ navigation }) => {
-  //     return {
-  //       title: navigation.getParam("tourTitle"),
-  //       headerBackTitle: " ",
-  //       headerRight: () => (
-  //         <Button
-  //           icon={
-  //             <MaterialCommunityIcons
-  //               name="bell"
-  //               size={24}
-  //               color={state.tour._id.enableNotifications ? "#229186" : "#E71D36"}
-  //             />
-  //           }
-  //           type="clear"
-  //           onPress={() => toggleTourNotifications(state.tour._id.enableNotifications)}
-  //         />
-  //       ),
-  //     };
-  //   };
 
   return (
     <View style={styles.container}>
@@ -162,24 +138,34 @@ const ActiveTourScreen = ({ navigation }) => {
             type="clear"
             style={{ width: 50 }}
           />
-          {!isNextModal ? (
-            <Text style={styles.modalTextStyle}>Select the attraction you overstayed at</Text>
-          ) : null}
+          {state.tour != null && !state.overstayMsg ? (
+            <>
+              <Text style={styles.modalTextStyle}>
+                Select the attraction you overstayed at (Note that only attractions that you have
+                already visited will be shown here )
+              </Text>
 
-          {state.tour != null && !isNextModal
-            ? state.tour.attractions.map((attraction, index, attractions) => {
-                // excluding the last attraction
-
-                if (index < attractions.length - 1)
+              {state.tour.attractions.map((attraction, index, attractions) => {
+                if (
+                  index < attractions.length - 1 &&
+                  Date.now() >
+                    moment(state.tour.startTime)
+                      .add(Math.round(attraction.startsAt), "minutes")
+                      .add(Math.round(attraction._id.time), "minutes")
+                      .add(Math.round(attraction.extendedTime), "minutes")
+                      .valueOf()
+                )
                   return (
                     <TouchableOpacity
                       key={attraction._id._id}
                       style={
-                        attraction._id._id === selectedAttraction
-                          ? styles.selectedAttraction
+                        selectedAttraction !== null
+                          ? attraction._id._id === selectedAttraction._id._id
+                            ? styles.selectedAttraction
+                            : styles.unselectedAttraction
                           : styles.unselectedAttraction
                       }
-                      onPress={() => selectAttraction(attraction._id._id)}
+                      onPress={() => setSelectedAttraction(attraction)}
                     >
                       <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "bold" }}>
                         {attraction._id.name}
@@ -187,54 +173,20 @@ const ActiveTourScreen = ({ navigation }) => {
                     </TouchableOpacity>
                   );
                 else return null;
-              })
-            : null}
-          {!isNextModal ? (
-            <Button
-              title="Next"
-              buttonStyle={styles.modalNextButton}
-              titleStyle={{ color: "#FFF", fontWeight: "bold" }}
-              onPress={nextModalView}
-              type="solid"
-              disabled={selectedAttraction ? false : true}
-            />
-          ) : null}
-          {isNextModal && !state.overstayMsg ? (
-            <>
-              <Text
-                style={styles.modalTextStyle}
-              >{`Please enter how long did you overstay at this attraction (in minutes)`}</Text>
-              {overstayTimeErr ? (
-                <Text
-                  style={{
-                    color: "#E71D36",
-                    marginTop: 15,
-                    alignSelf: "center",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {overstayTimeErr}
-                </Text>
-              ) : null}
-              <Input
-                inputStyle={styles.modalInputStyle}
-                inputContainerStyle={{ borderBottomWidth: 0 }}
-                style={{ marginBottom: 0 }}
-                value={overstayTime}
-                onChangeText={setOverstayTime}
-                keyboardType="number-pad"
-                returnKeyType="done"
-              />
+              })}
+
               <Button
-                title="Next"
+                title="Submit"
                 buttonStyle={styles.modalNextButton}
                 titleStyle={{ color: "#FFF", fontWeight: "bold" }}
+                // onPress={nextModalView}
                 onPress={sendOverstayRequest}
                 type="solid"
-                // disabled={selectedAttraction ? false : true}
+                disabled={selectedAttraction ? false : true}
               />
             </>
           ) : null}
+
           {state.overstayMsg ? (
             <>
               {state.overstayMsg.method === "no change" ? (
@@ -246,7 +198,6 @@ const ActiveTourScreen = ({ navigation }) => {
                     titleStyle={{ color: "#FFF", fontWeight: "bold" }}
                     onPress={toggleModal}
                     type="solid"
-                    // disabled={selectedAttraction ? false : true}
                   />
                 </>
               ) : (
@@ -270,14 +221,7 @@ const ActiveTourScreen = ({ navigation }) => {
                           { borderColor: "#FF9F1C", borderWidth: 1 },
                         ]}
                         titleStyle={{ color: "#FF9F1C", fontWeight: "bold" }}
-                        onPress={() =>
-                          overstaySendResponse(
-                            tourId,
-                            selectedAttraction,
-                            overstayTime * 1,
-                            "Reduce"
-                          )
-                        }
+                        onPress={() => overstaySendResponse("Reduce")}
                         type="outline"
                       />
                     </View>
@@ -289,27 +233,12 @@ const ActiveTourScreen = ({ navigation }) => {
                           { borderColor: "#229186", borderWidth: 1 },
                         ]}
                         titleStyle={{ color: "#229186", fontWeight: "bold" }}
-                        onPress={() =>
-                          overstaySendResponse(
-                            tourId,
-                            selectedAttraction,
-                            overstayTime * 1,
-                            "Extend"
-                          )
-                        }
+                        onPress={() => overstaySendResponse("Extend")}
                         // onPress={toggleModal}
                         type="outline"
                       />
                     </View>
                   </View>
-                  {/* <Button
-                    title="Ok"
-                    buttonStyle={styles.modalNextButton}
-                    titleStyle={{ color: "#FFF", fontWeight: "bold" }}
-                    onPress={toggleModal}
-                    type="solid"
-                    // disabled={selectedAttraction ? false : true}
-                  /> */}
                 </>
               )}
             </>

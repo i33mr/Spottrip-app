@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
 
   sliderContainer: {
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").width * 0.6,
+    height: Dimensions.get("window").width * 0.8,
   },
   scrollDot: {
     flexDirection: "row",
