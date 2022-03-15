@@ -117,6 +117,7 @@ const TourTile = ({ navigation, tour }) => {
         ) : null}
 
         {tour.guests.map((guest, index) => {
+          // console.log("guest", guest);
           if (index < 2)
             return (
               <Text key={guest._id} style={{ color: "#FF9F1C", marginTop: 5, fontSize: 13 }}>

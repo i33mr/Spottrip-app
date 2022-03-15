@@ -103,8 +103,8 @@ const ActiveTourScreen = ({ navigation }) => {
           .valueOf();
 
       // convert ms to minutes
-      tempOverstayTime /= 60000;
       setOverstayTime(tempOverstayTime / 60000);
+      tempOverstayTime /= 60000;
 
       console.log(tempOverstayTime);
       await resolveOverstay(tourId, selectedAttraction._id._id, tempOverstayTime);
@@ -119,6 +119,7 @@ const ActiveTourScreen = ({ navigation }) => {
     }
   };
   const overstaySendResponse = async (choice) => {
+    console.log("overstaySendResponse", tourId, selectedAttraction._id._id, overstayTime, choice);
     await resolveOverstayResponse(tourId, selectedAttraction._id._id, overstayTime, choice);
     toggleModal();
   };

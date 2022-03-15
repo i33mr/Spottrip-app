@@ -18,8 +18,8 @@ const attractionReducer = (state, action) => {
 };
 
 const fetchAttractions = (dispatch) => async (filters, longitudeLatitude) => {
-  // const km = 10;
-  const km = 10000;
+  const km = 10;
+  // const km = 10000;
 
   dispatch({ type: "loading", payload: true });
 

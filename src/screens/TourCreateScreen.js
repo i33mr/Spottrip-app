@@ -115,7 +115,7 @@ const TourCreateScreen = ({ navigation }) => {
           />
 
           <Text style={styles.modalTextStyle}>
-            {`The following friends' will be considered in the tour generation (accepted invite): `}
+            {`The following friends' preferences will be considered in the tour generation (accepted invite): `}
           </Text>
 
           {invites.map((invite) => {
@@ -140,13 +140,14 @@ const TourCreateScreen = ({ navigation }) => {
             title="Continue"
             buttonStyle={[styles.modalButtonStyle]}
             titleStyle={{ fontSize: 22, fontWeight: "bold" }}
-            onPress={() =>
+            onPress={() => {
+              toggleModal();
               navigation.navigate("TourSettings", {
                 method: "generate",
                 _id: tourId,
                 tourTitle: tourTitle,
-              })
-            }
+              });
+            }}
           />
         </View>
       </Modal>
