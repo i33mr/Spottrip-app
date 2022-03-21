@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { View, StyleSheet, Dimensions, Modal as RNModal, ActivityIndicator } from "react-native";
 import { Text } from "react-native-elements";
-import { SliderBox } from "react-native-image-slider-box";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { EvilIcons } from "@expo/vector-icons";
@@ -97,7 +96,7 @@ const AttractionDetailScreen = ({ navigation, isFocused }) => {
                   <Image
                     style={styles.sliderContainer}
                     key={img}
-                    uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${img}`}
+                    uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${img}`}
                     // defaultSource={require("../../assets/default-loading-image.png")}
                     // preview={{
 

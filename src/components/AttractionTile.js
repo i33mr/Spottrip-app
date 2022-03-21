@@ -21,7 +21,7 @@ const AttractionTile = ({
       <Image
         style={styles.attractionImg}
         // {...{ uri }}
-        uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${imageCover}`}
+        uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${imageCover}`}
         preview={{
           uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         }}

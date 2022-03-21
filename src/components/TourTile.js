@@ -67,7 +67,7 @@ const TourTile = ({ navigation, tour }) => {
               <Image
                 style={styles.attractionImg}
                 key={attraction._id.imageCover}
-                uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${attraction._id.imageCover}`}
                 preview={{
                   uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                 }}
@@ -78,7 +78,7 @@ const TourTile = ({ navigation, tour }) => {
               <Image
                 style={styles.attractionImg}
                 key={attraction._id.imageCover}
-                uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${attraction._id.imageCover}`}
                 preview={{
                   uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                 }}

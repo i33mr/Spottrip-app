@@ -272,7 +272,7 @@ const HomeScreen = ({ isFocused, navigation }) => {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
               />
 
-              <FloatingButton toggleModal={toggleModal} />
+              <FloatingButton onPress={toggleModal} title="Create New Tour" />
 
               {Attraction.state.isLoading ? (
                 <View style={styles.loading}>

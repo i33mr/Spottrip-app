@@ -20,7 +20,7 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId, navigation }
       <Image
         style={styles.attractionImg}
         // {...{ uri }}
-        uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+        uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${attraction._id.imageCover}`}
         preview={{
           uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         }}
@@ -38,19 +38,25 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId, navigation }
               attraction._id.time % 60 != 0 ? `:${attraction._id.time % 60}` : ""
             } hours`}</Text>
           </View>
-
-          <Text style={styles.elementDetailText}>
-            {attraction.addBy !== "Auto generated"
-              ? `Added By: ${attraction.addBy}`
-              : attraction.addBy}
-          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={styles.elementDetailText}>
+              {attraction.addBy !== "Auto generated"
+                ? `Added By: ${attraction.addBy}`
+                : attraction.addBy}
+            </Text>
+          </View>
         </View>
       </View>
+      {/* <View>
+
+      </View> */}
       <TouchableOpacity
         style={{
           position: "absolute",
           bottom: 10,
           right: 10,
+          // width: 45,
+          // marginLeft: 300,
         }}
         onPress={() => removeAttraction(attraction._id._id)}
       >

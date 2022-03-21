@@ -15,7 +15,6 @@ import RNPickerSelect from "react-native-picker-select";
 import { FontAwesome } from "@expo/vector-icons";
 import { Accuracy, requestForegroundPermissionsAsync, watchPositionAsync } from "expo-location";
 // import { Picker } from "@react-native-picker/picker";
-import TimeField from "react-simple-timefield";
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 import { withNavigationFocus } from "react-navigation";
 import { Context as TourContext } from "../context/TourContext";
@@ -98,7 +97,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
   const setTourSettings = async () => {
     try {
       if (!startLocation || !finishLocation || !editPermission) {
-        setErr("Please fill all the fields");
+        setErr("Please fill in all the fields");
       } else {
         if (creationMethod === "manual") {
           const settingsObj = {
@@ -168,7 +167,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
         ) : null}
         {creationMethod === "generate" ? (
           <Input
-            label="Time To Spend (in hours)"
+            label={`Time To Spend (in hours) *`}
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
@@ -188,7 +187,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
 
         <RNPickerSelect onValueChange={setStartLocation} items={startLocations}>
           <Input
-            label="Start Location"
+            label="Start Location *"
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
@@ -203,7 +202,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
         </RNPickerSelect>
         <RNPickerSelect onValueChange={setFinishLocation} items={finishLocations}>
           <Input
-            label="Finish Location"
+            label="Finish Location *"
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
@@ -224,7 +223,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
           ]}
         >
           <Input
-            label="Edit permission"
+            label="Edit permission *"
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}

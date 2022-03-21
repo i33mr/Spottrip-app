@@ -20,7 +20,7 @@ import { Image } from "react-native-expo-image-cache";
 import AddAttractionTile from "../components/AddAttractionTile";
 import { NavigationEvents } from "react-navigation";
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
-
+import FloatingButton from "../components/FloatingButton";
 const TourAddAttractionScreen = ({ navigation }) => {
   const tourId = navigation.getParam("_id");
 
@@ -89,29 +89,47 @@ const TourAddAttractionScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <NavigationEvents onWillFocus={Attraction.clearSearchResults} />
-        {searchErr ? (
-          <Text style={{ paddingHorizontal: 20, color: "#FF0000", fontWeight: "bold" }}>
-            {searchErr}
-          </Text>
-        ) : null}
-        <Text style={styles.instructionsStyle}>Select Attractions to Add to the Tour </Text>
-        <SearchBar
-          containerStyle={styles.searchContainer}
-          inputContainerStyle={{ backgroundColor: "white" }}
-          leftIconContainerStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
-          inputStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
-          placeholder="Explore Attractions..."
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-          returnKeyType={"search"}
-          raised
-          onSubmitEditing={onSubmitSearch}
-          keyboardAppearance="dark"
-        />
+      {/* <ScrollView> */}
+      <NavigationEvents onWillFocus={Attraction.clearSearchResults} />
+      {searchErr ? (
+        <Text style={{ paddingHorizontal: 20, color: "#FF0000", fontWeight: "bold" }}>
+          {searchErr}
+        </Text>
+      ) : null}
+      <Text style={styles.instructionsStyle}>Select Attractions to Add to the Tour </Text>
+      <SearchBar
+        containerStyle={styles.searchContainer}
+        inputContainerStyle={{ backgroundColor: "white" }}
+        leftIconContainerStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
+        inputStyle={{ backgroundColor: "rgba(0,0,0,0)" }}
+        placeholder="Explore Attractions..."
+        value={searchTerm}
+        onChangeText={setSearchTerm}
+        returnKeyType={"search"}
+        raised
+        onSubmitEditing={onSubmitSearch}
+        keyboardAppearance="dark"
+      />
 
-        {Attraction.state.searchResults.map((attraction) => {
+      <FlatList
+        style={styles.attractionsList}
+        data={Attraction.state.searchResults}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item, index }) => {
+          return (
+            <AddAttractionTile
+              navigation={navigation}
+              key={item._id}
+              updateArray={updateAddArray}
+              selectedAttractions={selectedAttractions}
+              attraction={item}
+            />
+          );
+        }}
+        ListFooterComponent={<View style={{ height: 80 }}></View>}
+        // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      />
+      {/* {Attraction.state.searchResults.map((attraction) => {
           return (
             <AddAttractionTile
               navigation={navigation}
@@ -121,31 +139,38 @@ const TourAddAttractionScreen = ({ navigation }) => {
               attraction={attraction}
             />
           );
-        })}
+        })} */}
 
-        <Button
-          title="Add Attractions"
-          buttonStyle={[
-            {
-              backgroundColor: "#229186",
-              marginVertical: 10,
-              marginHorizontal: 90,
-              paddingHorizontal: 10,
-              paddingVertical: 10,
-              borderRadius: 50,
-            },
-          ]}
-          titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-          onPress={onAddAttractions}
-        />
-        {Attraction.state.isLoading || Tour.state.isLoading ? (
-          <Modal animationType="none" transparent={true} visible={true}>
-            <View style={styles.loading}>
-              <ActivityIndicator size="large" color="#FF9F1C" />
-            </View>
-          </Modal>
-        ) : null}
-      </ScrollView>
+      {/* <Button
+        title="Add Attractions"
+        buttonStyle={[
+          {
+            backgroundColor: "#229186",
+            marginVertical: 10,
+            marginHorizontal: 90,
+            paddingHorizontal: 10,
+            paddingVertical: 10,
+            borderRadius: 50,
+          },
+        ]}
+        titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
+        onPress={onAddAttractions}
+      /> */}
+
+      <FloatingButton
+        title="Add Attractions"
+        onPress={onAddAttractions}
+        // style={{ marginTop: 100 }}
+      />
+
+      {Attraction.state.isLoading || Tour.state.isLoading ? (
+        <Modal animationType="none" transparent={true} visible={true}>
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color="#FF9F1C" />
+          </View>
+        </Modal>
+      ) : null}
+      {/* </ScrollView> */}
       <FlashMessage position={"top"} ref={flashMessageRef} />
     </View>
 

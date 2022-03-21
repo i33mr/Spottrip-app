@@ -202,7 +202,7 @@ const ProfileScreen = ({ navigation }) => {
     // console.log(formData);
 
     try {
-      const response = await fetch("http://4007-95-186-116-119.ngrok.io/v1/users/me", {
+      const response = await fetch("http://43ff-5-156-48-97.ngrok.io/v1/users/me", {
         method: "PATCH",
         body: formData,
         headers: {
@@ -599,7 +599,7 @@ const ProfileScreen = ({ navigation }) => {
                 <Image
                   style={styles.profileImg}
                   // {...{ uri }}
-                  uri={`http://4007-95-186-116-119.ngrok.io/img/users/${user.photo}`}
+                  uri={`http://43ff-5-156-48-97.ngrok.io/img/users/${user.photo}`}
                   preview={{
                     uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                   }}

@@ -165,7 +165,7 @@ const PastTourScreen = ({ navigation }) => {
                   <Image
                     style={styles.friendImg}
                     // {...{ uri }}
-                    uri={`http://4007-95-186-116-119.ngrok.io/img/users/${guest.photo}`}
+                    uri={`http://43ff-5-156-48-97.ngrok.io/img/users/${guest.photo}`}
                     preview={{
                       uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                     }}
@@ -222,7 +222,7 @@ const PastTourScreen = ({ navigation }) => {
                   <Image
                     style={styles.attractionImg}
                     // {...{ uri }}
-                    uri={`http://4007-95-186-116-119.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                    uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${attraction._id.imageCover}`}
                     preview={{
                       uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                     }}

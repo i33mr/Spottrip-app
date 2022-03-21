@@ -56,7 +56,7 @@ const InvitesScreen = () => {
                 <Image
                   style={styles.invitePic}
                   // {...{ uri }}
-                  uri={`http://4007-95-186-116-119.ngrok.io/img/users/${invite.inviter.photo}`}
+                  uri={`http://43ff-5-156-48-97.ngrok.io/img/users/${invite.inviter.photo}`}
                   preview={{
                     uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                   }}

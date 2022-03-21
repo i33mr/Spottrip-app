@@ -10,14 +10,13 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@expo-google-fonts/archivo-black": "^0.2.0",
     "@react-native-async-storage/async-storage": "~1.15.0",
     "@react-native-community/datetimepicker": "3.5.2",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-native-picker/picker": "2.1.0",
     "@react-navigation/native": "^6.0.8",
     "axios": "^0.26.0",
-    "concat-stream": "^2.0.0",
+    "depcheck": "^1.4.3",
     "expo": "~43.0.2",
     "expo-auth-session": "~3.4.2",
     "expo-blur": "~10.0.3",
@@ -38,8 +37,6 @@
     "react-native-expo-image-cache": "^4.1.0",
     "react-native-flash-message": "^0.2.1",
     "react-native-gesture-handler": "~1.10.2",
-    "react-native-image-progress": "^1.2.0",
-    "react-native-image-slider-box": "^1.1.10",
     "react-native-modal": "^13.0.0",
     "react-native-open-maps": "^0.4.0",
     "react-native-picker-select": "^8.0.4",
@@ -52,8 +49,7 @@
     "react-native-web": "0.17.1",
     "react-navigation": "^4.4.4",
     "react-navigation-stack": "^2.10.4",
-    "react-navigation-tabs": "^2.11.1",
-    "react-simple-timefield": "^3.2.5"
+    "react-navigation-tabs": "^2.11.1"
   },
   "peerDependencies": {
     "expo-application": "~4.0.0"
