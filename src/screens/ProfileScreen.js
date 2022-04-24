@@ -182,8 +182,6 @@ const ProfileScreen = ({ navigation }) => {
       quality: 1,
     });
 
-    console.log(result);
-
     if (!result.cancelled) {
       updateImage(result.uri);
     }
@@ -202,7 +200,7 @@ const ProfileScreen = ({ navigation }) => {
     // console.log(formData);
 
     try {
-      const response = await fetch("http://43ff-5-156-48-97.ngrok.io/v1/users/me", {
+      const response = await fetch("http://b63d-64-137-228-4.ngrok.io/v1/users/me", {
         method: "PATCH",
         body: formData,
         headers: {
@@ -599,7 +597,7 @@ const ProfileScreen = ({ navigation }) => {
                 <Image
                   style={styles.profileImg}
                   // {...{ uri }}
-                  uri={`http://43ff-5-156-48-97.ngrok.io/img/users/${user.photo}`}
+                  uri={`http://b63d-64-137-228-4.ngrok.io/img/users/${user.photo}`}
                   preview={{
                     uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                   }}
@@ -664,7 +662,10 @@ const ProfileScreen = ({ navigation }) => {
             title="Logout"
             buttonStyle={styles.buttonStyle}
             titleStyle={{ fontSize: 20, fontWeight: "600", color: "#E71D36" }}
-            onPress={signOut}
+            onPress={() => {
+              setIsLoading(true);
+              signOut();
+            }}
             type="clear"
           />
         </ScrollView>

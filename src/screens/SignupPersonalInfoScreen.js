@@ -39,8 +39,8 @@ const SignupPersonalInfoScreen = ({ navigation }) => {
 
   const onDateChange = (event, selectedDate) => {
     // console.log(event);
-    const currentDate = selectedDate || date;
-    console.log(currentDate);
+
+    const currentDate = selectedDate || dateOfBirth;
     setDateOfBirth(currentDate);
     setChoseDOB(true);
     // console.log(moment().subtract(13, "years").toDate());
@@ -97,7 +97,7 @@ const SignupPersonalInfoScreen = ({ navigation }) => {
         <View style={styles.innerContainer}>
           {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
           <Input
-            label="First Name"
+            label="First Name*"
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
@@ -110,7 +110,7 @@ const SignupPersonalInfoScreen = ({ navigation }) => {
             }}
           />
           <Input
-            label="Last Name"
+            label="Last Name*"
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
@@ -136,7 +136,7 @@ const SignupPersonalInfoScreen = ({ navigation }) => {
               paddingHorizontal: 10,
             }}
           >
-            <Text style={{ marginLeft: 10, fontSize: 16, fontWeight: "bold" }}>Date of Birth</Text>
+            <Text style={{ marginLeft: 10, fontSize: 16, fontWeight: "bold" }}>Date of Birth*</Text>
             <DateTimePicker
               style={{ flex: 1 }}
               minimumDate={moment().subtract(150, "years").toDate()}
@@ -150,7 +150,7 @@ const SignupPersonalInfoScreen = ({ navigation }) => {
           </View>
 
           <Input
-            label="Email Address"
+            label="Email Address*"
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
@@ -165,7 +165,7 @@ const SignupPersonalInfoScreen = ({ navigation }) => {
             ref={emailRef}
           />
           <Input
-            label="Password"
+            label="Password*"
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
@@ -180,7 +180,7 @@ const SignupPersonalInfoScreen = ({ navigation }) => {
             ref={passwordRef}
           />
           <Input
-            label="Confirm Password"
+            label="Confirm Password*"
             inputStyle={styles.inputStyle}
             inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}

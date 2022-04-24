@@ -62,7 +62,6 @@ const TourListScreen = ({ navigation }) => {
       if (tour.title.toLowerCase().includes(formatQuery)) return tour;
     });
     setTours(tempTours);
-    console.log(formatQuery);
   };
 
   const createNewTour = () => {

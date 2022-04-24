@@ -169,7 +169,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
           <Input
             label={`Time To Spend (in hours) *`}
             inputStyle={styles.inputStyle}
-            inputContainerStyle={{ borderBottomWidth: 0 }}
+            // inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
             autoCorrect={false}
             autoCapitalize="sentences"
@@ -189,7 +189,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
           <Input
             label="Start Location *"
             inputStyle={styles.inputStyle}
-            inputContainerStyle={{ borderBottomWidth: 0 }}
+            // inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
             autoCorrect={false}
             autoCapitalize="sentences"
@@ -204,7 +204,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
           <Input
             label="Finish Location *"
             inputStyle={styles.inputStyle}
-            inputContainerStyle={{ borderBottomWidth: 0 }}
+            // inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
             autoCorrect={false}
             autoCapitalize="sentences"
@@ -225,7 +225,7 @@ const TourSettingsScreen = ({ isFocused, navigation }) => {
           <Input
             label="Edit permission *"
             inputStyle={styles.inputStyle}
-            inputContainerStyle={{ borderBottomWidth: 0 }}
+            // inputContainerStyle={{ borderBottomWidth: 0 }}
             labelStyle={styles.labelStyle}
             autoCorrect={false}
             autoCapitalize="sentences"

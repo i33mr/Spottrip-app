@@ -47,7 +47,6 @@ const SignInScreen = ({ navigation }) => {
       return;
     }
     token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log(token);
 
     if (Platform.OS === "android") {
       Notifications.setNotificationChannelAsync("default", {
@@ -129,7 +128,7 @@ const SignInScreen = ({ navigation }) => {
             <Text style={styles.errorMessage}>{state.errorMessage}</Text>
           ) : null}
           <Input
-            label="Email"
+            label="Email or Username*"
             value={emailOrUsername}
             onChangeText={setEmailOrUsername}
             inputStyle={styles.inputStyle}
@@ -142,7 +141,7 @@ const SignInScreen = ({ navigation }) => {
             }}
           />
           <Input
-            label="Password"
+            label="Password*"
             value={password}
             onChangeText={setPassword}
             inputStyle={styles.inputStyle}

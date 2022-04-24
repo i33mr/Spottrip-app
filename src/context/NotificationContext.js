@@ -18,7 +18,6 @@ const setNotificationToken = (dispatch) => (token) => {
 
 const addLocalNotification = (dispatch) => async (tour) => {
   try {
-    console.log(tour.title);
     await Notifications.scheduleNotificationAsync({
       content: {
         title: tour.title,
@@ -32,14 +31,14 @@ const addLocalNotification = (dispatch) => async (tour) => {
     await Promise.all(
       tour.attractions.map(async (attraction, index) => {
         if (index < tour.attractions.length - 1) {
-          console.log(
-            tour.title,
-            moment(Date.now())
-              .add(Math.round(attraction.startsAt), "minutes")
-              .add(Math.round(attraction._id.time), "minutes")
-              .subtract(5, "minutes")
-              .valueOf()
-          );
+          // console.log(
+          //   tour.title,
+          //   moment(Date.now())
+          //     .add(Math.round(attraction.startsAt), "minutes")
+          //     .add(Math.round(attraction._id.time), "minutes")
+          //     .subtract(5, "minutes")
+          //     .valueOf()
+          // );
           // if (
           //   moment(tour.startTime)
           //     .add(Math.round(attraction.startsAt), "minutes")
@@ -166,7 +165,6 @@ const resetLocalNotifications = (dispatch) => async (tours) => {
     //     });
     //   }
     // });
-    console.log("resetLocalNotifications");
   } catch (error) {
     console.log(error);
   }

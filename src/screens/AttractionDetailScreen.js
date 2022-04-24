@@ -96,7 +96,7 @@ const AttractionDetailScreen = ({ navigation, isFocused }) => {
                   <Image
                     style={styles.sliderContainer}
                     key={img}
-                    uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${img}`}
+                    uri={`http://b63d-64-137-228-4.ngrok.io/img/attractions/${img}`}
                     // defaultSource={require("../../assets/default-loading-image.png")}
                     // preview={{
 

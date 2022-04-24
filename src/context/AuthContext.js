@@ -56,13 +56,14 @@ const clearErrorMessage = (dispatch) => () => {
 
 // eslint-disable-next-line arrow-body-style
 const signup = (dispatch) => {
-  return async (user) => {
+  return async (user, expoPushToken) => {
     dispatch({ type: "loading", payload: true });
 
     // make api request to sign up with these email and password
     try {
       const response = await spottripApi.post("/v1/users/signup", {
         ...user,
+        expoPushToken,
       });
 
       await AsyncStorage.setItem("token", response.data.data.token);
@@ -95,7 +96,6 @@ const signUpPersonalInfo = (dispatch) => (userObj) => {
 // eslint-disable-next-line arrow-body-style
 const signIn = (dispatch) => {
   return async ({ emailOrUsername, password, expoPushToken }) => {
-    console.log("signin", expoPushToken);
     dispatch({ type: "loading", payload: true });
     // make api request to sign in with these email and password
     try {
@@ -114,7 +114,6 @@ const signIn = (dispatch) => {
       navigate("mainFlow");
     } catch (error) {
       // if sign in fail, reflect error message
-      console.log(error.response.data.message);
       // console.log(response);
 
       dispatch({

@@ -119,9 +119,22 @@ const ActiveTourScreen = ({ navigation }) => {
     }
   };
   const overstaySendResponse = async (choice) => {
-    console.log("overstaySendResponse", tourId, selectedAttraction._id._id, overstayTime, choice);
     await resolveOverstayResponse(tourId, selectedAttraction._id._id, overstayTime, choice);
     toggleModal();
+  };
+
+  const toggleNotifications = async () => {
+    try {
+      await toggleTourNotifications(tourId, state.tour.enableNotifications);
+    } catch (error) {
+      showMessage({
+        message: "Couldn't stop tour notifications",
+        description: error.message,
+        type: "danger",
+        duration: 4000,
+        floating: true,
+      });
+    }
   };
 
   return (
@@ -299,7 +312,7 @@ const ActiveTourScreen = ({ navigation }) => {
                   // marginLeft: -10,
                 }}
                 // containerStyle={{ marginBottom: 0, paddingBottom: 0 }}
-                onPress={() => toggleTourNotifications(tourId, state.tour.enableNotifications)}
+                onPress={() => toggleNotifications()}
               />
             </View>
             <View

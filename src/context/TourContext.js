@@ -36,7 +36,6 @@ const tourReducer = (state, action) => {
 };
 
 const fetchTours = (dispatch) => async () => {
-  console.log("Fetching tours");
   dispatch({ type: "loading", payload: true });
   try {
     const response = await spottripAPI.get(`/v1/tours`);
@@ -176,14 +175,11 @@ const toggleTourNotifications = (dispatch) => async (tourId, currentState) => {
   console.log("currentState", currentState);
   dispatch({ type: "loading", payload: true });
   try {
-    console.log("Here");
     const response = await spottripAPI.patch(`/v1/tours/${tourId}`, {
       enableNotifications: !currentState,
     });
 
-    // console.log("tour", response.data.data.tour);
     dispatch({ type: "set_tour", payload: response.data.data.tour });
-    // console.log();
 
     dispatch({ type: "loading", payload: false });
   } catch (error) {
@@ -203,8 +199,6 @@ const resolveOverstay = (dispatch) => async (tourId, attractionId, overStayedTim
       overStayedTime,
       attractionId,
     });
-
-    console.log(response.data.data.message);
 
     if (response.data.data.message.method === "no change") {
       dispatch({ type: "set_tour", payload: response.data.data.tour });
@@ -233,8 +227,6 @@ const resolveOverstayResponse =
         choice,
       });
 
-      console.log(response.data.data.message);
-
       // if (response.data.data.message.method === "no change") {
       dispatch({ type: "set_tour", payload: response.data.data.tour });
       // console.log(response.data.data.message);
@@ -258,8 +250,6 @@ const updateAttractionsOrder = (dispatch) => async (tourId, attractions) => {
     const response = await spottripAPI.patch(`/v1/tours/reorder-attractions/${tourId}`, {
       attractions,
     });
-
-    console.log(response.data.data.tour);
 
     // if (response.data.data.message.method === "no change") {
     dispatch({ type: "set_tour", payload: response.data.data.tour });

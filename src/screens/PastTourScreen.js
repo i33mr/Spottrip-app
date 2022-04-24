@@ -18,6 +18,7 @@ import { Context as TourContext } from "../context/TourContext";
 import { Image } from "react-native-expo-image-cache";
 import TourSummaryBar from "../components/TourSummaryBar";
 import spottripAPI from "../api/spottripAPI";
+import TourHostTile from "../components/TourHostTile";
 
 const PastTourScreen = ({ navigation }) => {
   const tourId = navigation.getParam("_id");
@@ -59,7 +60,6 @@ const PastTourScreen = ({ navigation }) => {
     try {
       const response = await spottripAPI.post(`/v1/tours`, { title: newTourTitle });
 
-      console.log(response.data.data.tour._id);
       await addAttractions(
         response.data.data.tour._id,
         attractions.map((att) => att._id)
@@ -142,7 +142,7 @@ const PastTourScreen = ({ navigation }) => {
           }}
         />
         <Button
-          title="Friends"
+          title="Group"
           icon={
             <MaterialIcons
               name={isShowFriends ? "arrow-drop-down" : "arrow-right"}
@@ -159,25 +159,28 @@ const PastTourScreen = ({ navigation }) => {
         />
         {isShowFriends ? (
           <>
+            <TourHostTile host={tour.host} />
             {tour.guests.map((guest) => {
-              <View style={styles.elementView}>
-                <View style={styles.friendImgContainer}>
-                  <Image
-                    style={styles.friendImg}
-                    // {...{ uri }}
-                    uri={`http://43ff-5-156-48-97.ngrok.io/img/users/${guest.photo}`}
-                    preview={{
-                      uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-                    }}
-                  />
+              return (
+                <View style={styles.elementView} key={guest._id}>
+                  <View style={styles.friendImgContainer}>
+                    <Image
+                      style={styles.friendImg}
+                      // {...{ uri }}
+                      uri={`http://b63d-64-137-228-4.ngrok.io/img/users/${guest.photo}`}
+                      preview={{
+                        uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                      }}
+                    />
+                  </View>
+                  <View>
+                    <Text h4 style={styles.elementDetailText}>
+                      {`${guest.firstName} ${guest.lastName}`}
+                    </Text>
+                    <Text style={styles.elementDetailText}>{guest.username}</Text>
+                  </View>
                 </View>
-                <View>
-                  <Text h4 style={styles.elementDetailText}>
-                    {`${guest.firstName} ${guest.lastName}`}
-                  </Text>
-                  <Text style={styles.elementDetailText}>{guest.username}</Text>
-                </View>
-              </View>;
+              );
             })}
           </>
         ) : null}
@@ -222,7 +225,7 @@ const PastTourScreen = ({ navigation }) => {
                   <Image
                     style={styles.attractionImg}
                     // {...{ uri }}
-                    uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+                    uri={`http://b63d-64-137-228-4.ngrok.io/img/attractions/${attraction._id.imageCover}`}
                     preview={{
                       uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                     }}

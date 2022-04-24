@@ -12,10 +12,6 @@ const inviteReducer = (state, action) => {
     case "add_invite":
       return { ...state, invites: [...state.invites, action.payload] };
     case "remove_invite": {
-      console.log(action.payload);
-      state.invites.forEach((element) => {
-        console.log(element._id);
-      });
       return { ...state, invites: state.invites.filter((invite) => invite._id !== action.payload) };
     }
     case "add_invite_message":
@@ -36,6 +32,7 @@ const fetchUserInvites = (dispatch) => async () => {
     dispatch({ type: "fetch_user_invites", payload: response.data.data.invites });
     dispatch({ type: "loading", payload: false });
   } catch (error) {
+    dispatch({ type: "loading", payload: false });
     console.log(error);
   }
 };
@@ -53,13 +50,14 @@ const respondToInvite = (dispatch) => async (tourId, inviteId, status) => {
 
     dispatch({ type: "loading", payload: false });
   } catch (error) {
+    dispatch({ type: "loading", payload: false });
+
     console.log(error);
   }
 };
 
 const fetchTourInvites = (dispatch) => async (tourId) => {
   dispatch({ type: "loading", payload: true });
-  // console.log(tourId);
   try {
     // const response = await spottripAPI.get(`/v1/invites`);
     const response = await spottripAPI.get(`/v1/tours/${tourId}/invites`);
@@ -67,12 +65,13 @@ const fetchTourInvites = (dispatch) => async (tourId) => {
     dispatch({ type: "loading", payload: false });
     // console.log(response.data.data.invites);
   } catch (error) {
+    dispatch({ type: "loading", payload: false });
+
     console.log(error);
   }
 };
 
 const sendTourInvite = (dispatch) => async (tourId, friendUsername) => {
-  console.log(tourId, friendUsername);
   try {
     const response = await spottripAPI.post(`v1/tours/${tourId}/invites`, {
       username: friendUsername,

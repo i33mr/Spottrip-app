@@ -1,5 +1,12 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from "react-native";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+  LogBox,
+} from "react-native";
 import { Button, Text, Input } from "react-native-elements";
 // import _mockLocation from "../_mockLocation"; // only for testing, don't include in deployment
 import * as Notifications from "expo-notifications";
@@ -29,8 +36,10 @@ import Svg from "react-native-svg";
 // });
 
 const HomeScreen = ({ isFocused, navigation }) => {
-  const Attraction = useContext(AttractionContext);
+  // console.disableYellowBox = true;
+  // LogBox.ignoreAllLogs(true);
 
+  const Attraction = useContext(AttractionContext);
   const [isModalVisible, setModalVisible] = useState(false);
   // const [locationErr, setLocationErr] = useState(null);
   const [longitudeLatitude, setLongitudeLatitude] = useState("");
@@ -261,7 +270,7 @@ const HomeScreen = ({ isFocused, navigation }) => {
                           }}
                         >
                           Sorry, that filter combination has no results near you. Please try
-                          different filters or use the search bar
+                          different filters or use the search bar.
                         </Text>
                         {/* <Text style={{ color: "#FF9F1C", fontSize: 16, fontWeight: "bold" }}></Text> */}
                       </View>

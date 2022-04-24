@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -7,8 +7,10 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
-  Modal,
+  Modal as RNModal,
 } from "react-native";
+import Modal from "react-native-modal";
+
 import { Button, Text, Input } from "react-native-elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -55,6 +57,14 @@ const TourOverviewScreen = ({ navigation, route }) => {
   const [attractions, setAttractions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const modalFlashMessageRef = useRef();
 
   useEffect(() => {
     // Invite.fetchTourInvites(tourId);
@@ -123,7 +133,7 @@ const TourOverviewScreen = ({ navigation, route }) => {
 
   const activateTour = async () => {
     if (attractions.length < 2) {
-      showMessage({
+      modalFlashMessageRef.current.showMessage({
         message: "Couldn't start tour",
         description: error.message,
         type: "danger",
@@ -134,8 +144,11 @@ const TourOverviewScreen = ({ navigation, route }) => {
     } else {
       try {
         await Tour.updateTourStatus(tourId, "Active");
+        toggleModal();
+
         // console.log(Tour.state.tours);
         await Notification.addLocalNotification(tour);
+
         const actionToDispatch = StackActions.reset({
           index: 1,
           // key: null,
@@ -152,10 +165,11 @@ const TourOverviewScreen = ({ navigation, route }) => {
             }),
           ],
         });
+
         navigation.dispatch(actionToDispatch);
         // navigation.navigate("ActiveTour", { _id: tourId });
       } catch (error) {
-        showMessage({
+        modalFlashMessageRef.current.showMessage({
           message: "Couldn't start tour",
           description: error.message,
           type: "danger",
@@ -232,6 +246,38 @@ const TourOverviewScreen = ({ navigation, route }) => {
   };
   return (
     <View style={styles.container}>
+      <Modal isVisible={isModalVisible} avoidKeyboard={true}>
+        <View style={styles.modalStyle}>
+          <Button
+            icon={<MaterialCommunityIcons name="close-thick" size={36} color="#FFF" />}
+            iconPosition="left"
+            onPress={toggleModal}
+            type="clear"
+            style={{ width: 50 }}
+          />
+          <Text style={styles.modalTextStyle}>
+            Please check the operating hours of the attractions before proceeding.
+          </Text>
+          <Button
+            title="Start Tour"
+            buttonStyle={[
+              styles.buttonStyle,
+              { backgroundColor: "#229186", marginHorizontal: 50, marginBottom: 20 },
+            ]}
+            titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
+            onPress={() => activateTour()}
+            // onPress={() => toggleModal()}
+          />
+          {Tour.state.isLoading || Invite.state.isLoading || isLoading ? (
+            <RNModal animationType="none" transparent={true} visible={true}>
+              <View style={styles.loading}>
+                <ActivityIndicator size="large" color="#FF9F1C" />
+              </View>
+            </RNModal>
+          ) : null}
+        </View>
+        <FlashMessage position={"top"} ref={modalFlashMessageRef} />
+      </Modal>
       {tour !== null ? (
         <DraggableFlatList
           data={attractions}
@@ -253,7 +299,8 @@ const TourOverviewScreen = ({ navigation, route }) => {
                     </View>
                     {reordering ? (
                       <TouchableOpacity
-                        onLongPress={drag}
+                        // onLongPress={drag}
+                        onPressIn={drag}
                         style={{
                           position: "absolute",
                           alignItems: "center",
@@ -268,7 +315,7 @@ const TourOverviewScreen = ({ navigation, route }) => {
                       >
                         <MaterialIcons
                           name="drag-indicator"
-                          size={45}
+                          size={60}
                           color="#011627"
                           style={{
                             shadowColor: "#000",
@@ -487,7 +534,8 @@ const TourOverviewScreen = ({ navigation, route }) => {
                     title="Start Tour"
                     buttonStyle={[styles.buttonStyle, { backgroundColor: "#229186" }]}
                     titleStyle={{ color: "#FDFFFC", fontWeight: "bold" }}
-                    onPress={() => activateTour()}
+                    // onPress={() => activateTour()}
+                    onPress={() => toggleModal()}
                   />
                 </View>
                 <View style={styles.buttonContainer}>
@@ -547,11 +595,11 @@ const TourOverviewScreen = ({ navigation, route }) => {
         </> */}
       {/* </ScrollView> */}
       {Tour.state.isLoading || Invite.state.isLoading || isLoading ? (
-        <Modal animationType="none" transparent={true} visible={true}>
+        <RNModal animationType="none" transparent={true} visible={true}>
           <View style={styles.loading}>
             <ActivityIndicator size="large" color="#FF9F1C" />
           </View>
-        </Modal>
+        </RNModal>
       ) : null}
       <FlashMessage position={"top"} />
     </View>
@@ -564,6 +612,18 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     flex: 1,
     paddingHorizontal: 10,
+  },
+  modalStyle: {
+    backgroundColor: "#011627",
+    borderRadius: 15,
+  },
+  modalTextStyle: {
+    color: "#FFF",
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: -10,
+    padding: 10,
   },
   addFriendButtonStyle: {
     paddingHorizontal: 20,

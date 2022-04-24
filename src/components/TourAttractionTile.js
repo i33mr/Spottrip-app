@@ -20,7 +20,7 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId, navigation }
       <Image
         style={styles.attractionImg}
         // {...{ uri }}
-        uri={`http://43ff-5-156-48-97.ngrok.io/img/attractions/${attraction._id.imageCover}`}
+        uri={`http://b63d-64-137-228-4.ngrok.io/img/attractions/${attraction._id.imageCover}`}
         preview={{
           uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         }}
@@ -63,7 +63,7 @@ const TourAttractionTile = ({ attraction, removeAttraction, tourId, navigation }
         <View
           style={{
             backgroundColor: "#E71D36",
-            padding: 5,
+            padding: 1,
             borderRadius: 50,
           }}
         >

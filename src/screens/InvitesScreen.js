@@ -56,7 +56,7 @@ const InvitesScreen = () => {
                 <Image
                   style={styles.invitePic}
                   // {...{ uri }}
-                  uri={`http://43ff-5-156-48-97.ngrok.io/img/users/${invite.inviter.photo}`}
+                  uri={`http://b63d-64-137-228-4.ngrok.io/img/users/${invite.inviter.photo}`}
                   preview={{
                     uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                   }}
@@ -110,7 +110,7 @@ const InvitesScreen = () => {
                 margin: 10,
               }}
             >
-              Your received invites will appear here!
+              Your received invites will be displayed here.
             </Text>
             {/* <Text style={{ color: "#FF9F1C", fontSize: 16, fontWeight: "bold" }}></Text> */}
           </View>

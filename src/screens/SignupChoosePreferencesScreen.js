@@ -78,7 +78,6 @@ const SignupChoosePreferencesScreen = ({ navigation }) => {
       setErrorMessage("Please select at least 3 categories");
     } else {
       setErrorMessage("");
-      console.log({ username, preferences: preferencesArray, ...state.userObj });
       signup({ username, preferences: preferencesArray, ...state.userObj });
     }
   };

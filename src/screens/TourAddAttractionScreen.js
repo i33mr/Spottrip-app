@@ -45,7 +45,6 @@ const TourAddAttractionScreen = ({ navigation }) => {
   };
 
   const onAddAttractions = async () => {
-    console.log(selectedAttractions);
     if (!selectedAttractions.length) {
       // setSearchErr("Please select at least one attraction to add, or go back to view your tour");
       flashMessageRef.current.showMessage({
@@ -82,7 +81,6 @@ const TourAddAttractionScreen = ({ navigation }) => {
     } else {
       setSelectedAttractions(selectedAttractions.filter((attId) => attId !== id));
     }
-    console.log(selectedAttractions);
   };
 
   const flashMessageRef = useRef();
