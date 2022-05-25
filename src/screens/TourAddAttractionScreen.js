@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useCallback, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -21,7 +21,10 @@ import AddAttractionTile from "../components/AddAttractionTile";
 import { NavigationEvents } from "react-navigation";
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 import FloatingButton from "../components/FloatingButton";
-const TourAddAttractionScreen = ({ navigation }) => {
+import useLocation from "../hooks/useLocation";
+import { withNavigationFocus } from "react-navigation";
+
+const TourAddAttractionScreen = ({ isFocused, navigation }) => {
   const tourId = navigation.getParam("_id");
 
   // const { state, searchAttractionsToAddToTour } = useContext(AttractionContext);
@@ -33,14 +36,32 @@ const TourAddAttractionScreen = ({ navigation }) => {
   const [selectedAttractions, setSelectedAttractions] = useState([]);
 
   // let selectedAttractions = [];
+
+  const [longitudeLatitude, setLongitudeLatitude] = useState("");
+
+  const callback = useCallback((location) => {
+    console.log("longitudeLatitude4", longitudeLatitude);
+
+    // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
+    setLongitudeLatitude(`101.711309,3.15887`);
+    console.log("TAAS still tracking");
+  });
+  const [err] = useLocation(isFocused, callback);
+
+  useEffect(() => {
+    console.log("longitudeLatitude33", longitudeLatitude);
+  }, [longitudeLatitude]);
+
   const onSubmitSearch = () => {
     if (searchTerm === "") {
       setSearchErr("Please enter search term");
     } else {
       setSearchErr("");
+      if (err) console.log(err);
+      console.log("longitudeLatitude2", longitudeLatitude);
       // navigation.navigate("SearchResults", { forwardedSearchTerm: searchTerm });
       // console.log(tourId);
-      Attraction.searchAttractionsToAddToTour(searchTerm, tourId);
+      Attraction.searchAttractionsToAddToTour(searchTerm, tourId, longitudeLatitude);
     }
   };
 
@@ -88,7 +109,7 @@ const TourAddAttractionScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* <ScrollView> */}
-      <NavigationEvents onWillFocus={Attraction.clearSearchResults} />
+      {/* <NavigationEvents onWillFocus={Attraction.clearSearchResults} /> */}
       {searchErr ? (
         <Text style={{ paddingHorizontal: 20, color: "#FF0000", fontWeight: "bold" }}>
           {searchErr}
@@ -222,4 +243,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TourAddAttractionScreen;
+export default withNavigationFocus(TourAddAttractionScreen);

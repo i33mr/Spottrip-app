@@ -21,7 +21,7 @@ const TourInvite = ({ invite, removeInvite, userId, navigation }) => {
         <Image
           style={styles.friendImg}
           // {...{ uri }}
-          uri={`http://b63d-64-137-228-4.ngrok.io/img/users/${invite.invitee.photo}`}
+          uri={`http://ef98-2001-f40-935-492-70cd-9dd8-7fa2-beea.ngrok.io/img/users/${invite.invitee.photo}`}
           preview={{
             uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
           }}
@@ -55,7 +55,7 @@ const TourInvite = ({ invite, removeInvite, userId, navigation }) => {
         <View
           style={{
             backgroundColor: "#E71D36",
-            padding: 5,
+            padding: 1,
             borderRadius: 50,
           }}
         >

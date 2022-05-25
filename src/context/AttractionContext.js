@@ -18,7 +18,7 @@ const attractionReducer = (state, action) => {
 };
 
 const fetchAttractions = (dispatch) => async (filters, longitudeLatitude) => {
-  const km = 10;
+  const km = 100;
   // const km = 10000;
 
   dispatch({ type: "loading", payload: true });
@@ -37,11 +37,11 @@ const fetchAttractions = (dispatch) => async (filters, longitudeLatitude) => {
   }
 };
 
-const searchAttractions = (dispatch) => async (searchTerm) => {
+const searchAttractions = (dispatch) => async (searchTerm, longitudeLatitude) => {
   dispatch({ type: "loading", payload: true });
   try {
     const response = await spottripAPI.get(
-      `/v1/attractions/search/${searchTerm}/center/101.711309,3.158870`
+      `/v1/attractions/search/${searchTerm}/center/${longitudeLatitude}`
     );
 
     dispatch({ type: "search_attractions", payload: response.data.data.data });
@@ -54,9 +54,10 @@ const searchAttractions = (dispatch) => async (searchTerm) => {
 const searchAttractionsToAddToTour =
   (dispatch) => async (searchTerm, tourId, longitudeLatitude) => {
     dispatch({ type: "loading", payload: true });
+    console.log("longitudeLatitude", longitudeLatitude);
     try {
       const response = await spottripAPI.get(
-        `/v1/attractions/search/${searchTerm}/center/101.711309,3.158870`
+        `/v1/attractions/search/${searchTerm}/center/${longitudeLatitude}`
       );
 
       // Filter search results to remove attractions that are already in the tour

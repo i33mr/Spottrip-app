@@ -36,8 +36,7 @@ import Svg from "react-native-svg";
 // });
 
 const HomeScreen = ({ isFocused, navigation }) => {
-  // console.disableYellowBox = true;
-  // LogBox.ignoreAllLogs(true);
+  LogBox.ignoreAllLogs(true);
 
   const Attraction = useContext(AttractionContext);
   const [isModalVisible, setModalVisible] = useState(false);

@@ -16,7 +16,7 @@ const HomeScreenHeader = ({ navigation, longitudeLatitude }) => {
       setSearchErr("Please enter search term");
     } else {
       setSearchErr("");
-      navigation.navigate("SearchResults", { forwardedSearchTerm: searchTerm });
+      navigation.navigate("SearchResults", { forwardedSearchTerm: searchTerm, longitudeLatitude });
       setSearchTerm("");
     }
   };

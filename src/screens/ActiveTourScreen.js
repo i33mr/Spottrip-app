@@ -282,6 +282,7 @@ const ActiveTourScreen = ({ navigation }) => {
                   marginLeft: -10,
                 }}
                 containerStyle={{ marginBottom: 0, paddingBottom: 0 }}
+                onPress={() => navigation.navigate("TourList")}
               />
               <Text
                 style={{

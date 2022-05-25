@@ -8,6 +8,7 @@ import { Context as AttractionContext } from "../context/AttractionContext";
 
 const SearchResultsScreen = ({ navigation }) => {
   const forwardedSearchTerm = navigation.getParam("forwardedSearchTerm");
+  const longitudeLatitude = navigation.getParam("longitudeLatitude");
   const { state, searchAttractions } = useContext(AttractionContext);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,7 +27,7 @@ const SearchResultsScreen = ({ navigation }) => {
   // console.log(state.searchResults);
   useEffect(() => {
     // console.log(forwardedSearchTerm);
-    searchAttractions(forwardedSearchTerm);
+    searchAttractions(forwardedSearchTerm, longitudeLatitude);
   }, []);
 
   return (

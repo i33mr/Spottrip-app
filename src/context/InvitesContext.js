@@ -86,9 +86,13 @@ const sendTourInvite = (dispatch) => async (tourId, friendUsername) => {
     });
   } catch (error) {
     // console.log(error.response.data.message);
+    let errMsg = error.response.data.message;
+    if (error.response.data.error.statusCode === 500) {
+      errMsg = "An invite has been sent to this user already";
+    }
     dispatch({
       type: "add_invite_message",
-      payload: { msg: error.response.data.message, code: error.response.data.error.statusCode },
+      payload: { msg: errMsg, code: error.response.data.error.statusCode },
     });
     dispatch({ type: "loading", payload: false });
   }

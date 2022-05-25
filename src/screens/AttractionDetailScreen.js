@@ -23,6 +23,8 @@ const AttractionDetailScreen = ({ navigation, isFocused }) => {
   let images;
 
   const callback = useCallback((location) => {
+    console.log("longitudeLatitude5", longitudeLatitude);
+
     // setLongitudeLatitude(`${location.coords.longitude},${location.coords.latitude}`);
     setLongitudeLatitude(`101.711309,3.15887`);
     console.log("AD still tracking");
@@ -96,7 +98,7 @@ const AttractionDetailScreen = ({ navigation, isFocused }) => {
                   <Image
                     style={styles.sliderContainer}
                     key={img}
-                    uri={`http://b63d-64-137-228-4.ngrok.io/img/attractions/${img}`}
+                    uri={`http://ef98-2001-f40-935-492-70cd-9dd8-7fa2-beea.ngrok.io/img/attractions/${img}`}
                     // defaultSource={require("../../assets/default-loading-image.png")}
                     // preview={{
 

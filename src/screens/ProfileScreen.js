@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -33,6 +33,7 @@ import Malls_icon from "../../assets/images/Malls.svg";
 import Cultural_icon from "../../assets/images/Cultural.svg";
 import Unique_icon from "../../assets/images/Unique.svg";
 // import { Context as AuthContext } from "../context/AuthContext";
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 const ProfileScreen = ({ navigation }) => {
   const { state, signOut, setToken } = useContext(AuthContext);
@@ -49,6 +50,8 @@ const ProfileScreen = ({ navigation }) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+
+  const modalFlashMessageRef = useRef();
 
   const filterList = [
     {
@@ -200,15 +203,18 @@ const ProfileScreen = ({ navigation }) => {
     // console.log(formData);
 
     try {
-      const response = await fetch("http://b63d-64-137-228-4.ngrok.io/v1/users/me", {
-        method: "PATCH",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${state.token}`,
-          Access: "application/json",
-          "Content-Type": "multipart/form-data;",
-        },
-      });
+      const response = await fetch(
+        "http://ef98-2001-f40-935-492-70cd-9dd8-7fa2-beea.ngrok.io/v1/users/me",
+        {
+          method: "PATCH",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${state.token}`,
+            Access: "application/json",
+            "Content-Type": "multipart/form-data;",
+          },
+        }
+      );
 
       if (!response.ok) {
         const message = `An error has occurred: ${response.status}`;
@@ -265,6 +271,7 @@ const ProfileScreen = ({ navigation }) => {
     } catch (error) {
       console.log(error);
       setShowPasswordField(false);
+      setIsLoading(false);
     }
   };
 
@@ -287,6 +294,15 @@ const ProfileScreen = ({ navigation }) => {
     } catch (error) {
       console.log(error);
       setShowPasswordField(false);
+      setIsLoading(false);
+
+      modalFlashMessageRef.current.showMessage({
+        message: "You need to select at least one category",
+        type: "danger",
+        duration: 4000,
+        floating: true,
+        hideOnPress: true,
+      });
     }
   };
 
@@ -302,6 +318,13 @@ const ProfileScreen = ({ navigation }) => {
     // setShowPasswordField(false);
 
     setModalPreferencesVisible(!isModalPreferencesVisible);
+    filterList.forEach((element) => {
+      if (user.preferences.includes(element.name)) {
+        element.hook[1](true);
+      } else {
+        element.hook[1](false);
+      }
+    });
   };
   const onDateChange = (event, selectedDate) => {
     // console.log(event);
@@ -581,6 +604,7 @@ const ProfileScreen = ({ navigation }) => {
                 </RNModal>
               ) : null}
             </ScrollView>
+            <FlashMessage position={"top"} ref={modalFlashMessageRef} />
           </Modal>
         </>
       ) : null}
@@ -597,7 +621,7 @@ const ProfileScreen = ({ navigation }) => {
                 <Image
                   style={styles.profileImg}
                   // {...{ uri }}
-                  uri={`http://b63d-64-137-228-4.ngrok.io/img/users/${user.photo}`}
+                  uri={`http://ef98-2001-f40-935-492-70cd-9dd8-7fa2-beea.ngrok.io/img/users/${user.photo}`}
                   preview={{
                     uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                   }}
